@@ -332,6 +332,30 @@ void AirborneRadarQC::thresholdData(const QString& fldname, const QString& thres
 }
 
 /****************************************************************************************
+ ** thresholdDataOR : Threshold a field on another field above or below the given value
+ ****************************************************************************************/
+void AirborneRadarQC::thresholdDataOR(const QString& fldname, 
+	const QString& threshfield1, const QString& direction1, const float& threshold1,
+		const QString& threshfield2, const QString& direction2, const float& threshold2,	
+			const QString& threshfield3, const QString& direction3, const float& threshold3)
+{
+	// for (int i=0; i < swpfile.getNumRays(); i++) {
+	// 	// Get the data
+	// 	float* threshdata = swpfile.getRayData(i, threshfield);
+	// 	float* data = swpfile.getRayData(i, fldname);
+	
+	// 	for (int n=0; n < swpfile.getNumGates(); n++) {
+	// 		if (direction == "below") {
+	// 			if (threshdata[n] <= threshold) data[n] = -32768.0;
+	// 		} else {
+	// 			if (threshdata[n] >= threshold) data[n] = -32768.0;
+	// 		}
+	// 	}
+	// }
+}
+
+
+/****************************************************************************************
  ** despeckle : Flag isolated gates less than speckle along a ray
  ****************************************************************************************/
 void AirborneRadarQC::despeckleRadial(const QString& fldname, const int& speckle)
