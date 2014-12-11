@@ -16,6 +16,7 @@
 #include <QFile>
 #include <QTextStream>
 
+
 AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& suffix)
 {
 	
@@ -96,7 +97,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				//despeckleAzimuthal("ZBK", 2);
 
 				// syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)
-            			histogram("VE", -20, 20, 1,f);
+            		histogram("VE", -20, 20, 1,f);
 
 				// Write it back out
 			    	//saveQCedSwp(f);
@@ -340,52 +341,57 @@ void AirborneRadarQC::thresholdDataOR(const QString& fldname,
 	const QString& threshfield2, const QString& direction2, const float& threshold2,	
 	const QString& threshfield3, const QString& direction3, const float& threshold3)
 {
-	for (int i=0; i < swpfile.getNumRays(); i++) {
+	int rays = swpfile.getNumRays();
+	int gates = swpfile.getNumGates();
+
+	for (int i=0; i < rays; i++) {
 		// Get the data
 		float* threshdata1 = swpfile.getRayData(i, threshfield1);
 		float* threshdata2 = swpfile.getRayData(i, threshfield2);
 		float* threshdata3 = swpfile.getRayData(i, threshfield3);
 		float* data = swpfile.getRayData(i, fldname);
-		bool* mask
 
-		for (int n=0; n < swpfile.getNumGates(); n++) {
-			if (direction1 == "below")
-			{
-				if (threshdata1[n] <= threshold1) data[n] = -32768.0;
+		// Creates a mask using thresholding
+		for (int n=0; n < gates; n++) {
+
+			int mask = 0;
+
+			// field 1
+			if (direction1 == "below"){
+				if (threshdata1[n] <= threshold1[0]) mask += 1;
 			} 
-			else if (direction1 == "above")
-			{
-				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			else if (direction1 == "above")	{
+				if (threshdata1[n] >= threshold1[0]) mask += 1;
 			}
-			else
-			{
+			else if (direction1 == "outside"){
+				if (threshdata1[n] <= threshold1[0] && threshdata1[n] >= threshold1[1]) mask += 1;	
+			}
 
-			}
-			if (direction2 == "below")
-			{
-				if (threshdata[n] <= threshold) data[n] = -32768.0;
+			// field 2
+			if (direction2 == "below"){
+				if (threshdata2[n] <= threshold2[0]) mask += 1;
 			} 
-			else if (direction2 == "above")
-			{
-				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			else if (direction2 == "above")	{
+				if (threshdata2[n] >= threshold2[0]) mask += 1;
 			}
-			else
-			{
+			else if (direction1 == "outside"){
+				if (threshdata2[n] <= threshold2[0] && threshdata2[n] >= threshold2[1]) mask += 1;
+			}
 
-			}
-			if (direction3 == "below")
-			{
-				if (threshdata[n] <= threshold) data[n] = -32768.0;
+			// field 3
+			if (direction3 == "below"){
+				if (threshdata3[n] <= threshold3[0]) mask += 1;
 			} 
-			else if (direction3 == "above")
-			{
-				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			else if (direction3 == "above"){
+				if (threshdata3[n] >= threshold3[0]) mask += 1;
 			}
-			else
-			{
+			else if (direction1 == "outside"){
+				if (threshdata3[n] <= threshold3[0] && threshdata3[n] >= threshold3[1]) mask += 1;
+			}
 
-			}
+			if (mask !=0) data[n] = -32768.0;
 		}
+
 	}
 }
 
