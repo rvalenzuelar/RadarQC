@@ -332,26 +332,61 @@ void AirborneRadarQC::thresholdData(const QString& fldname, const QString& thres
 }
 
 /****************************************************************************************
- ** thresholdDataOR : Threshold a field on another field above or below the given value
+ ** thresholdDataOR : Threshold a field based on other fields using an OR (union)
+ 			operation (RV)
  ****************************************************************************************/
 void AirborneRadarQC::thresholdDataOR(const QString& fldname, 
 	const QString& threshfield1, const QString& direction1, const float& threshold1,
-		const QString& threshfield2, const QString& direction2, const float& threshold2,	
-			const QString& threshfield3, const QString& direction3, const float& threshold3)
+	const QString& threshfield2, const QString& direction2, const float& threshold2,	
+	const QString& threshfield3, const QString& direction3, const float& threshold3)
 {
-	// for (int i=0; i < swpfile.getNumRays(); i++) {
-	// 	// Get the data
-	// 	float* threshdata = swpfile.getRayData(i, threshfield);
-	// 	float* data = swpfile.getRayData(i, fldname);
-	
-	// 	for (int n=0; n < swpfile.getNumGates(); n++) {
-	// 		if (direction == "below") {
-	// 			if (threshdata[n] <= threshold) data[n] = -32768.0;
-	// 		} else {
-	// 			if (threshdata[n] >= threshold) data[n] = -32768.0;
-	// 		}
-	// 	}
-	// }
+	for (int i=0; i < swpfile.getNumRays(); i++) {
+		// Get the data
+		float* threshdata1 = swpfile.getRayData(i, threshfield1);
+		float* threshdata2 = swpfile.getRayData(i, threshfield2);
+		float* threshdata3 = swpfile.getRayData(i, threshfield3);
+		float* data = swpfile.getRayData(i, fldname);
+		bool* mask
+
+		for (int n=0; n < swpfile.getNumGates(); n++) {
+			if (direction1 == "below")
+			{
+				if (threshdata1[n] <= threshold1) data[n] = -32768.0;
+			} 
+			else if (direction1 == "above")
+			{
+				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			}
+			else
+			{
+
+			}
+			if (direction2 == "below")
+			{
+				if (threshdata[n] <= threshold) data[n] = -32768.0;
+			} 
+			else if (direction2 == "above")
+			{
+				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			}
+			else
+			{
+
+			}
+			if (direction3 == "below")
+			{
+				if (threshdata[n] <= threshold) data[n] = -32768.0;
+			} 
+			else if (direction3 == "above")
+			{
+				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			}
+			else
+			{
+
+			}
+		}
+	}
 }
 
 
