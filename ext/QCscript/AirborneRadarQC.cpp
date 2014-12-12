@@ -9,13 +9,15 @@
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
 #include "DEM.h"
-#include <GeographicLib/TransverseMercatorExact.hpp>
+#include <GeographicLib/TransverseMercator.hpp>
 #include <iterator>
 #include <fstream>
 #include <iostream>
 #include <QFile>
 #include <QTextStream>
 
+using namespace std;
+using namespace GeographicLib;
 
 AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& suffix)
 {
@@ -3306,7 +3308,9 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 {
 	bool demFlag = false;
 	DEM asterDEM;
-	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	//GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+
 	if (!demFileName.isEmpty()) {
 	        if(!asterDEM.readDem(demFileName.toLatin1().data())) {
 	            printf("Error reading DEM file! Using flat ground instead\n");
@@ -3391,6 +3395,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				double radarX, radarY;
 				tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
 
+
 				double absLat, absLon;
 				tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
 
@@ -3434,9 +3439,11 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth,
                                       const QString& demFileName)
 {
-    bool demFlag = false;
-    DEM asterDEM;
-    GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+  bool demFlag = false;
+  DEM asterDEM;
+  //GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM();
+
 	if (!demFileName.isEmpty()) {
         if(!asterDEM.readDem(demFileName.toLatin1().data())) {
             printf("Error reading DEM file! Using flat ground instead\n");

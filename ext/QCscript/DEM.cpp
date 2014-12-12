@@ -14,7 +14,7 @@
 #include "cpl_serv.h"
 #include <stdio.h>
 #include <string.h>
-#include <GeographicLib/TransverseMercatorExact.hpp>
+#include <GeographicLib/TransverseMercator.hpp>
 
 DEM::DEM()
 {
@@ -37,16 +37,16 @@ int DEM::getElevation(const double& lat, const double& lon)
     double latmin = (lat - refLat)*60;
     double latsec = (latmin - int(latmin))*60;
     int yIndex = int(latmin)*60+int(latsec);
-    
+
 	//int xIndex = (int)(pointX - refX)/dx;
 	//int yIndex = (int)(pointY - refY)/dy;
 	int pixel = yIndex*xsize + xIndex;
 	if ((pixel >= 0) and (pixel < npixels)) {
 		return elevations[pixel];
-	} 
-	
+	}
+
 	return -999;
-	
+
 }
 
 int DEM::getMaxElevation()
@@ -55,11 +55,11 @@ int DEM::getMaxElevation()
 	for (int n = 0; n < npixels; ++n) {
 		if (elevations[n] > max) max = elevations[n];
 	}
-	
+
 	return max;
 }
 
-bool DEM::readDem(char* fname) 
+bool DEM::readDem(char* fname)
 {
 
     demFilename = fname;
@@ -71,28 +71,28 @@ bool DEM::readDem(char* fname)
     GTIFDefn	defn;
 
     /*
-     * Open the file, read the GeoTIFF information, and print some info to stdout. 
+     * Open the file, read the GeoTIFF information, and print some info to stdout.
      */
-	
+
     tif=XTIFFOpen(fname,"r");
     if (!tif) goto failure;
-    
+
     gtif = GTIFNew(tif);
     if (!gtif)
 	{
 		fprintf(stderr,"failed in GTIFNew\n");
 		goto failure;
 	}
-	
+
     /* dump the GeoTIFF metadata to std out */
-	
+
     GTIFPrint(gtif,0,0);
-	
+
     if( GTIFGetDefn( gtif, &defn ) )
 	{
 		printf( "\n" );
 		GTIFPrintDefn( &defn, stdout );
-		
+
 		if( proj4_print_flag )
 		{
 			printf( "\n" );
@@ -105,7 +105,7 @@ bool DEM::readDem(char* fname)
 		TIFFGetField( tif, TIFFTAG_GEOPIXELSCALE, &count, &data);
 		TIFFGetField( tif, TIFFTAG_ORIENTATION, &orient );
 		printf("Orientation:%d\n",orient);
-		
+
 		GTIFPrintCorners( gtif, &defn, stdout, xsize, ysize, inv_flag, dec_flag );
 		double originx = 0.0;
 		double originy = ysize;
@@ -124,17 +124,17 @@ bool DEM::readDem(char* fname)
 			{
 				uint32 row = ysize - 1 - y;
 				TIFFReadScanline(tif, buf, row, sample);
-				for(unsigned int x = 0; x < xsize; x++ ) 
+				for(unsigned int x = 0; x < xsize; x++ )
 				{
 					elevations[y*xsize + x] = buf[x];
 				}
-			}	    
+			}
 			_TIFFfree(buf);
 		}
 		_TIFFfree(elevations);
-		
+
 	}
-    
+
 
     GTIFFree(gtif);
     if( st_test_flag )
@@ -143,7 +143,7 @@ bool DEM::readDem(char* fname)
         XTIFFClose(tif);
     GTIFDeaccessCSV();
     return true;
-	
+
 failure:
     fprintf(stderr,"failure in listgeo\n");
     if (tif) XTIFFClose(tif);
@@ -165,7 +165,7 @@ bool DEM::dumpAscii(int skip)
 	out = fopen(outfile, "w");
 	printf("Writing to %s\n\n",outfile);
 	free(outfile);
-	
+
 	const char* project = "ASTERGDEM";
 	const char* yymmdd = "090629";
 	int lat = (int)refLat*1000;
@@ -178,7 +178,7 @@ bool DEM::dumpAscii(int skip)
 	int dythin = dx * skip;
 	fprintf(out, "%12s%12s%7d%7d%7d%7d%7d%7d%7d%7d\n",
 			project, yymmdd, lat, lon, xmin, ymin, nx, ny, dxthin,dythin);
-	
+
 	for( y = 0; y < ysize; y+=skip ) {
 		for( x = 0; x < xsize; x+=skip ) {
 			fprintf(out, "%6d", elevations[y*xsize + x]);
@@ -197,24 +197,24 @@ int DEM::GTIFReportACorner( GTIF *gtif, GTIFDefn *defn, FILE * fp_out,
 
 {
     double	x_saved, y_saved;
-	
+
     /* Try to transform the coordinate into PCS space */
     if( !GTIFImageToPCS( gtif, &x, &y ) )
         return FALSE;
-    
+
     x_saved = x;
     y_saved = y;
-	
+
     fprintf( fp_out, "%-13s ", corner_name );
-	
+
     if( defn->Model == ModelTypeGeographic )
     {
-		if (dec_flag) 
+		if (dec_flag)
 		{
 			fprintf( fp_out, "(%.7f,", x );
 			fprintf( fp_out, "%.7f)\n", y );
-		} 
-		else 
+		}
+		else
 		{
 			fprintf( fp_out, "(%s,", GTIFDecToDMS( x, "Long", 2 ) );
 			fprintf( fp_out, "%s)\n", GTIFDecToDMS( y, "Lat", 2 ) );
@@ -223,29 +223,29 @@ int DEM::GTIFReportACorner( GTIF *gtif, GTIFDefn *defn, FILE * fp_out,
     else
     {
         fprintf( fp_out, "(%12.3f,%12.3f)", x, y );
-		
+
         if( GTIFProj4ToLatLong( defn, 1, &x, &y ) )
         {
-			if (dec_flag) 
+			if (dec_flag)
 			{
                 fprintf( fp_out, "  (%.7f,", x );
                 fprintf( fp_out, "%.7f)", y );
-			} 
-			else 
+			}
+			else
 			{
 				fprintf( fp_out, "  (%s,", GTIFDecToDMS( x, "Long", 2 ) );
 				fprintf( fp_out, "%s)", GTIFDecToDMS( y, "Lat", 2 ) );
 			}
         }
-		
+
         fprintf( fp_out, "\n" );
     }
-	
+
     if( inv_flag && GTIFPCSToImage( gtif, &x_saved, &y_saved ) )
     {
         fprintf( fp_out, "      inverse (%11.3f,%11.3f)\n", x_saved, y_saved );
     }
-    
+
     return TRUE;
 }
 
@@ -260,8 +260,8 @@ void DEM::GTIFPrintCorners( GTIF *gtif, GTIFDefn *defn, FILE * fp_out,
         printf( " ... unable to transform points between pixel/line and PCS space\n" );
         return;
     }
-	
-    GTIFReportACorner( gtif, defn, fp_out, "Lower Left", 0.0, ysize, 
+
+    GTIFReportACorner( gtif, defn, fp_out, "Lower Left", 0.0, ysize,
 					  inv_flag, dec_flag );
     GTIFReportACorner( gtif, defn, fp_out, "Upper Right", xsize, 0.0,
 					  inv_flag, dec_flag );

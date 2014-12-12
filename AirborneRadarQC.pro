@@ -6,7 +6,7 @@ TEMPLATE += app
 QT += widgets
 TARGET = radarqc
 DEPENDPATH += .
-INCLUDEPATH += . /usr/include/geotiff
+INCLUDEPATH += . /usr/include/geotiff /usr/local/include/GeographicLib
 SOURCEPATH = ./ext/QCscript
 
 # Input
@@ -21,5 +21,5 @@ SOURCES +=$$SOURCEPATH/AirborneRadarQC.cpp \
 	   			$$SOURCEPATH/RecursiveFilter.cpp \
 	   			$$SOURCEPATH/DEM.cpp \
 	   			main.cpp
-LIBS += -lgeotiff -ltiff -lgeographic
+LIBS += -lgeotiff -ltiff -lgeographic -L/usr/local/lib
 CONFIG += debug
