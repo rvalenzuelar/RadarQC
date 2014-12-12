@@ -86,21 +86,35 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			if (typeQC == "ground"){
 
 				// syntax: copyField("oldField",'newField')
-				// copyField("ZA", "ZBK");
+				 copyField("VV", "V3");
 				
 				//syntax: thresholdData("targetField","criteriaField","criteria",criteriaValue,)
-				//thresholdData("ZBK","CC","below", 0.9);						
-				//thresholdData("ZBK","W0","above",30);
+				thresholdData("V3","CC","below", 0.85);						
+				thresholdData("V3","DC","above",1.8);
+				thresholdData("V3","W0","above",30.);
+				thresholdData("V3","W0","below",0.);
+				// note: it gives similar results to Solo3 and is more agressive than thresholdDataAND
+				
+				//syntax:thresholdDataAND("targetField","criteriaField1", "direction1", "thresholds1",
+				//											"criteriaField2", "direction2", "thresholds2",
+				//											"criteriaField3", "direction3", "thresholds3")
+				// directions "below" and "above" use only first value of threshold
+				// float threshold1 [2] = {0.85,0};
+				// float threshold2 [2] = {1.8,0.0};
+				// float threshold3 [2] = {0.,30.};
+				// thresholdDataAND("V3","CC","below", threshold1,
+				// 						 "DC","above", threshold2,
+				// 						 "W0","outside", threshold3);						
 
 				// syntax: despeckleRadial("targetField", #gates)
-				//despeckleRadial("ZBK", 2);
-				//despeckleAzimuthal("ZBK", 2);
+				despeckleRadial("V3", 3);
+				despeckleAzimuthal("V3", 3);
 
 				// syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)
-            		histogram("VE", -20, 20, 1,f);
+            		//histogram("VE", -20, 20, 1,f);
 
 				// Write it back out
-			    	//saveQCedSwp(f);
+			    	saveQCedSwp(f);
 
 			}
 			else {
@@ -333,13 +347,13 @@ void AirborneRadarQC::thresholdData(const QString& fldname, const QString& thres
 }
 
 /****************************************************************************************
- ** thresholdDataOR : Threshold a field based on other fields using an OR (union)
- 			operation (RV)
+ ** thresholdDataAND : Threshold a field based on other fields using 
+ 						  an AND operation (RV)
  ****************************************************************************************/
-void AirborneRadarQC::thresholdDataOR(const QString& fldname, 
-	const QString& threshfield1, const QString& direction1, const float& threshold1,
-	const QString& threshfield2, const QString& direction2, const float& threshold2,	
-	const QString& threshfield3, const QString& direction3, const float& threshold3)
+void AirborneRadarQC::thresholdDataAND(const QString& fldname, 
+	const QString& threshfield1, const QString& direction1, const float threshold1[],
+	const QString& threshfield2, const QString& direction2, const float threshold2[],	
+	const QString& threshfield3, const QString& direction3, const float threshold3[])
 {
 	int rays = swpfile.getNumRays();
 	int gates = swpfile.getNumGates();
@@ -389,6 +403,8 @@ void AirborneRadarQC::thresholdDataOR(const QString& fldname,
 				if (threshdata3[n] <= threshold3[0] && threshdata3[n] >= threshold3[1]) mask += 1;
 			}
 
+			// it has to pass all the conditions (i.e. AND operation) to keep its value,
+			// otherwise is NaN
 			if (mask !=0) data[n] = -32768.0;
 		}
 
