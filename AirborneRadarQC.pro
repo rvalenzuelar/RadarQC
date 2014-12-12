@@ -3,9 +3,9 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET =
+TARGET = radarqc
 DEPENDPATH += .
-INCLUDEPATH += .
+INCLUDEPATH += . /usr/include/geotiff
 SOURCEPATH = ./ext/QCscript
 
 # Input
