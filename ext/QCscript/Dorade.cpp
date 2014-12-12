@@ -8,7 +8,7 @@
 
 #include "Dorade.h"
 
-Dorade::Dorade() 
+Dorade::Dorade()
 {
 	swap_bytes = false;
 	ssptr = new sswb_info;
@@ -30,10 +30,10 @@ Dorade::Dorade()
 	refIndex = velIndex = swIndex = 0;
 	ref_fld = "DBZ";
 	vel_fld = "VG";
-	sw_fld = "SW";	
+	sw_fld = "SW";
 }
 
-Dorade::Dorade(const QString& swpFilename) 
+Dorade::Dorade(const QString& swpFilename)
 {
 
 	swap_bytes = false;
@@ -56,8 +56,8 @@ Dorade::Dorade(const QString& swpFilename)
 	refIndex = velIndex = swIndex = 0;
 	ref_fld = "DBZ";
 	vel_fld = "VG";
-	sw_fld = "SW";	
-	
+	sw_fld = "SW";
+
 	setFilename(swpFilename);
 
 }
@@ -89,23 +89,23 @@ bool Dorade::readSwpfile()
 	if (!machineBigEndian()) {
 		swap_bytes = true;
 	}
-	
+
 	// Read in a dorade file
 	QByteArray ba = filename.toLocal8Bit();
 	const char* ccfilename = ba.constData();
 	sweepread(ccfilename, ssptr, vptr, rptr, cptr,
 			  cfptr, pptr, sptr, ryptr, aptr, dptr);
-	
+
 	return true;
 }
 
 bool Dorade::readSwpfile(const QString& refname, const QString& velname, const QString& swname)
 {
-		
+
 	ref_fld = refname;
 	vel_fld = velname;
 	sw_fld = swname;
-	
+
 	readSwpfile();
 	return true;
 }
@@ -117,13 +117,13 @@ bool Dorade::writeSwpfile()
 	if (!machineBigEndian()) {
 		swap_bytes = true;
 	}
-	
+
 	QByteArray ba = filename.toLocal8Bit();
 	const char* ccfilename = ba.constData();
 	int flag = 0;
 	sweepwrite(ccfilename, ssptr, vptr, rptr, cptr,
 			  cfptr, pptr, sptr, ryptr, aptr, dptr, flag);
-		
+
 	return true;
 }
 
@@ -135,7 +135,7 @@ bool Dorade::writeSwpfile(const QString& newfilename)
 	if (!machineBigEndian()) {
 		swap_bytes = true;
 	}
-	
+
 	// Add a suffix to indicate we've modified the file
 	filename = newfilename;
 	QByteArray ba = filename.toLocal8Bit();
@@ -143,18 +143,18 @@ bool Dorade::writeSwpfile(const QString& newfilename)
 	int flag = 0;
 	sweepwrite(ccfilename, ssptr, vptr, rptr, cptr,
 			  cfptr, pptr, sptr, ryptr, aptr, dptr, flag);
-		
+
 	return true;
 }
 
 bool Dorade::writeDoradefile(const QString& doradeFilename)
 {
-	
+
 	// Check the byte order
 	if (!machineBigEndian()) {
 		swap_bytes = true;
 	}
-	
+
 	// Change the output file to a dorade file
 	filename = doradeFilename;
 	QByteArray ba = filename.toLocal8Bit();
@@ -162,7 +162,7 @@ bool Dorade::writeDoradefile(const QString& doradeFilename)
 	int flag = 1;
 	sweepwrite(ccfilename, ssptr, vptr, rptr, cptr,
 			   cfptr, pptr, sptr, ryptr, aptr, dptr, flag);
-	
+
 	return true;
 }
 
@@ -184,7 +184,7 @@ QString Dorade::getRadarname()
 	QStringList fileparts = pathparts.last().split(".");
 	QString radarname = fileparts[2];
 	return radarname;
-	
+
 }
 float Dorade::getAzimuth(int& ray)
 {
@@ -202,7 +202,7 @@ float Dorade::getElevation(int& ray)
 	} else {
 		return -999;
 	}
-	
+
 }
 
 float* Dorade::getReflectivity(int& ray)
@@ -326,26 +326,26 @@ float Dorade::getFLwind_u(const int& ray)
 {
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
-	return aptr[ray].ew_horiz_wind;	
+	return aptr[ray].ew_horiz_wind;
 }
 
 float Dorade::getFLwind_v(const int& ray)
 {
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
-	return aptr[ray].ns_horiz_wind;	
+	return aptr[ray].ns_horiz_wind;
 }
 
 float Dorade::getHeading(const int& ray)
 {
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
-	return aptr[ray].head;	
+	return aptr[ray].head;
 }
 
 float Dorade::getBeamwidthDeg()
 {
-	float bw = (rptr->horiz_beam_width + rptr->vert_beam_width) * 0.5; 
+	float bw = (rptr->horiz_beam_width + rptr->vert_beam_width) * 0.5;
 	return bw;
 }
 
@@ -381,12 +381,12 @@ cfac_info* Dorade::getCfacBlock()
 
 ryib_info* Dorade::getRyibBlock(const int& ray)
 {
-	return &ryptr[ray];	
+	return &ryptr[ray];
 }
 
 void Dorade::recalculateAirborneAngles()
 {
-	
+
 	if (rptr->scan_mode == 9) {
 		// Airborne data, need to calculate ground relative azimuth and elevation
 		for (int i=0; i < sptr->num_rays; i++) {
@@ -401,10 +401,10 @@ double Dorade::getAircraftVelocity(const int& ray)
 	double vr = 0;
 	if ((ray >= 0) and (ray < sptr->num_rays))
 		vr = calcAircraftMotion(&aptr[ray], cfptr, &rangles[ray]);
-	return vr;	
+	return vr;
 }
 
-bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName, 
+bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName,
 					   const QString& newFieldDesc, const QString& newFieldUnits)
 {
 
@@ -430,7 +430,7 @@ bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName,
 	// Increment rptr & sswb
 	rptr->num_param_desc++;
 	ssptr->num_params++;
-	
+
 	// Copy parm info, rename it
 	pptr[newIndex] = pptr[oldIndex];
 	memset(pptr[newIndex].parm_name,' ',8);
@@ -465,18 +465,18 @@ bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName,
 			}
 		}
 	}
-	
+
 	return true;
 }
 
-bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName) 
+bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName)
 {
 
 	// Copy a field over and rename it
 	int oldIndex = -1;
 	int newIndex = rptr->num_param_desc;
 	bool existing = false;
-	
+
 	for (int j=0; j<(rptr->num_param_desc); j++) {
 		QString fieldName = pptr[j].parm_name;
 		if (fieldName.size() > 8) fieldName.resize(8);
@@ -485,7 +485,7 @@ bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName)
 			// Match existing field
 			existing = true;
 			newIndex = j;
-		}		
+		}
 		if (oldFieldName == fieldName) {
 			// Match
 			oldIndex = j;
@@ -500,7 +500,7 @@ bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName)
 		// Increment rptr & sswb
 		rptr->num_param_desc++;
 		ssptr->num_params++;
-	
+
 		// Copy parm info, rename it
 		pptr[newIndex] = pptr[oldIndex];
 		memset(pptr[newIndex].parm_name,' ',8);
@@ -522,7 +522,7 @@ bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName)
 			}
 		}
 	}
-	
+
 	return true;
 }
 
@@ -530,15 +530,15 @@ bool Dorade::copyField(const QString& oldFieldName, const QString& newFieldName)
 /* Private routines */
 /**************************************************/
 bool Dorade::machineBigEndian(){
-	
+
     union {
 		unsigned char byte[4];
 		int val;
     }word;
-	
+
     word.val = 0;
     word.byte[3] = 0x01;
-    
+
     return word.val == 1;
 }
 /**************************************************/
@@ -558,9 +558,9 @@ int Dorade::swap4(char *ov )		/* swap integer*4 */
 		int newval;
 		char nv[4];
 	}u;
-	
+
 	u.nv[3] = *ov++; u.nv[2] = *ov++; u.nv[1] = *ov++; u.nv[0] = *ov++;
-	
+
 	return(u.newval);
 }
 /**************************************************/
@@ -570,7 +570,7 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 			   struct swib_info *sptr,struct ryib_info *ryptr,
 			   struct asib_info *aptr, struct rdat_info **dptr)
 {
-	
+
 	/****************************************************/
 	/* THIS SUBROUTINE READS THE DESCRIPTORS FROM A     */
 	/* SWEEP FILE & PASSES THE VOLD, RADD, CFAC, PARM,  */
@@ -588,14 +588,14 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 	/* arr=array to hold gate spacing                   */
 	/* *sptr=pointer of swib descriptor                 */
 	/****************************************************/
-	
+
 	FILE *fp;
 	int i=0;
 	char identifier[IDENT_LEN];
 	int desc_len;
 	int fld_num=0;
 	int match;
-	int found=FALSE;
+	int found=false;
 	int beam=-1;
 	i = 0;
 	/* ADD NULL CHARACTER TO END OF STRING
@@ -604,15 +604,15 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 		else {len++;}
 	}
 	swp_fname[len]='\0'; */
-	
+
 	/* READ THE SWEEP FILE */
 	/* OPEN THE SWEEP FILE */
 	if ( (fp = fopen(swp_fname,"rb"))==NULL) {
 		printf("Can't open %s\n",swp_fname);
 	}
-	
+
 	while ( !feof(fp) ) {
-		
+
 		/* READ THE DESCRIPTOR IDENTIFIER */
 		//printf ("at %d\n",ftell(fp));
 		if ( (fread(identifier,sizeof(char),IDENT_LEN,fp)) != IDENT_LEN) {
@@ -626,12 +626,12 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 			/* READ THE SSWB DESCRIPTOR */
 			/*printf ("reading vold\n");*/
 			read_sswb(fp,ssptr);
-			
+
 		} else if ( (strncmp(identifier,"VOLD",IDENT_LEN)) == 0) {
 			/* READ THE VOLUME DESCRIPTOR */
 			/*printf ("reading vold\n");*/
 			read_vold(fp,vptr);
-			
+
 		} else if ( (strncmp(identifier,"RADD",IDENT_LEN)) == 0) {
 			/* READ THE RADAR DESCRIPTOR */
 			/*printf ("reading radd\n");*/
@@ -643,19 +643,19 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 				printf ("MAX_NUM_PARMS: %d\n",MAX_NUM_PARMS);
 				printf ("SEE READ_DORADE.H\n");
 			}
-			
-			
+
+
 		} else if ( (strncmp(identifier,"CFAC",IDENT_LEN)) == 0) {
 			/* READ THE CFAC DESCRIPTOR */
 			/*printf ("reading cfac\n");*/
 			read_cfac(fp,cfptr);
-			
+
 		} else if ( (strncmp(identifier,"PARM",IDENT_LEN)) == 0) {
 			/* READ THE PARAMETER DESCRIPTOR */
 			/*printf ("reading parm\n");*/
 			read_parm(fp,pptr);
 			*pptr++;
-			
+
 		} else if ( (strncmp(identifier,"CELV",IDENT_LEN)) == 0) {
 			/*printf ("reading CELV\n");*/
 			/* CHECK & MAKE SURE NUMBER OF GATES DOESN'T
@@ -668,7 +668,7 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 				printf ("NUMBER OF GATES: %d\n",(int)cptr->total_gates);
 				printf ("MAX_GATES: %d\n",MAX_GATES);
 			}
-			
+
 		} else if ( (strncmp(identifier,"SWIB",IDENT_LEN)) == 0) {
 			/* READ THE SWEEP INFO DESCRIPTOR */
 			/*printf ("reading swib\n");*/
@@ -680,8 +680,8 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 				printf ("NUMBER OF BEAMS: %d\n",(int)sptr->num_rays);
 				printf ("MAX_BEAMS: %d\n",MAX_BEAMS);
 			}
-			
-			
+
+
 		} else if ( (strncmp(identifier,"RYIB",IDENT_LEN)) == 0) {
 			/* READ THE RAY INFO DESCRIPTOR */
 			/*printf ("reading ryib\n");*/
@@ -702,30 +702,30 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 				exit(-1);
 			}
 			*/
-			
+
 		} else if ( (strncmp(identifier,"ASIB",IDENT_LEN)) == 0) {
 			/* READ THE PLATFORM INFO DESCRIPTOR */
 			/*printf ("reading asib\n");*/
 			read_asib(fp,&aptr[beam]);
 			//*aptr++;
-			
+
 		} else if ( (strncmp(identifier,"RDAT",IDENT_LEN)) == 0) {
 			/* READ THE DATA DESCRIPTOR */
 			// printf ("reading rdat %s %d:\n", fld_name, desc_len);
-			
-			match=FALSE;
+
+			match=false;
 			read_rdat(fp,fld_num,desc_len,&match,
 					  pptr->parm_type,beam,cptr->total_gates,
 					  rptr->compress_flag,pptr->baddata_flag,
 					  pptr->scale_fac,&dptr[fld_num][beam]);
 			fld_num++;
 			*pptr++;
-						
-			if (match==TRUE) {
+
+			if (match==true) {
 				// *dptr++;
 				found=match;
 			}
-			
+
 		} else if ( (strncmp(identifier,"NULL",IDENT_LEN)) == 0) {
 			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int)));
 
@@ -736,7 +736,7 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 			read_rktb(fp);
 			// That should be the end
 			break;
-						
+
 		} else {
 			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int)));
 		} /* endif */
@@ -744,7 +744,7 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 	} /* endwhile */
 
 	fclose(fp);
-	
+
 	if (rptr->scan_mode == 9) {
 		// Airborne data, need to calculate ground relative azimuth and elevation
 		for (int i=0; i < sptr->num_rays; i++) {
@@ -794,7 +794,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			exit(-1);
 		}
 	}
-	
+
 	/* VOLD */
 	block = "VOLD";
 	blocka = block.toLocal8Bit();
@@ -811,7 +811,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 		puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 		exit(-1);
 	}
-	
+
 	/* RADD */
 	block = "RADD";
 	blocka = block.toLocal8Bit();
@@ -924,7 +924,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 			exit(-1);
 		}
-		
+
 		/* ASIB */
 		block = "ASIB";
 		blocka = block.toLocal8Bit();
@@ -941,7 +941,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 			exit(-1);
 		}
-		
+
 		short arr_com[MAX_GATES], arr_uncom[MAX_GATES];
 		unsigned int num_words;
 		for (int j=0; j<(rptr->num_param_desc); j++) {
@@ -959,7 +959,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 				}
 				//printf("%d\n",arr_uncom[k]);
 			}
-			
+
 			/* COMPRESS A RAY OF DATA */
 			num_words=dd_compress((unsigned short *)&arr_uncom,(unsigned short *)&arr_com,(unsigned short)baddata_flag,arrsize);
 
@@ -993,9 +993,9 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			} */
 		}
 		rtptr[i].size=ftell(fp)-rtptr[i].offset;
-		
+
 	}
-	
+
 	if (doradeFlag) {
 		/* VOLD */
 		block = "VOLD";
@@ -1013,7 +1013,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 			exit(-1);
 		}
-		
+
 		/* RADD */
 		block = "RADD";
 		blocka = block.toLocal8Bit();
@@ -1033,7 +1033,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 			exit(-1);
 		}
-		
+
 		/* PARAMETERS */
 		/* GO BACK TO FIRST PARAMETER DESCRIPTOR */
 		//for (int i=0; i<rptr->num_param_desc; i++) {*pptr--;}
@@ -1054,7 +1054,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 				exit(-1);
 			}
 		}
-		
+
 		/* CELV */
 		block = "CELV";
 		blocka = block.toLocal8Bit();
@@ -1071,7 +1071,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 			exit(-1);
 		}
-		
+
 		/* CFAC */
 		block = "CFAC";
 		blocka = block.toLocal8Bit();
@@ -1087,7 +1087,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 		if ( fwrite ((char *)cfptr,sizeof (struct cfac_info),1,fp) !=1 ) {
 			puts("ERROR WRITING VOLUME DESCRIPTOR\n");
 			exit(-1);
-		}		
+		}
 	} else {
 		/* NULL */
 		block = "NULL";
@@ -1101,7 +1101,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 		if ( (fwrite(&desc_len,sizeof(int),1,fp)) != 1) {
 			printf("sweep file read error..\n");
 		}
-		
+
 		/* RKTB */
 		block = "RKTB";
 		blocka = block.toLocal8Bit();
@@ -1127,7 +1127,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 			printf("sweep file read error..\n");
 		}
 		delete[] rkbuf;
-		
+
 		// Fix the SSWB block
 		int filesize = ftell(fp);
 		int offset = filesize - rktb_size;
@@ -1148,32 +1148,32 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 
 		ssptr->sizeof_file = filesize;
 		ssptr->key_table[0].offset = offset;
-		
+
 		if ( fwrite ((char *)ssptr,sizeof (struct sswb_info),1,fp) !=1 ) {
 			puts("ERROR WRITING SSWB DESCRIPTOR\n");
 			exit(-1);
 		}
 	}
-	
+
 	fclose(fp);
-	
+
 }
 /**************************************************/
-void Dorade::read_sswb(FILE *fp,struct sswb_info *ssptr) 
+void Dorade::read_sswb(FILE *fp,struct sswb_info *ssptr)
 {
-	
+
 	/* READ THE VOLUME DESCRIPTOR */
 	if ( fread ((char *)ssptr,sizeof (struct sswb_info),1,fp) !=1 ) {
 		puts("ERROR READING VOLUME DESCRIPTOR\n");
 		exit(-1);
 	} /* endif */
-	
+
 }
 
 /**************************************************/
-void Dorade::read_vold(FILE *fp,struct vold_info *vptr) 
+void Dorade::read_vold(FILE *fp,struct vold_info *vptr)
 {
-	
+
 	/* READ THE VOLUME DESCRIPTOR */
 	if ( fread ((char *)vptr,sizeof (struct vold_info),1,fp) !=1 ) {
 		puts("ERROR READING VOLUME DESCRIPTOR\n");
@@ -1182,9 +1182,9 @@ void Dorade::read_vold(FILE *fp,struct vold_info *vptr)
 
 }
 /**************************************************/
-void Dorade::read_radd(FILE *fp,struct radd_info *rptr) 
+void Dorade::read_radd(FILE *fp,struct radd_info *rptr)
 {
-	
+
 	/* READ THE RADAR DESCRIPTOR */
 	if ( fread ((char *)rptr,sizeof (struct radd_info),1,fp) !=1 ) {
 		puts("ERROR READING RADAR DESCRIPTOR\n");
@@ -1193,9 +1193,9 @@ void Dorade::read_radd(FILE *fp,struct radd_info *rptr)
 
 }
 /**************************************************/
-void Dorade::read_cfac(FILE *fp,struct cfac_info *cptr) 
+void Dorade::read_cfac(FILE *fp,struct cfac_info *cptr)
 {
-	
+
 	/* READ THE CFAC DESCRIPTOR */
 	if ( fread ((char *)cptr,sizeof (struct cfac_info),1,fp) !=1 ) {
 		puts("ERROR READING CFAC DESCRIPTOR\n");
@@ -1204,7 +1204,7 @@ void Dorade::read_cfac(FILE *fp,struct cfac_info *cptr)
 
 }
 /**************************************************/
-void Dorade::read_parm(FILE *fp,struct parm_info *pptr) 
+void Dorade::read_parm(FILE *fp,struct parm_info *pptr)
 {
 	/* READ THE PARMAMETER DESCRIPTOR */
 	if ( fread ((char *)pptr,sizeof (struct parm_info),1,fp) !=1 ) {
@@ -1220,35 +1220,35 @@ void Dorade::read_parm(FILE *fp,struct parm_info *pptr)
 /***************************************************/
 void Dorade::read_celv(FILE *fp,struct celv_info *cptr,int desc_len)
 {
-	
+
 	int skip;
-	
+
 	/* TOTAL GATES */
 	cptr->total_gates=read_int(fp);
-	
+
 	/* ALLOCATE THE ARRAY */
 	/*
 	 cptr->gate_spacing=calloc(cptr->total_gates,sizeof(float));
 	 if (!cptr->gate_spacing) {
 		 printf ("Reallocation error..aborting..\n");
 		 exit(1);
-	 } 
+	 }
 	 */
-	
+
 	/* GATE SPACING */
 	if ( (fread(cptr->gate_spacing,sizeof(float),cptr->total_gates,fp))
 		 != (unsigned int)cptr->total_gates) {
 		puts("ERROR READING CELV DESCRIPTOR\n");
 	}
-	
+
 	skip=desc_len-(sizeof(float)*cptr->total_gates+12);
 	skip_bytes(fp,skip);
-	
+
 }
 /**************************************************/
-void Dorade::read_swib(FILE *fp,struct swib_info *sptr) 
+void Dorade::read_swib(FILE *fp,struct swib_info *sptr)
 {
-	
+
 	/* READ THE SWEEP INFO DESCRIPTOR */
 	if ( fread ((char *)sptr,sizeof (struct swib_info),1,fp) !=1 ) {
 		puts("ERROR READING SWIB DESCRIPTOR\n");
@@ -1257,9 +1257,9 @@ void Dorade::read_swib(FILE *fp,struct swib_info *sptr)
 
 }
 /**************************************************/
-void Dorade::read_ryib(FILE *fp,struct ryib_info *rptr) 
+void Dorade::read_ryib(FILE *fp,struct ryib_info *rptr)
 {
-	
+
 	/* READ THE RAY INFO DESCRIPTOR */
 	if ( fread ((char *)rptr,sizeof (struct ryib_info),1,fp) !=1 ) {
 		puts("ERROR READING RYIB DESCRIPTOR\n");
@@ -1268,9 +1268,9 @@ void Dorade::read_ryib(FILE *fp,struct ryib_info *rptr)
 
 }
 /**************************************************/
-void Dorade::read_asib(FILE *fp,struct asib_info *aptr) 
+void Dorade::read_asib(FILE *fp,struct asib_info *aptr)
 {
-	
+
 	/* READ THE PLATFORM INFO DESCRIPTOR */
 	if ( fread ((char *)aptr,sizeof (struct asib_info),1,fp) !=1 ) {
 		puts("ERROR READING ASIB DESCRIPTOR\n");
@@ -1279,9 +1279,9 @@ void Dorade::read_asib(FILE *fp,struct asib_info *aptr)
 
 }
 /**************************************************/
-void Dorade::read_rktb(FILE *fp) 
+void Dorade::read_rktb(FILE *fp)
 {
-	
+
 	/* READ THE ROTATION ANGLES DESCRIPTOR */
 	if ( fread ((char *)rkptr,sizeof (struct rktb_info),1,fp) !=1 ) {
 		puts("ERROR READING RKTB DESCRIPTOR\n");
@@ -1294,7 +1294,7 @@ void Dorade::read_rktb(FILE *fp)
 		puts("ERROR READING ROTATION ANGLE DESCRIPTOR\n");
 		exit(-1);
 	}
-	
+
 	for (int i=0; i< rkptr->num_rays; i++) {
 		rtptr[i] = *(rot_table_entry *)(rkbuf + rkptr->first_key_offset - 28 + i*sizeof(rot_table_entry));
 	}
@@ -1308,7 +1308,7 @@ void Dorade::read_rdat(FILE *fp,int fld_num,
                short compression,int baddata_flag,
 			   float scale_fac,struct rdat_info *rdat)
 {
-	
+
 	/* fp=pointer to sweep file
 	*  fld_name=user supplied field name
 	*  fld_num=index of parameter descriptor
@@ -1316,25 +1316,25 @@ void Dorade::read_rdat(FILE *fp,int fld_num,
 	*  match=flag to indicate field match found
 	*  parm_type=data type of parameter
 	*  dptr=pointer to rdat structure
-	*/ 
-	
+	*/
+
 	int datasize,arrsize;
 	datasize = arrsize = 0;
 	char tempname[PARM_NAME_LEN];
 	memset(rdat->parm_name,' ',PARM_NAME_LEN);
 	memset(tempname,' ',PARM_NAME_LEN);
-	
+
 	/* READ THE PARAMETER NAME */
 	if ( (fread(tempname,sizeof(char),PARM_NAME_LEN,fp))
          != PARM_NAME_LEN)
 	{printf("sweep file read error..can't read parameter name\n");}
-	
+
 	/* CALCULATE LENGTH OF TEMPNAME */
 	unsigned int strsize = 0;
 	for (strsize=0;strsize<strlen(tempname);strsize++) {
 		if (isspace(tempname[strsize])) {break;}
 	}
-		
+
 	/* FIND THE CORRECT FIELD */
 	/* Modified to read all fields, but record ref, vel, and sw indices - MB */
 	QString fld_name(tempname);
@@ -1347,8 +1347,8 @@ void Dorade::read_rdat(FILE *fp,int fld_num,
 	} else if (fld_name.trimmed() == sw_fld) {
 		swIndex = fld_num;
 	}
-	
-	*match=TRUE;
+
+	*match=true;
 	/* CALCULATE SIZE OF DATA */
 	strncpy(rdat->parm_name,tempname,strsize);
 	if (parm_type==1) {datasize=sizeof(char);}
@@ -1387,20 +1387,20 @@ void Dorade::read_sh_arr(FILE *fp,int arrsize,int beam_count,
 				 int total_gates,short compression,
 				 int baddata_flag,float scale_fac,
                  struct rdat_info *rdat) {
-	
+
 	short arr_com[MAX_GATES], arr_uncom[MAX_GATES];
 	int i,num;
 	int empty_run=0;
-	
-	if (compression==TRUE) {
+
+	if (compression==true) {
 		/* READ A RAY OF DATA */
 		if ( (fread(arr_com,sizeof(short),arrsize,fp)) != (unsigned int)arrsize)
 		{printf("sweep file read error..can't read data\n");}
-		
+
 		/* UNCOMPRESS A RAY OF DATA */
 		num=dd_hrd16_uncompressx(arr_com,arr_uncom,baddata_flag,
 								 &empty_run,total_gates,beam_count);
-		
+
 	} else {
 		/* READ A RAY OF DATA */
 		if ( (fread(arr_uncom,sizeof(short),arrsize,fp)) != (unsigned int)arrsize)
@@ -1427,41 +1427,41 @@ void Dorade::read_fl_arr(FILE *fp,int arrsize) {
 } */
 /***************************************************/
 void Dorade::get_field(struct parm_info parm[],int num_desc,int *fld_num)
-{	
+{
 
 	/* GET THE NAME OF THE DESIRED FIELD */
 	printf ("Please choose number of the desired field:\n");
-	
+
 	for (int i=0;i<num_desc;i++) {
 		printf ("%2d.  %s\n",i+1,parm[i].parm_name);
 	}
-	
+
 	scanf("%d",fld_num);
-	
+
 }
 /***************************************************/
 int Dorade::read_int(FILE *fp)
 {
-	
+
 	int temp;
-	
+
 	if ( (fread(&temp,sizeof(int),1,fp)) != 1) {
 		printf("sweep file read error..\n");
 	}
 	return temp;
-	
+
 }
 /***************************************************/
 void Dorade::skip_bytes(FILE *fp,int numskip)
 {
-	
+
 	/* SKIP TO THE RIGHT BYTE! */
-	
+
 	if (fseek(fp,numskip,SEEK_CUR)) {
 		printf("Seek Error..aborting..\n");
 		exit(1);
 	}
-	
+
 }
 /***************************************************/
 /* Dick Oye's decompression routine */
@@ -1485,7 +1485,7 @@ int Dorade::dd_hrd16_uncompressx(short *ss,short * dd,
      *    unpack. This should stop runaways.
      */
     int n, mark, wcount=0;
-	
+
     while(*ss != 1) {           /* 1 is an end of compression flag */
         n = *ss & 0x7fff;       /* nab the 16-bit word count */
         if(wcount+n > wmax) {
@@ -1610,7 +1610,7 @@ int Dorade::dd_compress(unsigned short *src, unsigned short *dst, unsigned short
 }
 
 
-void Dorade::calcAirborneAngles(struct asib_info *asib, struct cfac_info *cfac, struct ryib_info* ra, 
+void Dorade::calcAirborneAngles(struct asib_info *asib, struct cfac_info *cfac, struct ryib_info* ra,
 								struct radar_angles *angles)
 {
 	/* compute the true azimuth, elevation, etc. from platform
@@ -1621,7 +1621,7 @@ void Dorade::calcAirborneAngles(struct asib_info *asib, struct cfac_info *cfac, 
 	double sinP, cosP, sinT, cosT, sinD, cosD;
 	double sin_theta_rc, cos_theta_rc, sin_tau_a, cos_tau_a;
 	double xsubt, ysubt, zsubt;
-	
+
 	double d;
 	/*
 	 * see Wen-Chau Lee's paper
@@ -1629,36 +1629,36 @@ void Dorade::calcAirborneAngles(struct asib_info *asib, struct cfac_info *cfac, 
 	 */
 	d = asib->roll;
 	R = d != d ? 0 : RADIANS(d +cfac->c_roll);
-	
+
 	d = asib->pitch;
 	P = d != d ? 0 : RADIANS(d +cfac->c_pitch);
-	
+
 	d = asib->head;
 	H = d != d ? 0 : RADIANS(d +cfac->c_head);
-	
+
 	d = asib->drift;
 	D = d != d ? 0 : RADIANS(d +cfac->c_drift);
-	
+
 	sinP = sin(P);
 	cosP = cos(P);
 	sinD = sin(D);
 	cosD = cos(D);
-	
+
 	T = H + D;
-		
+
 	sinT = sin(T);
 	cosT = cos(T);
-	
+
 	d = asib->rot_ang;
 	theta_a = d != d ? 0 : RADIANS(d +cfac->c_rotang);
-	
+
 	d = asib->tilt_ang;
 	tau_a = d != d ? 0 : RADIANS(d +cfac->c_tiltang);
 	sin_tau_a = sin(tau_a);
 	cos_tau_a = cos(tau_a);
 	sin_theta_rc = sin(theta_a + R); /* roll corrected rotation angle */
 	cos_theta_rc = cos(theta_a + R); /* roll corrected rotation angle */
-	
+
 	angles->x = xsubt = (cos_theta_rc * sinD * cos_tau_a * sinP
 					 + cosD * sin_theta_rc * cos_tau_a
 					 -sinD * cosP * sin_tau_a);
@@ -1667,17 +1667,17 @@ void Dorade::calcAirborneAngles(struct asib_info *asib, struct cfac_info *cfac, 
 					 + cosP * cosD * sin_tau_a);
 	angles->z = zsubt = (cosP * cos_tau_a * cos_theta_rc
 					 + sinP * sin_tau_a);
-	
-	angles->rotation_angle = atan2(xsubt, zsubt); // theta_t 
+
+	angles->rotation_angle = atan2(xsubt, zsubt); // theta_t
 	angles->tilt = asin(ysubt); // tau_t
 	lambda_t = atan2(xsubt, ysubt);
 	double azrad = fmod(lambda_t + T, 6.283185307);
 	double elrad = asin(zsubt);
-	
+
 	angles->azimuth = ra->azimuth = FMOD360(DEGREES(azrad)+360.);
-	angles->elevation = ra->elevation = DEGREES(elrad);    
+	angles->elevation = ra->elevation = DEGREES(elrad);
 	return;
-	
+
 }
 
 
@@ -1698,7 +1698,7 @@ double Dorade::calcAircraftMotion(struct asib_info *asib, struct cfac_info *cfac
 	 * see Wen-Chau Lee's paper
 	 * "Mapping of the Airborne Doppler Radar Data"
 	 */
-	
+
 	/* We assume the angles have been transformed via the track relative coordinate transform
 	 in the above subroutine */
 
@@ -1708,17 +1708,17 @@ double Dorade::calcAircraftMotion(struct asib_info *asib, struct cfac_info *cfac
 	L = 27.2;
 	d = asib->roll;
 	R = d != d ? 0 : RADIANS(d +cfac->c_roll);
-	
+
 	d = asib->pitch;
 	P = d != d ? 0 : RADIANS(d +cfac->c_pitch);
-	
+
 	// In practice, the heading correction is not used only the drift corr, so does this lead to an error?
 	d = asib->head;
 	H = d != d ? 0 : RADIANS(d +cfac->c_head);
-	
+
 	d = asib->drift;
 	D = d != d ? 0 : RADIANS(d +cfac->c_drift);
-	
+
 	sinP = sin(P);
 	cosP = cos(P);
 	sinH = sin(H);
@@ -1730,9 +1730,9 @@ double Dorade::calcAircraftMotion(struct asib_info *asib, struct cfac_info *cfac
 
 	double vert =  asib->vert_vel != -999 ? asib->vert_vel : 0;
 	gndspeed = sqrt((asib->ew_gspeed * asib->ew_gspeed) + (asib->ns_gspeed * asib->ns_gspeed));
-	aircraft_vr = sin(angles->tilt) * (gndspeed + cfac->c_ew_grspeed) 
+	aircraft_vr = sin(angles->tilt) * (gndspeed + cfac->c_ew_grspeed)
 		+ sin(RADIANS(angles->elevation)) * vert;
-	
+
 	antenna_vr =  L*
 	((1.+cosP)*(cosPHI*cosLAM*cosH -cosPHI*sinLAM*sinH)*
 	 (RADIANS(asib->head_change))
@@ -1741,11 +1741,5 @@ double Dorade::calcAircraftMotion(struct asib_info *asib, struct cfac_info *cfac
 
 	double vr = aircraft_vr - antenna_vr;
 	return vr;
-	
+
 }
-
-
-	
-	
-	
-	
