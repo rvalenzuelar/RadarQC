@@ -16,6 +16,8 @@
 #include <string.h>
 #include <GeographicLib/TransverseMercator.hpp>
 
+using namespace GeographicLib;
+
 DEM::DEM()
 {
 	dx = dy = 30;

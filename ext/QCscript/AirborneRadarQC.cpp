@@ -116,7 +116,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
             		//histogram("VE", -20, 20, 1,f);
 
 				// Write it back out
-			    	saveQCedSwp(f);
+			  saveQCedSwp(f);
 
 			}
 			else {
