@@ -8,7 +8,6 @@ Need installed:
 - Qt
 - GeographicLib
 
-Add link path to environment variable using
-.bashrc:
+Add link path to environment variable using .bashrc:
 
-LD_LIBRARY_PATH=/usr/local/lib
+- LD_LIBRARY_PATH=/usr/local/lib
