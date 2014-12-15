@@ -112,8 +112,12 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				despeckleRadial("V3", 3);
 				despeckleAzimuthal("V3", 3);
 
+
+				// syntax: exportVad("targetField",NyquistVel)
+				exportVad("V3", 15;
+
 				// syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)
-            		//histogram("VE", -20, 20, 1,f);
+        //histogram("VE", -20, 20, 1,f);
 
 				// Write it back out
 			  saveQCedSwp(f);
@@ -3555,7 +3559,9 @@ void AirborneRadarQC::histogram(const QString& fldname, double min, double max, 
 
 QFile verifyFile;
 QTextStream vout(&verifyFile);
-QString fileName = fldname + "_histogram.txt";
+//QString fileName = fldname + "_histogram.txt";
+QString filename = outPath.absolutePath() + "/" + fldname + "_histogram.txt";
+
 verifyFile.setFileName(fileName);
 verifyFile.open(QIODevice::Append | QIODevice::WriteOnly);
 if ((max == -999999) and (min = -999999)) {
@@ -3614,6 +3620,54 @@ if (thisfile==0){
 verifyFile.close();
 }
 
+void AirborneRadarQC::exportVad(const QString& fldname) {
+
+QFile verifyFile;
+QTextStream vout(&verifyFile);
+//QString fileName = fldname + "_vad.txt";
+QString filename = outPath.absolutePath() + "/" + getswpfileName(swpIndex) + "_vad.txt";
+verifyFile.setFileName(fileName);
+verifyFile.open(QIODevice::Append | QIODevice::WriteOnly);
+
+//float Nyq=swpfile.getNyquistVelocity();
+int rays=getNumRays();
+int gates=getNumGates();
+
+// 2D matrix
+float** veloc = new float*[rays];
+for (int i=0; i < rays; i++)  {
+	veloc[i] = new float[gates];
+}
+
+// Populate matrix
+for (int i=0; i < rays; i++)  {
+	float* data = swpfile.getRayData(i, fldname);
+	for (int n=0; n < gates; n++) {
+		veloc[i][n]=data[n];
+	}
+}
+
+
+// Write text file with histogram. Columns are histogram bins and
+// rows are sweeps
+if (thisfile==0){
+	for (int i=0; i<bins; i++) {
+	vout << interval*i+min << "\t" ;
+	if (i==bins-1) {vout<< "\n";}
+	}
+	for (int i=0; i<bins; i++) {
+	vout << good[i]  << "\t" ;
+	if (i==bins-1) {vout<< "\n";}
+	}
+}else{
+	for (int i=0; i<bins; i++) {
+	vout <<good[i]  << "\t" ;
+	if (i==bins-1) {vout<< "\n";}
+	}
+}
+
+verifyFile.close();
+}
 
 /****************************************************************************************
 ** getRayIndex : This function returns the correct ray index given a value.  Most of the
