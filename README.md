@@ -5,8 +5,8 @@ MBell radar QC code with extra functions
 
 Need installed:
 
--Qt
--GeographicLib
+- Qt
+- GeographicLib
 
 Add link path to environment variable using
 .bashrc:
