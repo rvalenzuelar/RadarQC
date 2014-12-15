@@ -114,7 +114,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 
 				// syntax: exportVad("targetField",NyquistVel)
-				//exportVad("V3", 15);
+				exportVad("V3",f);
 
 				// syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)
         //histogram("VE", -20, 20, 1,f);
@@ -3554,6 +3554,9 @@ void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth,
 
 }
 
+/****************************************************************************************
+** histogram : Make text file with histogram for all sweeps
+****************************************************************************************/
 void AirborneRadarQC::histogram(const QString& fldname, double min, double max, double interval,
 						int thisfile) {
 
@@ -3621,54 +3624,62 @@ if (thisfile==0){
 verifyFile.close();
 }
 
-// void AirborneRadarQC::exportVad(const QString& fldname) {
-//
-// QFile verifyFile;
-// QTextStream vout(&verifyFile);
-// //QString fileName = fldname + "_vad.txt";
-// QString filename = outPath.absolutePath() + "/" + getswpfileName(swpIndex) + "_vad.txt";
-// verifyFile.setFileName(fileName);
-// verifyFile.open(QIODevice::Append | QIODevice::WriteOnly);
-//
-// //float Nyq=swpfile.getNyquistVelocity();
-// int rays=getNumRays();
-// int gates=getNumGates();
-//
-// // 2D matrix
-// float** veloc = new float*[rays];
-// for (int i=0; i < rays; i++)  {
-// 	veloc[i] = new float[gates];
-// }
-//
-// // Populate matrix
-// for (int i=0; i < rays; i++)  {
-// 	float* data = swpfile.getRayData(i, fldname);
-// 	for (int n=0; n < gates; n++) {
-// 		veloc[i][n]=data[n];
-// 	}
-// }
-//
-//
-// // Write text file with histogram. Columns are histogram bins and
-// // rows are sweeps
-// if (thisfile==0){
-// 	for (int i=0; i<bins; i++) {
-// 	vout << interval*i+min << "\t" ;
-// 	if (i==bins-1) {vout<< "\n";}
-// 	}
-// 	for (int i=0; i<bins; i++) {
-// 	vout << good[i]  << "\t" ;
-// 	if (i==bins-1) {vout<< "\n";}
-// 	}
-// }else{
-// 	for (int i=0; i<bins; i++) {
-// 	vout <<good[i]  << "\t" ;
-// 	if (i==bins-1) {vout<< "\n";}
-// 	}
-// }
-//
-// verifyFile.close();
-// }
+
+/****************************************************************************************
+** exportVad : Export text file with a azimuth and velocity for each sweep file.
+				Rows are ranges and columns azimuths
+****************************************************************************************/
+void AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
+
+QFile verifyFile;
+QTextStream vout(&verifyFile);
+//QString fileName = fldname + "_vad.txt";
+QString fileName = outPath.absolutePath() + "/" + getswpfileName(swpIndex) + "_" + fldname + ".vad";
+verifyFile.setFileName(fileName);
+verifyFile.open(QIODevice::Append | QIODevice::WriteOnly);
+
+//float Nyq=swpfile.getNyquistVelocity();
+int rays=swpfile.getNumRays();
+int gates=swpfile.getNumGates();
+
+// 2D matrix
+float** veloc = new float*[rays];
+for (int i=0; i < rays; i++)  {
+	veloc[i] = new float[gates];
+}
+
+// Populate matrix
+float* azim = new float[rays];
+for (int i=0; i < rays; i++)  {
+	float* data = swpfile.getRayData(i, fldname);
+	float az = swpfile.getAzimuth(i);
+	azim[i]=az;
+	for (int n=0; n < gates; n++) {
+		veloc[i][n]=data[n];
+	}
+}
+
+
+// Write text file with VAD by adding new data (i.e. rows)
+// at the end of the file.
+
+// first line with header
+for (int i=0; i<rays; i++) {
+	vout << azim[i] << "\t" ;
+}
+vout<< "\n";
+
+// rest of the lines
+for (int i=0; i<rays; i++) {
+	for (int n=0; n<gates; n++) {
+		vout << veloc[i][n]  << "\t" ;
+	}
+	vout<< "\n";
+}
+
+
+verifyFile.close();
+}
 
 /****************************************************************************************
 ** getRayIndex : This function returns the correct ray index given a value.  Most of the
