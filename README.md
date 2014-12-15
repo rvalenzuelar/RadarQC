@@ -1,7 +1,7 @@
 RadarQC
 =======
 
-MBell radar QC code with extra functions
+MBell's radar QC code with extra functions.
 
 Need installed:
 
@@ -12,3 +12,8 @@ Need installed:
 Add link path to environment variable using .bashrc:
 
 - LD_LIBRARY_PATH=/usr/local/lib
+
+Functions added:
+
+- Thresholding with an AND operation
+- Dump a VAD text file (working on)
