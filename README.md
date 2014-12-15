@@ -7,6 +7,7 @@ Need installed:
 
 - Qt
 - GeographicLib
+- libgeotiff
 
 Add link path to environment variable using .bashrc:
 
