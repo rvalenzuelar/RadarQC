@@ -87,19 +87,20 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 			if (typeQC == "ground"){
 
-				// syntax: copyField("oldField",'newField')
+				/* syntax: copyField("oldField",'newField')*/
 				 copyField("VV", "V3");
 
-				//syntax: thresholdData("targetField","criteriaField","criteria",criteriaValue,)
+				/* syntax: thresholdData("targetField","criteriaField","criteria",criteriaValue,)*/
 				thresholdData("V3","CC","below", 0.85);
 				thresholdData("V3","DC","above",1.8);
 				thresholdData("V3","W0","above",30.);
 				thresholdData("V3","W0","below",0.);
-				// note: it gives similar results to Solo3 and is more agressive than thresholdDataAND
+				/* note: it gives similar results to editing in Solo3 but is 
+						more agressive than thresholdDataAND*/
 
-				//syntax:thresholdDataAND("targetField","criteriaField1", "direction1", "thresholds1",
-				//											"criteriaField2", "direction2", "thresholds2",
-				//											"criteriaField3", "direction3", "thresholds3")
+				/* syntax:thresholdDataAND("targetField","criteriaField1", "direction1", "thresholds1",
+															"criteriaField2", "direction2", "thresholds2",
+															"criteriaField3", "direction3", "thresholds3")*/
 				// directions "below" and "above" use only first value of threshold
 				// float threshold1 [2] = {0.85,0};
 				// float threshold2 [2] = {1.8,0.0};
@@ -108,19 +109,19 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// 						 "DC","above", threshold2,
 				// 						 "W0","outside", threshold3);
 
-				// syntax: despeckleRadial("targetField", #gates)
-				despeckleRadial("V3", 3);
-				despeckleAzimuthal("V3", 3);
+				/* syntax: despeckleRadial("targetField", #gates)*/
+				// despeckleRadial("V3", 3);
+				// despeckleAzimuthal("V3", 3);
 
 
-				// syntax: exportVad("targetField",NyquistVel)
+				/* syntax: exportVad("targetField",NyquistVel)*/
 				exportVad("V3",f);
 
-				// syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)
-        //histogram("VE", -20, 20, 1,f);
+				/* syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)*/
+        		// histogram("VE", -20, 20, 1,f);
 
-				// Write it back out
-			  saveQCedSwp(f);
+				/* Write it back out*/
+			  	saveQCedSwp(f);
 
 			}
 			else {
@@ -189,7 +190,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			// copyEdits("VG","DBZ");
 
 			// Write it back out
-		    	saveQCedSwp(f);
+		    saveQCedSwp(f);
 
 			// Dump the data to compare the flight level wind and radar data
 			//dumpFLwind();
@@ -3564,10 +3565,9 @@ QFile verifyFile;
 QTextStream vout(&verifyFile);
 //QString fileName = fldname + "_histogram.txt";
 QString fileName = outPath.absolutePath() + "/" + fldname + "_histogram.txt";
-
-
 verifyFile.setFileName(fileName);
 verifyFile.open(QIODevice::Append | QIODevice::WriteOnly);
+
 if ((max == -999999) and (min = -999999)) {
 	for (int i=0; i < swpfile.getNumRays(); i++)  {
 		float* data = swpfile.getRayData(i, fldname);
@@ -3633,14 +3633,13 @@ void AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
 
 QFile verifyFile;
 QTextStream vout(&verifyFile);
-//QString fileName = fldname + "_vad.txt";
 QString fileName = outPath.absolutePath() + "/" + getswpfileName(swpIndex) + "_" + fldname + ".vad";
 verifyFile.setFileName(fileName);
-verifyFile.open(QIODevice::Append | QIODevice::WriteOnly);
+verifyFile.open(QIODevice::WriteOnly);
 
 //float Nyq=swpfile.getNyquistVelocity();
-int rays=swpfile.getNumRays();
-int gates=swpfile.getNumGates();
+int rays = swpfile.getNumRays();
+int gates = swpfile.getNumGates();
 
 // 2D matrix
 float** veloc = new float*[rays];
@@ -3649,35 +3648,43 @@ for (int i=0; i < rays; i++)  {
 }
 
 // Populate matrix
-float* azim = new float[rays];
+//float* azim = new float[rays];
 for (int i=0; i < rays; i++)  {
+//	azim[i] = swpfile.getAzimuth(i);
 	float* data = swpfile.getRayData(i, fldname);
-	float az = swpfile.getAzimuth(i);
-	azim[i]=az;
 	for (int n=0; n < gates; n++) {
-		veloc[i][n]=data[n];
+		//veloc[i][n]=data[n];
+		veloc[i][n]=1.0;
 	}
 }
+
+//this->swpField2array(fldname, veloc);
+
 
 
 // Write text file with VAD by adding new data (i.e. rows)
-// at the end of the file.
+//at the end of the file
+/* first line with header */
+// for (int i=0; i<rays; i++) {
+// 	vout << azim[i] << "\t" ;
+// }
+// vout<< "\n";
+// /* rest of the lines */
+// for (int i=0; i<rays; i++) {
+// 	for (int n=0; n<gates; n++) {
+// 		vout << veloc[i][n]  << "\t" ;
+// 	}
+// 	vout<< "\n";
+// }
 
-// first line with header
-for (int i=0; i<rays; i++) {
-	vout << azim[i] << "\t" ;
+/* delete array */
+for (int i=0; i < rays; i++)  {
+	delete[] veloc[i];
 }
-vout<< "\n";
-
-// rest of the lines
-for (int i=0; i<rays; i++) {
-	for (int n=0; n<gates; n++) {
-		vout << veloc[i][n]  << "\t" ;
-	}
-	vout<< "\n";
-}
+delete[] veloc;
 
 
+/* close file*/
 verifyFile.close();
 }
 
