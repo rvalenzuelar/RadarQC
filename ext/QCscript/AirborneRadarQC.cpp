@@ -113,15 +113,17 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// despeckleRadial("V3", 3);
 				// despeckleAzimuthal("V3", 3);
 
-
-				/* syntax: exportVad("targetField",NyquistVel)*/
-				exportVad("V3",f);
-
 				/* syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)*/
         		// histogram("VE", -20, 20, 1,f);
 
 				/* Write it back out*/
 			  	saveQCedSwp(f);
+
+			  	/* syntax: exportVad("targetField",NyquistVel)*/
+				exportVad("V3",f);
+				/* note: it has to be after saveQCedSwp, otherwise
+						creates a Segmentation Fault error when 
+						click over data in solo3*/
 
 			}
 			else {
@@ -3641,47 +3643,39 @@ verifyFile.open(QIODevice::WriteOnly);
 int rays = swpfile.getNumRays();
 int gates = swpfile.getNumGates();
 
+// gets azimuths
+float* azim = new float[rays];
+for (int i=0; i < rays; i++)  {
+	azim[i] = swpfile.getAzimuth(i);
+}
+
 // 2D matrix
-float** veloc = new float*[rays];
+float** data = new float*[rays];
 for (int i=0; i < rays; i++)  {
-	veloc[i] = new float[gates];
+	data[i] = new float[gates];
 }
-
-// Populate matrix
-//float* azim = new float[rays];
-for (int i=0; i < rays; i++)  {
-//	azim[i] = swpfile.getAzimuth(i);
-	float* data = swpfile.getRayData(i, fldname);
-	for (int n=0; n < gates; n++) {
-		//veloc[i][n]=data[n];
-		veloc[i][n]=1.0;
-	}
-}
-
-//this->swpField2array(fldname, veloc);
-
-
+this->swpField2array(fldname, data);
 
 // Write text file with VAD by adding new data (i.e. rows)
 //at the end of the file
 /* first line with header */
-// for (int i=0; i<rays; i++) {
-// 	vout << azim[i] << "\t" ;
-// }
-// vout<< "\n";
-// /* rest of the lines */
-// for (int i=0; i<rays; i++) {
-// 	for (int n=0; n<gates; n++) {
-// 		vout << veloc[i][n]  << "\t" ;
-// 	}
-// 	vout<< "\n";
-// }
+for (int i=0; i<rays; i++) {
+	vout << azim[i] << "\t" ;
+}
+vout<< "\n";
+/* rest of the lines */
+for (int i=0; i<rays; i++) {
+	for (int n=0; n<gates; n++) {
+		vout << data[i][n]  << "\t" ;
+	}
+	vout<< "\n";
+}
 
 /* delete array */
 for (int i=0; i < rays; i++)  {
-	delete[] veloc[i];
+	delete[] data[i];
 }
-delete[] veloc;
+delete[] data;
 
 
 /* close file*/
