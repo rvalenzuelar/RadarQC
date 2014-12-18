@@ -3664,8 +3664,8 @@ for (int i=0; i<rays; i++) {
 }
 vout<< "\n";
 /* rest of the lines */
-for (int i=0; i<rays; i++) {
-	for (int n=0; n<gates; n++) {
+for (int n=0; n<gates; n++) {
+	for (int i=0; i<rays; i++) {
 		vout << data[i][n]  << "\t" ;
 	}
 	vout<< "\n";
