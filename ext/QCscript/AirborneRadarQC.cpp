@@ -88,7 +88,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			if (typeQC == "ground"){
 
 				/* syntax: copyField("oldField",'newField')*/
-				 copyField("VV", "V3");
+				copyField("VV", "V3");
 
 				/* syntax: thresholdData("targetField","criteriaField","criteria",criteriaValue,)*/
 				thresholdData("V3","CC","below", 0.85);
@@ -119,11 +119,11 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				/* Write it back out*/
 			  	saveQCedSwp(f);
 
-			  	/* syntax: exportVad("targetField",NyquistVel)*/
+				/* syntax: exportVad("targetField",NyquistVel)*/
 				exportVad("V3",f);
-				/* note: it has to be after saveQCedSwp, otherwise
+				/*note: it has to be after saveQCedSwp, otherwise
 						creates a Segmentation Fault error when 
-						click over data in solo3*/
+						clicking over data in solo3*/
 
 			}
 			else {
@@ -132,12 +132,12 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			// Use these to apply navigation corrections
 			// setNavigationCorrections("rf12.cfac.aft", "TA-ELDR");
 			// setNavigationCorrections("rf12.cfac.fore", "TF-ELDR");
-			 setNavigationCorrections("cfac.aft", "TA43P3");
-			 setNavigationCorrections("cfac.fore", "TF43P3");
+			 // setNavigationCorrections("cfac.aft", "TA43P3");
+			 // setNavigationCorrections("cfac.fore", "TF43P3");
 
 			// Make a backup of the original dBZ
 			// syntax: copyField("oldField",'newField')
-			 copyField("DZ", "ZBK");
+			 // copyField("DZ", "ZBK");
 
 
 			// removeAircraftMotion("VR", "VG");
@@ -3635,7 +3635,8 @@ void AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
 
 QFile verifyFile;
 QTextStream vout(&verifyFile);
-QString fileName = outPath.absolutePath() + "/" + getswpfileName(swpIndex) + "_" + fldname + ".vad";
+QString oname= getswpfileName(swpIndex).replace(0,3,"vad");
+QString fileName = outPath.absolutePath() + "/" + oname + "_" + fldname ;
 verifyFile.setFileName(fileName);
 verifyFile.open(QIODevice::WriteOnly);
 
