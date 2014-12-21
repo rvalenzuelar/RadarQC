@@ -110,8 +110,8 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// 						 "W0","outside", threshold3);
 
 				/* syntax: despeckleRadial("targetField", #gates)*/
-				// despeckleRadial("V3", 3);
-				// despeckleAzimuthal("V3", 3);
+				despeckleRadial("V3", 3);
+				despeckleAzimuthal("V3", 3);
 
 				/* syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)*/
         		// histogram("VE", -20, 20, 1,f);
@@ -123,7 +123,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				exportVad("V3",f);
 				/*note: it has to be after saveQCedSwp, otherwise
 						creates a Segmentation Fault error when 
-						clicking over data in solo3*/
+						clicking over data in solo3 RV*/
 
 			}
 			else {
@@ -513,6 +513,7 @@ void AirborneRadarQC::despeckleAzimuthal(const QString& fldname, const int& spec
 		delete[] data[i];
 	}
 	delete[] data;
+
 
 }
 
@@ -3677,7 +3678,7 @@ for (int i=0; i < rays; i++)  {
 	delete[] data[i];
 }
 delete[] data;
-
+delete[] azim;
 
 /* close file*/
 verifyFile.close();
