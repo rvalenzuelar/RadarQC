@@ -1,7 +1,9 @@
 RadarQC
 =======
 
-MBell's radar QC code with extra functions.
+AirborneRadar QC code with extra functions.
+
+Original code developed by Michael Bell and Cory Wolff (2011)
 
 Need installed:
 
