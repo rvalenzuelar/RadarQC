@@ -111,7 +111,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 				/* syntax: despeckleRadial("targetField", #gates)*/
 				despeckleRadial("V3", 3);
-				despeckleAzimuthal("V3", 3);
+				// despeckleAzimuthal("V3", 3);
 
 				/* syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)*/
         		// histogram("VE", -20, 20, 1,f);
@@ -120,7 +120,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			  	saveQCedSwp(f);
 
 				/* syntax: exportVad("targetField",NyquistVel)*/
-				exportVad("V3",f);
+				// exportVad("V3",f);
 				/*note: it has to be after saveQCedSwp, otherwise
 						creates a Segmentation Fault error when 
 						clicking over data in solo3 RV*/
@@ -620,14 +620,29 @@ void AirborneRadarQC::GaussianSmooth(const QString& oriFieldName, float** field,
 
 void AirborneRadarQC::swpField2array(const QString& oriFieldName, float** field)
 {
+	float* oridata = NULL;
+	// float alejo=0.0;
+	// float richard=0.0;
 
 	for (int i=0; i < swpfile.getNumRays(); i++)  {
-		float* oridata = swpfile.getRayData(i, oriFieldName);
+		// float* oridata = NULL;
+		
+		oridata = swpfile.getRayData(i, oriFieldName);
+		// alejo=*((float*)oridata); // dereferenceing on casting
+
+		// std::cout << alejo << endl;
+
 		for (int n=0; n < swpfile.getNumGates(); n++) {
 			field[i][n] = oridata[n];
+			// field[i][n] = 1.0;
+			
+			// richard=*((float*)oridata[n]);
+			
+			// std::cout << alejo << endl;
+			// std::cout << richard << endl;
+
 		}
 	}
-
 }
 
 void AirborneRadarQC::array2swpField(float** field, const QString& oriFieldName, const QString& newFieldName)
@@ -644,7 +659,6 @@ void AirborneRadarQC::array2swpField(float** field, const QString& oriFieldName,
 			newdata[n] = field[i][n];
 		}
 	}
-
 }
 
 void AirborneRadarQC::array2swpField(float** field, const QString& oriFieldName)
@@ -3632,57 +3646,74 @@ verifyFile.close();
 ** exportVad : Export text file with a azimuth and velocity for each sweep file.
 				Rows are ranges and columns azimuths
 ****************************************************************************************/
-void AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
+// bool AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
+// bool AirborneRadarQC::exportVad(const QString& fldname) {
 
-QFile verifyFile;
-QTextStream vout(&verifyFile);
-QString oname= getswpfileName(swpIndex).replace(0,3,"vad");
-QString fileName = outPath.absolutePath() + "/" + oname + "_" + fldname ;
-verifyFile.setFileName(fileName);
-verifyFile.open(QIODevice::WriteOnly);
+	// // Do some QC
+	// if (!getfileListsize()) {
+	// std::cout << "No swp files exist in " << dataPath.dirName().toStdString() << "\n";
+	// return false;
+	// }
 
-//float Nyq=swpfile.getNyquistVelocity();
-int rays = swpfile.getNumRays();
-int gates = swpfile.getNumGates();
+	// for (int f = 0; f < getfileListsize(); ++f) {
+	// 	//for (int f = 0; f < 10; ++f) {
+	// 	if (load(f)) {
 
-// gets azimuths
-float* azim = new float[rays];
-for (int i=0; i < rays; i++)  {
-	azim[i] = swpfile.getAzimuth(i);
-}
+	// 		std::cout << "Processing " << swpfile.getFilename().toStdString() << "\n";
 
-// 2D matrix
-float** data = new float*[rays];
-for (int i=0; i < rays; i++)  {
-	data[i] = new float[gates];
-}
-this->swpField2array(fldname, data);
+	// 		QFile verifyFile;
+	// 		QTextStream vout(&verifyFile);
+	// 		QString oname= getswpfileName(f).replace(0,3,"vad");
+	// 		QString fileName = outPath.absolutePath() + "/" + oname + "_" + fldname ;
+	// 		verifyFile.setFileName(fileName);
+	// 		verifyFile.open(QIODevice::WriteOnly);
 
-// Write text file with VAD by adding new data (i.e. rows)
-//at the end of the file
-/* first line with header */
-for (int i=0; i<rays; i++) {
-	vout << azim[i] << "\t" ;
-}
-vout<< "\n";
-/* rest of the lines */
-for (int n=0; n<gates; n++) {
-	for (int i=0; i<rays; i++) {
-		vout << data[i][n]  << "\t" ;
-	}
-	vout<< "\n";
-}
+	// 		//float Nyq=swpfile.getNyquistVelocity();
+	// 		int rays = swpfile.getNumRays();
+	// 		int gates = swpfile.getNumGates();
 
-/* delete array */
-for (int i=0; i < rays; i++)  {
-	delete[] data[i];
-}
-delete[] data;
-delete[] azim;
+	// 		// gets azimuths
+	// 		float* azim = new float[rays];
+	// 		for (int i=0; i < rays; i++)  {
+	// 			azim[i] = swpfile.getAzimuth(i);
+	// 		}
 
-/* close file*/
-verifyFile.close();
-}
+	// 		// 2D matrix
+	// 		float** data = new float*[rays];
+	// 		for (int i=0; i < rays; i++)  {
+	// 			data[i] = new float[gates];
+	// 		}
+	// 		this->swpField2array(fldname, data);
+
+	// 		// Write text file with VAD by adding new data (i.e. rows)
+	// 		//at the end of the file
+	// 		/* first line with header */
+	// 		for (int i=0; i<rays; i++) {
+	// 			vout << azim[i] << "\t" ;
+	// 		}
+	// 		vout<< "\n";
+	// 		/* rest of the lines */
+	// 		for (int n=0; n<gates; n++) {
+	// 			for (int i=0; i<rays; i++) {
+	// 				vout << data[i][n]  << "\t" ;
+	// 			}
+	// 			vout<< "\n";
+	// 		}
+
+	// 		/* delete array */
+	// 		for (int i=0; i < rays; i++)  {
+	// 			delete[] data[i];
+	// 		}
+	// 		delete[] data;
+	// 		delete[] azim;
+
+	// 		/* close file*/
+	// 		verifyFile.close();
+
+	// 	}
+	// }
+	// return true; 
+// }
 
 /****************************************************************************************
 ** getRayIndex : This function returns the correct ray index given a value.  Most of the

@@ -25,6 +25,8 @@ int main () {
 	QC.processSweeps("ground");
 	// QC.processSweeps("airborne");
 
+	// QC.exportVad("V3");
+
 	return 0;
 
 }

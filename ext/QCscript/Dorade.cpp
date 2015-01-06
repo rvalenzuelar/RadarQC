@@ -22,7 +22,7 @@ Dorade::Dorade()
 	aptr = new asib_info[1500];
 	dptr = new rdat_info*[40];
 	for (int i=0; i<40; i++) {
-		dptr[i] = new rdat_info[1500];
+		dptr[i] = new rdat_info[1500]; //<-- might produce the issue
 	}
 	rangles = new radar_angles[1500];
 	rkptr = new rktb_info;
