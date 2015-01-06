@@ -1,7 +1,7 @@
 RadarQC
 =======
 
-AirborneRadar QC code with extra functions.
+AirborneRadarQC code implemented only with C++. Extra functions are being added.
 
 Original code developed by Michael Bell and Cory Wolff (2011)
 
