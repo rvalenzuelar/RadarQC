@@ -620,29 +620,36 @@ void AirborneRadarQC::GaussianSmooth(const QString& oriFieldName, float** field,
 
 void AirborneRadarQC::swpField2array(const QString& oriFieldName, float** field)
 {
-	float* oridata = NULL;
-	// float alejo=0.0;
-	// float richard=0.0;
+	// float* oridata = NULL;
+	// // float alejo=0.0;
+	// // float richard=0.0;
+
+	// for (int i=0; i < swpfile.getNumRays(); i++)  {
+	// 	// float* oridata = NULL;
+		
+	// 	oridata = swpfile.getRayData(i, oriFieldName);
+	// 	// alejo=*((float*)oridata); // dereferenceing on casting
+
+	// 	// std::cout << alejo << endl;
+
+	// 	for (int n=0; n < swpfile.getNumGates(); n++) {
+	// 		field[i][n] = oridata[n];
+	// 		// field[i][n] = 1.0;
+			
+	// 		// richard=*((float*)oridata[n]);
+			
+	// 		// std::cout << alejo << endl;
+	// 		// std::cout << richard << endl;
+
+	// 	}
+	// }
 
 	for (int i=0; i < swpfile.getNumRays(); i++)  {
-		// float* oridata = NULL;
-		
-		oridata = swpfile.getRayData(i, oriFieldName);
-		// alejo=*((float*)oridata); // dereferenceing on casting
-
-		// std::cout << alejo << endl;
-
+		float* oridata = swpfile.getRayData(i, oriFieldName);
 		for (int n=0; n < swpfile.getNumGates(); n++) {
 			field[i][n] = oridata[n];
-			// field[i][n] = 1.0;
-			
-			// richard=*((float*)oridata[n]);
-			
-			// std::cout << alejo << endl;
-			// std::cout << richard << endl;
-
 		}
-	}
+	}	
 }
 
 void AirborneRadarQC::array2swpField(float** field, const QString& oriFieldName, const QString& newFieldName)
@@ -3647,73 +3654,78 @@ verifyFile.close();
 				Rows are ranges and columns azimuths
 ****************************************************************************************/
 // bool AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
-// bool AirborneRadarQC::exportVad(const QString& fldname) {
+void AirborneRadarQC::exportVad(const QString& fldname) {
 
-	// // Do some QC
+	// Do some QC
 	// if (!getfileListsize()) {
 	// std::cout << "No swp files exist in " << dataPath.dirName().toStdString() << "\n";
 	// return false;
 	// }
 
-	// for (int f = 0; f < getfileListsize(); ++f) {
-	// 	//for (int f = 0; f < 10; ++f) {
-	// 	if (load(f)) {
+	for (int f = 0; f < getfileListsize(); ++f) {
+		//for (int f = 0; f < 10; ++f) {
+		if (load(f)) {
 
-	// 		std::cout << "Processing " << swpfile.getFilename().toStdString() << "\n";
+			std::cout << "Exporting VAD " << swpfile.getFilename().toStdString() << "\n";
 
-	// 		QFile verifyFile;
-	// 		QTextStream vout(&verifyFile);
-	// 		QString oname= getswpfileName(f).replace(0,3,"vad");
-	// 		QString fileName = outPath.absolutePath() + "/" + oname + "_" + fldname ;
-	// 		verifyFile.setFileName(fileName);
-	// 		verifyFile.open(QIODevice::WriteOnly);
+			QFile verifyFile;
+			QTextStream vout(&verifyFile);
+			QString oname= getswpfileName(f).replace(0,3,"vad");
+			QString fileName = outPath.absolutePath() + "/" + oname + "_" + fldname ;
+			verifyFile.setFileName(fileName);
+			verifyFile.open(QIODevice::WriteOnly);
 
-	// 		//float Nyq=swpfile.getNyquistVelocity();
-	// 		int rays = swpfile.getNumRays();
-	// 		int gates = swpfile.getNumGates();
+			//float Nyq=swpfile.getNyquistVelocity();
+			int rays = swpfile.getNumRays();
+			int gates = swpfile.getNumGates();
 
-	// 		// gets azimuths
-	// 		float* azim = new float[rays];
-	// 		for (int i=0; i < rays; i++)  {
-	// 			azim[i] = swpfile.getAzimuth(i);
-	// 		}
+			// gets azimuths
+			float* azim = new float[rays];
+			for (int i=0; i < rays; i++)  {
+				azim[i] = swpfile.getAzimuth(i);
+			}
 
-	// 		// 2D matrix
-	// 		float** data = new float*[rays];
-	// 		for (int i=0; i < rays; i++)  {
-	// 			data[i] = new float[gates];
-	// 		}
-	// 		this->swpField2array(fldname, data);
+			// 2D matrix
+			float** data = new float*[rays];
+			for (int i=0; i < rays; i++)  {
+				data[i] = new float[gates];
+			}
 
-	// 		// Write text file with VAD by adding new data (i.e. rows)
-	// 		//at the end of the file
-	// 		/* first line with header */
-	// 		for (int i=0; i<rays; i++) {
-	// 			vout << azim[i] << "\t" ;
-	// 		}
-	// 		vout<< "\n";
-	// 		/* rest of the lines */
-	// 		for (int n=0; n<gates; n++) {
-	// 			for (int i=0; i<rays; i++) {
-	// 				vout << data[i][n]  << "\t" ;
-	// 			}
-	// 			vout<< "\n";
-	// 		}
+			std::cout << "linea 1 " << "\n";
 
-	// 		/* delete array */
-	// 		for (int i=0; i < rays; i++)  {
-	// 			delete[] data[i];
-	// 		}
-	// 		delete[] data;
-	// 		delete[] azim;
+			this->swpField2array(fldname, data);
 
-	// 		/* close file*/
-	// 		verifyFile.close();
+			std::cout << "linea 2 " << "\n";
 
-	// 	}
-	// }
+			// Write text file with VAD by adding new data (i.e. rows)
+			//at the end of the file
+			/* first line with header */
+			for (int i=0; i<rays; i++) {
+				vout << azim[i] << "\t" ;
+			}
+			vout<< "\n";
+			/* rest of the lines */
+			for (int n=0; n<gates; n++) {
+				for (int i=0; i<rays; i++) {
+					vout << data[i][n]  << "\t" ;
+				}
+				vout<< "\n";
+			}
+
+			/* delete array */
+			for (int i=0; i < rays; i++)  {
+				delete[] data[i];
+			}
+			delete[] data;
+			delete[] azim;
+
+			/* close file*/
+			verifyFile.close();
+
+		}
+	}
 	// return true; 
-// }
+}
 
 /****************************************************************************************
 ** getRayIndex : This function returns the correct ray index given a value.  Most of the
