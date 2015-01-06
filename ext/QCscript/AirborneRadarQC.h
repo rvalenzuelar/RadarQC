@@ -137,7 +137,7 @@ public:
 	void soloiiScriptVerification();
 	void histogram(const QString& fldname, double min = 999999.0, double max = -999999.0,
 			 double interval = 0.0, int thisfile=0);
-	void exportVad(const QString& fldname);
+	bool exportVad(const QString& fldname,const int& swpIndex);
 
 private:
 	QList<QString> swpfileList;

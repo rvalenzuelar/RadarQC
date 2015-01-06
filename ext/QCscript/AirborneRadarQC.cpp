@@ -120,7 +120,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			  	saveQCedSwp(f);
 
 				/* syntax: exportVad("targetField",NyquistVel)*/
-				// exportVad("V3",f);
+				exportVad("V3",f);
 				/*note: it has to be after saveQCedSwp, otherwise
 						creates a Segmentation Fault error when 
 						clicking over data in solo3 RV*/
@@ -472,7 +472,9 @@ void AirborneRadarQC::despeckleAzimuthal(const QString& fldname, const int& spec
 		int i = 0;
 		while (i < rays) {
 			// Found a good gate, go forward to look for bad flag
-			if (data[i][n] != -32768.) {
+
+			//shouldn't be an address?
+			if (data[i][n] != -32768.) { 
 				int m = 0;
 				int s = i;
 				while ((i < rays) and (data[i][n] != -32768.)) {
@@ -620,36 +622,37 @@ void AirborneRadarQC::GaussianSmooth(const QString& oriFieldName, float** field,
 
 void AirborneRadarQC::swpField2array(const QString& oriFieldName, float** field)
 {
-	// float* oridata = NULL;
-	// // float alejo=0.0;
-	// // float richard=0.0;
-
-	// for (int i=0; i < swpfile.getNumRays(); i++)  {
-	// 	// float* oridata = NULL;
-		
-	// 	oridata = swpfile.getRayData(i, oriFieldName);
-	// 	// alejo=*((float*)oridata); // dereferenceing on casting
-
-	// 	// std::cout << alejo << endl;
-
-	// 	for (int n=0; n < swpfile.getNumGates(); n++) {
-	// 		field[i][n] = oridata[n];
-	// 		// field[i][n] = 1.0;
-			
-	// 		// richard=*((float*)oridata[n]);
-			
-	// 		// std::cout << alejo << endl;
-	// 		// std::cout << richard << endl;
-
-	// 	}
-	// }
+	float* oridata = NULL;
+	// float alejo=0.0;
+	// float richard=0.0;
 
 	for (int i=0; i < swpfile.getNumRays(); i++)  {
-		float* oridata = swpfile.getRayData(i, oriFieldName);
+		// float* oridata = NULL;
+		
+		oridata = swpfile.getRayData(i, oriFieldName);
+		// alejo=*((float*)oridata); // dereferenceing on casting
+
+		// std::cout << alejo << endl;
+
 		for (int n=0; n < swpfile.getNumGates(); n++) {
 			field[i][n] = oridata[n];
+			// field[i][n] = 1.0;
+			
+			// richard=*((float*)oridata[n]);
+			
+			// std::cout << alejo << endl;
+			// std::cout << richard << endl;
+
 		}
-	}	
+	}
+
+// 	for (int i=0; i < swpfile.getNumRays(); i++)  {
+// 		float* oridata = swpfile.getRayData(i, oriFieldName);
+// 		for (int n=0; n < swpfile.getNumGates(); n++) {
+// 			field[i][n] = oridata[n];
+// 		}
+// 	}	
+
 }
 
 void AirborneRadarQC::array2swpField(float** field, const QString& oriFieldName, const QString& newFieldName)
@@ -3653,8 +3656,8 @@ verifyFile.close();
 ** exportVad : Export text file with a azimuth and velocity for each sweep file.
 				Rows are ranges and columns azimuths
 ****************************************************************************************/
-// bool AirborneRadarQC::exportVad(const QString& fldname,const int& swpIndex) {
-void AirborneRadarQC::exportVad(const QString& fldname) {
+bool AirborneRadarQC::exportVad(const QString& fldname,const int& f) {
+// void AirborneRadarQC::exportVad(const QString& fldname) {
 
 	// Do some QC
 	// if (!getfileListsize()) {
@@ -3662,9 +3665,9 @@ void AirborneRadarQC::exportVad(const QString& fldname) {
 	// return false;
 	// }
 
-	for (int f = 0; f < getfileListsize(); ++f) {
-		//for (int f = 0; f < 10; ++f) {
-		if (load(f)) {
+	// for (int f = 0; f < getfileListsize(); ++f) {
+	// 	//for (int f = 0; f < 10; ++f) {
+	// 	if (load(f)) {
 
 			std::cout << "Exporting VAD " << swpfile.getFilename().toStdString() << "\n";
 
@@ -3685,17 +3688,35 @@ void AirborneRadarQC::exportVad(const QString& fldname) {
 				azim[i] = swpfile.getAzimuth(i);
 			}
 
-			// 2D matrix
+			// initializate 2D array
 			float** data = new float*[rays];
 			for (int i=0; i < rays; i++)  {
 				data[i] = new float[gates];
 			}
 
-			std::cout << "linea 1 " << "\n";
 
 			this->swpField2array(fldname, data);
 
-			std::cout << "linea 2 " << "\n";
+			// float ale=0.0;
+			// float* oridata=NULL;
+
+			// for (int i=0; i < swpfile.getNumRays(); i++)  {
+			// 	oridata = swpfile.getRayData(i, fldname);
+			
+			// 	// ale = *((float*)oridata);
+			// 	// ale = *oridata;
+
+			// 	// std::cout << *oridata << endl;
+
+			// 	for (int n=0; n < swpfile.getNumGates(); n++) {
+			// 		data[i][n] = oridata[n];
+			// 		// data[i][n] = 1.0;
+			// 		// data[i][n] = *((float*)oridata);
+			// 		// std::cout << *((float*)oridata) << endl;
+			// 	}
+			// }	
+
+
 
 			// Write text file with VAD by adding new data (i.e. rows)
 			//at the end of the file
@@ -3722,9 +3743,9 @@ void AirborneRadarQC::exportVad(const QString& fldname) {
 			/* close file*/
 			verifyFile.close();
 
-		}
-	}
-	// return true; 
+	// 	}
+	// }
+	return true; 
 }
 
 /****************************************************************************************
