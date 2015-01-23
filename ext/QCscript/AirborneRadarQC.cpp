@@ -111,7 +111,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 				/* syntax: despeckleRadial("targetField", #gates)*/
 				despeckleRadial("V3", 3);
-				// despeckleAzimuthal("V3", 3);
+				despeckleAzimuthal("V3", 3);
 
 				/* syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)*/
         		// histogram("VE", -20, 20, 1,f);
