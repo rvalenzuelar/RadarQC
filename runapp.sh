@@ -34,14 +34,14 @@ RDXOUT="$(ls -d */)"
 # remove radarqc output files to avoid duplicates
 rm swp*
 
-# overwrite qced files with washed files
-echo "Moving files..."
+# changes to RadxConvert output directory
 cd $RDXOUT
 
 # add QC suffix
 find . -type f -exec mv '{}' '{}'.QC \;
 
 # move files to QCed directory
+echo "Moving files..."
 mv swp* $OUTDIR
 
 # goes back to QCed directory and removes RadxConvert
