@@ -9,11 +9,14 @@
 
 using namespace std;
 
-int main () {
+int main (int argc, char *argv[]) {
 
 	// The qc object will read from one directory and write to another
-	QString inpath = "/home/raul/Radardata/ppisubset";
-	QString outpath = "/home/raul/Radardata/ppisubset/QCed";
+	// QString inpath = "/home/raul/Radardata/ppisubset";
+	// QString outpath = "/home/raul/Radardata/ppisubset/QCed";
+
+	QString inpath = argv[1];
+	QString outpath = argv[2];
 
 	// QString inpath = "/home/raul/Radardata/p3/case04";
 	// QString outpath = "/home/raul/Radardata/p3/case04/QCed";
