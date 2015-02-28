@@ -18,4 +18,5 @@ Add link path to environment variable using .bashrc:
 Functions added:
 
 - Thresholding with an AND operation
-- Dump a VAD text file (working on)
+- Dump a VAD text file
+- Use RadxConvert (in bash script) to remove issues with Solo3
