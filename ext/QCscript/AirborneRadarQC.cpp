@@ -119,11 +119,18 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				/* Write it back out*/
 			  	saveQCedSwp(f);
 
-				/* syntax: exportVad("targetField",NyquistVel)*/
+				/* syntax: exportVad("targetField",fileindex)*/
 				exportVad("V3",f);
-				/*note: it has to be after saveQCedSwp, otherwise
-						creates a Segmentation Fault error when 
-						clicking over data in solo3 RV*/
+				
+				/*note: crashing after clicking in a edited dorade
+				file it was caused by upgrade of 32-bit to 64-bit
+				version of Solo3. MB provided the new read_dorade.h
+				file to fix this. Then, cleaning the dorade file
+				with RadxConvert:
+				RadxConvert -f input/swp.* -dorade
+				solved the problem.
+				
+				RV*/
 
 			}
 			else {
