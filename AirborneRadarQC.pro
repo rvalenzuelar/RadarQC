@@ -7,7 +7,7 @@ QT += widgets
 TARGET = radarqc
 DEPENDPATH += .
 INCLUDEPATH += . /usr/include/geotiff
-SOURCEPATH = ./ext/QCscript
+SOURCEPATH = .
 
 # Input
 HEADERS +=$$SOURCEPATH/AirborneRadarQC.h \
