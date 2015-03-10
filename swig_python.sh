@@ -24,7 +24,7 @@ INCDIR=/include/python2.7
 INCPATH=${PYINT/$BINDIR/$INCDIR}
 
 # compile
-gcc -c "$MODNAME.c" "${MODNAME}_wrap.c" "-I$INCPATH" 
+gcc -c "$MODNAME.cpp" "${MODNAME}_wrap.c" "-I$INCPATH" 
 
 # link libraries
 OFILES="$(ls *.o)"
