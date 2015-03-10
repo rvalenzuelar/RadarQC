@@ -10,8 +10,8 @@
 #define AIRBORNEQC_H
 
 #include "Dorade.h"
-#include <QList>
-#include <QDir>
+#include <QtCore/QList>
+#include <QtCore/QDir>
 
 class AirborneRadarQC
 {

@@ -13,8 +13,8 @@
 #include <iterator>
 #include <fstream>
 #include <iostream>
-#include <QFile>
-#include <QTextStream>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
 
 using namespace std;
 using namespace GeographicLib;

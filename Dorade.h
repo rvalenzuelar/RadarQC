@@ -11,8 +11,8 @@
 #define DORADE_H
 
 #include "read_dorade.h"
-#include <QDir>
-#include <QDateTime>
+#include <QtCore/QDir>
+#include <QtCore/QDateTime>
 #include <cmath>
 
 class Dorade
