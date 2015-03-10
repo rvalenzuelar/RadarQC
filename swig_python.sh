@@ -13,22 +13,28 @@ IFILE="$(ls *.i)"
 MODNAME=${IFILE%.i}
 
 # runs swig for python with the inteface file
-swig -python $IFILE
+swig -python -c++ $IFILE
 
 # determine python interpreter used
 PYINT="$(which python)"
 
-# parse correct include directory
+# parse correct include python directory
 BINDIR=${PYINT: -11} #extract string
-INCDIR=/include/python2.7
-INCPATH=${PYINT/$BINDIR/$INCDIR}
+PYDIR=/include/python2.7
+PYPATH=${PYINT/$BINDIR/$INCDIR}
+
+# include QT directory
+QTPATH=/usr/include/qt5
+
+# include geotiff directory
+GFPATH=/usr/include/geotiff
 
 # compile
-gcc -c "$MODNAME.cpp" "${MODNAME}_wrap.c" "-I$INCPATH" 
+g++ -c -fPIC "$MODNAME.cpp" "${MODNAME}_wrap.cxx" "-I$PYPATH" "-I$QTPATH" "-I$GFPATH"
 
 # link libraries
 OFILES="$(ls *.o)"
-ld -shared $OFILES -o "_${MODNAME}.so"
+g++ -shared -fPIC $OFILES -o "_${MODNAME}.so"
 
 # remove unncessary files
 rm *.o *wrap.c
