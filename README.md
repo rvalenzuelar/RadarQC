@@ -28,6 +28,29 @@ After importing AirborneRadarQC into python, QString class (via PyQt) seems not
 to work. For example:
 
 ```python
+
+In [1]: import AirborneRadarQC
+
+In [2]: from PyQt4 import QtCore as Qt
+
+In [3]: in1=Qt.QString('uno')
+
+In [5]: type(in1)
+Out[5]: PyQt4.QtCore.QString
+
+In [6]: in2=Qt.QString('dos')
+
+In [7]: ss=Qt.QString('qc')
+
+In [8]: in1
+Out[8]: PyQt4.QtCore.QString(u'uno')
+
+In [9]: in2
+Out[9]: PyQt4.QtCore.QString(u'dos')
+
+In [10]: ss
+Out[10]: PyQt4.QtCore.QString(u'qc')
+
 In [11]: dum=AirborneRadarQC.AirborneRadarQC(in1,in2,ss)
 ---------------------------------------------------------------------------
 NotImplementedError                       Traceback (most recent call last)
