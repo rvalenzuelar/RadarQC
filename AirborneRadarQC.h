@@ -10,8 +10,8 @@
 #define AIRBORNEQC_H
 
 #include "Dorade.h"
-#include <QtCore/QList>
-#include <QtCore/QDir>
+#include <QList>
+#include <QDir>
 
 class AirborneRadarQC
 {
@@ -67,11 +67,11 @@ public:
 	void calcStdDev(const QString& oldFieldName, float** field);
 	void calcStdDev(float** orifield, float** field);
 
-	void calcMeanRef(const QString& fldname);
+	// void calcMeanRef(const QString& fldname);
 	void calcSpatialMean(const QString& oriFieldName, const QString& newFieldName, const int& gateWindow, const int& rayWindow);
 	void calcTemporalMean(const QString& oriFieldName, const QString& newFieldName);
-	void calcGate2GateRefGrad(const QString& fldname);
-	void calcAzimuthRefGrad(const QString& fldname);
+	// void calcGate2GateRefGrad(const QString& fldname);
+	// void calcAzimuthRefGrad(const QString& fldname);
 
 	void calcRatio(const QString& topFieldName, const QString& bottomFieldName,
 				   const QString& newFieldName, const bool& zflag);

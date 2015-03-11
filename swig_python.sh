@@ -15,26 +15,34 @@ MODNAME=${IFILE%.i}
 # runs swig for python with the inteface file
 swig -python -c++ $IFILE
 
-# determine python interpreter used
-PYINT="$(which python)"
+# # determine python interpreter used
+# PYINT="$(which python)"
 
-# parse correct include python directory
-BINDIR=${PYINT: -11} #extract string
-PYDIR=/include/python2.7
-PYPATH=${PYINT/$BINDIR/$INCDIR}
+# # parse correct include python directory
+# BINDIR=${PYINT: -11} #extract string
+# INCDIR=/include/python2.7
+# PYPATH=${PYINT/$BINDIR/$INCDIR}
 
-# include QT directory
-QTPATH=/usr/include/qt5
 
-# include geotiff directory
-GFPATH=/usr/include/geotiff
+# # include QT directory
+# QTPATH=/usr/include/qt5
 
-# compile
-g++ -c -fPIC "$MODNAME.cpp" "${MODNAME}_wrap.cxx" "-I$PYPATH" "-I$QTPATH" "-I$GFPATH"
+# # include geotiff directory
+# GFPATH=/usr/include/geotiff
 
-# link libraries
-OFILES="$(ls *.o)"
-g++ -shared -fPIC $OFILES -o "_${MODNAME}.so"
 
-# remove unncessary files
-rm *.o *wrap.c
+# # compile
+# g++ -c -fPIC "$MODNAME.cpp" "${MODNAME}_wrap.cxx" "-I$PYPATH" "-I$QTPATH" "-I$GFPATH"
+
+# # link libraries
+# OFILES="$(ls *.o)"
+# g++ -shared -fPIC -o "_${MODNAME}.so" $OFILES
+
+# # remove unncessary files
+# rm *.o *wrap*
+
+qmake -o Makefile AirborneRadarQC.pro
+
+make 
+
+ln -s ./libAirborneRadarQC.so.1.0.0 _AirborneRadarQC.so
