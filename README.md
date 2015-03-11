@@ -1,7 +1,7 @@
 RadarQC
 =======
 
-AirborneRadarQC code implemented only with C++. Extra functions are being added.
+AirborneRadarQC code implemented with C++ and python via swig wrapper.
 
 Original code developed by Michael Bell and Cory Wolff (2011)
 
@@ -10,6 +10,8 @@ Need installed:
 - Qt
 - GeographicLib
 - libgeotiff
+- swig
+- PyQt5 (SIP needs to be installed before PyQt)
 
 Add link path to environment variable using .bashrc:
 
