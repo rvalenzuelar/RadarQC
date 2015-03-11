@@ -2,7 +2,7 @@
 
 rm *.o 
 rm *.cxx 
-rm *.py 
+rm AirborneRadarQC.py 
 rm *.pyc
 rm *.so*
 rm Makefile 
