@@ -19,7 +19,7 @@ class AirborneRadarQC
 public:
 	// Conor / Deor
 	AirborneRadarQC(const QString& in, const QString& out, const QString& suffix);
-        AirborneRadarQC();
+    AirborneRadarQC();
 	virtual ~AirborneRadarQC();
 
 	// I/O

@@ -13,7 +13,8 @@ IFILE="$(ls *.i)"
 MODNAME=${IFILE%.i}
 
 # runs swig for python with the inteface file
-swig -python -c++ $IFILE
+swig -python -c++ -Wall $IFILE
+
 
 # # determine python interpreter used
 # PYINT="$(which python)"
