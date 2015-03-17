@@ -69,3 +69,7 @@ NotImplementedError: Wrong number or type of arguments for overloaded function '
     AirborneRadarQC::AirborneRadarQC(QString const &,QString const &,QString const &)
     AirborneRadarQC::AirborneRadarQC()
 ```
+
+Note (03/17/2015):
+- Passing string argument to function seems to be working.
+- Passing string back to python returns a symbol (?), not a string. Need to be fixed.
