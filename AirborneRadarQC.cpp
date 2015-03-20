@@ -139,12 +139,12 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			// Use these to apply navigation corrections
 			// setNavigationCorrections("rf12.cfac.aft", "TA-ELDR");
 			// setNavigationCorrections("rf12.cfac.fore", "TF-ELDR");
-			 // setNavigationCorrections("cfac.aft", "TA43P3");
-			 // setNavigationCorrections("cfac.fore", "TF43P3");
+			setNavigationCorrections("cfac.aft", "TA43P3");
+			setNavigationCorrections("cfac.fore", "TF43P3");
 
 			// Make a backup of the original dBZ
 			// syntax: copyField("oldField",'newField')
-			 // copyField("DZ", "ZBK");
+			// copyField("DZ", "ZBK");
 
 
 			// removeAircraftMotion("VR", "VG");
@@ -2686,8 +2686,6 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 			printf("Error reading cfac file\n");
 			return;
 		}
-		cfacData[count] = lineparts[1].toFloat();
-		count++;
 	}
 	cfacFile.close();
 

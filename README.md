@@ -20,3 +20,5 @@ Functions added:
 - Thresholding with an AND operation
 - Dump a VAD text file
 - Use RadxConvert (in bash script) to remove issues with Solo3
+
+Folder has to have cfac files to apply them.
