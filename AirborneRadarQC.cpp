@@ -138,27 +138,40 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 
 			// Use these to apply navigation corrections
+			//---------------------------------------------------------------
 			// setNavigationCorrections("rf12.cfac.aft", "TA-ELDR");
 			// setNavigationCorrections("rf12.cfac.fore", "TF-ELDR");
 			setNavigationCorrections("cfac.aft", "TA43P3");
 			setNavigationCorrections("cfac.fore", "TF43P3");
 
-			// Make a backup of the original dBZ
+			// Make a backup of the original fields
 			// syntax: copyField("oldField",'newField')
-			// copyField("DZ", "ZBK");
-
+			//-----------------------------------------------------------
+			copyField("DZ", "DZG");
+			copyField("VG", "VGG");
 
 			// removeAircraftMotion("VR", "VG");
 
-			// thresholdData("NCP", "VG", 0.2, "below");
 
-			//Flat terrain
+			// Assert ground gates for flat terrain
+			//-----------------------------------------------------------
 			// probGroundGates("ZZ", "GG", 1.8);
 			//probGroundGates("ZBK", "ZG", 2.0);
+			probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
 
-			// Complex terrain
+
+			// Assert ground gates for complex terrain
+			//--------------------------------------------------------------
 			//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")
-			//probGroundGates("ZBK", "ZG", 2.0, "ASTGTM2_N38W124_dem.tif"); //<--correct for leg01
+			// probGroundGates("ZBK", "ZG", 2.0, "ASTGTM2_N38W124_dem.tif"); //<--correct for leg01
+
+			// Remove ground gates in reflectivity and Doppler vel
+			//-------------------------------------------------------------------------------
+			thresholdData("DZG","PG","above", 0.2);
+			thresholdData("VGG","PG","above", 0.2);
+
+			despeckleRadial("DZG", 3);
+			despeckleAzimuthal("VGG", 3);
 
 			///SW/Z thresholding
 			// calcRatio("SW", "ZZ", "SWZ", true);
@@ -176,10 +189,10 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			calcGradientMagnitude("VV","VGR",2); */
 
 			/* Histograms of QC parameters
-            		histogram("NCP", 0.0, 1.0, 0.05);
+            	histogram("NCP", 0.0, 1.0, 0.05);
 			histogram("VSD", 0.0, 30.0, 1.0);
-            		histogram("SWZ", 0.0, 1.0, 0.05);
-            		histogram("VLP", -10.0, 10.0, 1.0);
+            	histogram("SWZ", 0.0, 1.0, 0.05);
+            	histogram("VLP", -10.0, 10.0, 1.0);
 			histogram("VMP", -10.0, 10.0, 1.0);
 			histogram("GG", 0.0, 1.0, 0.05);
 			histogram("VGR", 0.0, 20.0, 1.0); */
@@ -200,6 +213,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			// copyEdits("VG","DBZ");
 
 			// Write it back out
+			//--------------------------
 		    saveQCedSwp(f);
 
 			// Dump the data to compare the flight level wind and radar data
@@ -3481,7 +3495,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
  using just the beamwidth to a 2-D array
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth,
-                                      const QString& demFileName)
+                                      					const QString& demFileName)
 {
   	bool demFlag = false;
   	DEM asterDEM;

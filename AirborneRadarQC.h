@@ -155,7 +155,6 @@ private:
 	float calcMeanRefInterestMap(float ref);
 	float calcNCPInterestMap(float ncp);
 	float calcRefLaplacianInterestMap(float lap);
-
 };
 
 #endif
