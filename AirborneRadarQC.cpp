@@ -9,15 +9,16 @@
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
 #include "DEM.h"
-// #include <GeographicLib/TransverseMercator.hpp>
- #include <GeographicLib/TransverseMercatorExact.hpp>
+// #include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
+#include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux
 #include <iterator>
 #include <fstream>
 #include <iostream>
 #include <QFile>
+#include <QFileInfo>
 #include <QTextStream>
 
-using namespace std;
+// using namespace std;
 // using namespace GeographicLib;
 
 AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& suffix)
@@ -115,7 +116,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				despeckleAzimuthal("V3", 3);
 
 				/* syntax: histogram("targetField", binMin, binMax, binInterval, fileNumber)*/
-        		// histogram("VE", -20, 20, 1,f);
+        				// histogram("VE", -20, 20, 1,f);
 
 				/* Write it back out*/
 			  	saveQCedSwp(f);
@@ -133,8 +134,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				
 				RV*/
 
-			}
-			else {
+			}else {
 
 
 			// Use these to apply navigation corrections
@@ -255,7 +255,7 @@ bool AirborneRadarQC::load(const int& swpIndex)
 
 	QString filename = dataPath.absolutePath() + "/" + getswpfileName(swpIndex);
 	swpfile.setFilename(filename);
-	std::cout << filename.toStdString() << "\n";
+	// std::cout << filename.toStdString() << "\n";
 	// Read in the swp file
 	if(swpfile.readSwpfile())
 		return true;
@@ -2680,6 +2680,12 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 	QTextStream cfac(&cfacFile);
 	cfacFile.setFileName(cfacFileName);
 	cfacFile.open(QIODevice::ReadOnly);
+
+	// check cfac file is being used
+	QFileInfo fi(cfacFileName);
+	QString fpath=fi.absoluteFilePath();
+	std::cout << "cfac file path: " << fpath.toStdString() << "\n";
+
 	while (!cfac.atEnd()) {
 		QString line = cfac.readLine();
 		QStringList lineparts = line.split("=");

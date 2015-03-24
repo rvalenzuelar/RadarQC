@@ -4,7 +4,7 @@
 
 TEMPLATE = app
 #QT += widgets
-TARGET = 
+TARGET = radarqc 
 DEPENDPATH += .
 # INCLUDEPATH += /usr/include/geotiff \
 # 					 /usr/local/include/GeographicLib
