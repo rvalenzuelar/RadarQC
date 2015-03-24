@@ -9,7 +9,8 @@
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
 #include "DEM.h"
-#include <GeographicLib/TransverseMercator.hpp>
+// #include <GeographicLib/TransverseMercator.hpp>
+ #include <GeographicLib/TransverseMercatorExact.hpp>
 #include <iterator>
 #include <fstream>
 #include <iostream>
@@ -17,7 +18,7 @@
 #include <QTextStream>
 
 using namespace std;
-using namespace GeographicLib;
+// using namespace GeographicLib;
 
 AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& suffix)
 {
@@ -2672,7 +2673,7 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 	// Initialize the cfacData
 	float cfacData[16];
 	for (int i = 0; i < 16; i++) cfacData[i] = 0.0;
-	int count = 0;
+	// int count = 0;
 
 	// Load the cfac file
 	QFile cfacFile;
@@ -3345,8 +3346,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 {
 	bool demFlag = false;
 	DEM asterDEM;
-	//GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	if (!demFileName.isEmpty()) {
 	        if(!asterDEM.readDem(demFileName.toLatin1().data())) {
@@ -3440,7 +3441,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				double h;
 				h = asterDEM.getElevation(absLat, absLon);  // <--segmentation fault///////////////////
 
-				std::exit;
+				// std::exit;
 
 				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
 				double agl = radarAlt - h;
@@ -3476,18 +3477,18 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth,
                                       const QString& demFileName)
 {
-  bool demFlag = false;
-  DEM asterDEM;
-  //GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM();
+  	bool demFlag = false;
+  	DEM asterDEM;
+  	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM();
 
 	if (!demFileName.isEmpty()) {
-        if(!asterDEM.readDem(demFileName.toLatin1().data())) {
-            printf("Error reading DEM file! Using flat ground instead\n");
-        } else {
-            demFlag = true;
-        }
-    }
+		if(!asterDEM.readDem(demFileName.toLatin1().data())) {
+			printf("Error reading DEM file! Using flat ground instead\n");
+		} else {
+			demFlag = true;
+		}
+	}
     //asterDEM.dumpAscii(1);
 	float earth_radius=6366805.6;
 	float* gates = swpfile.getGateSpacing();

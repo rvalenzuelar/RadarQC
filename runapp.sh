@@ -10,12 +10,8 @@ qmake -o Makefile AirborneRadarQC.pro
 make
 
 # set I/O directories
-
-# INDIR="/home/raul/Radardata/ppisubset"
-# OUTDIR="/home/raul/Radardata/ppisubset/QCed"
-
-INDIR="/home/raul/Radardata/p3/case04"
-OUTDIR="/home/raul/Radardata/p3/case04/QCed"
+INDIR="/home/rvalenzuela/P3/dorade/case04"
+OUTDIR="/home/rvalenzuela/P3/qced/case04"
 
 # run radarqc
 ./radarqc $INDIR $OUTDIR
@@ -42,7 +38,7 @@ rm swp*
 cd $RDXOUT
 
 # add QC suffix
-find . -type f -exec mv '{}' '{}'.QC \;
+find $RDXOUT -type f -exec mv '{}' '{}'.QC \;
 
 # move files to QCed directory
 echo "Moving cleaned files to $OUTDIR"
