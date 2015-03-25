@@ -12,5 +12,5 @@ heading_corr            =   0.000
 roll_corr               =   0.000
 pitch_corr              =  -0.465
 drift_corr              =  -2.293
-rot_angle_corr          = -70.933
+rot_angle_corr          = 0.0
 tilt_corr               =   0.592

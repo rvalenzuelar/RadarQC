@@ -139,25 +139,21 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 			// Use these to apply navigation corrections
 			//---------------------------------------------------------------
-			// setNavigationCorrections("rf12.cfac.aft", "TA-ELDR");
-			// setNavigationCorrections("rf12.cfac.fore", "TF-ELDR");
 			setNavigationCorrections("cfac.aft", "TA43P3");
 			setNavigationCorrections("cfac.fore", "TF43P3");
 
 			// Make a backup of the original fields
 			// syntax: copyField("oldField",'newField')
-			//-----------------------------------------------------------
-			// copyField("DZ", "DZG");
-			// copyField("VG", "VGG");
+			// -----------------------------------------------------------
+			copyField("DZ", "DZG");
+			copyField("VG", "VGG");
 
 			// removeAircraftMotion("VR", "VG");
 
 
 			// Assert ground gates for flat terrain
 			//-----------------------------------------------------------
-			// probGroundGates("ZZ", "GG", 1.8);
-			//probGroundGates("ZBK", "ZG", 2.0);
-			// probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
+			probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
 
 
 			// Assert ground gates for complex terrain
@@ -165,15 +161,15 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")
 			// probGroundGates("ZBK", "ZG", 2.0, "ASTGTM2_N38W124_dem.tif"); //<--correct for leg01
 
-			// // Remove ground gates in reflectivity and Doppler vel
-			// //-------------------------------------------------------------------------------
-			// thresholdData("DZG","PG","above", 0.2);
-			// thresholdData("VGG","PG","above", 0.2);
+			// Remove ground gates in reflectivity and Doppler vel
+			//-------------------------------------------------------------------------------
+			thresholdData("DZG","PG","above", 0.2);
+			thresholdData("VGG","PG","above", 0.2);
 
-			// // Remove isolate gates
-			// //----------------------------------
-			// despeckleRadial("DZG", 3);
-			// despeckleAzimuthal("VGG", 3);
+			// Remove isolated gates
+			//----------------------------------
+			despeckleRadial("DZG", 3);
+			despeckleAzimuthal("VGG", 3);
 
 			///SW/Z thresholding
 			// calcRatio("SW", "ZZ", "SWZ", true);
