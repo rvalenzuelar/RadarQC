@@ -147,8 +147,8 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			// Make a backup of the original fields
 			// syntax: copyField("oldField",'newField')
 			//-----------------------------------------------------------
-			copyField("DZ", "DZG");
-			copyField("VG", "VGG");
+			// copyField("DZ", "DZG");
+			// copyField("VG", "VGG");
 
 			// removeAircraftMotion("VR", "VG");
 
@@ -157,7 +157,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			//-----------------------------------------------------------
 			// probGroundGates("ZZ", "GG", 1.8);
 			//probGroundGates("ZBK", "ZG", 2.0);
-			probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
+			// probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
 
 
 			// Assert ground gates for complex terrain
@@ -165,13 +165,15 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")
 			// probGroundGates("ZBK", "ZG", 2.0, "ASTGTM2_N38W124_dem.tif"); //<--correct for leg01
 
-			// Remove ground gates in reflectivity and Doppler vel
-			//-------------------------------------------------------------------------------
-			thresholdData("DZG","PG","above", 0.2);
-			thresholdData("VGG","PG","above", 0.2);
+			// // Remove ground gates in reflectivity and Doppler vel
+			// //-------------------------------------------------------------------------------
+			// thresholdData("DZG","PG","above", 0.2);
+			// thresholdData("VGG","PG","above", 0.2);
 
-			despeckleRadial("DZG", 3);
-			despeckleAzimuthal("VGG", 3);
+			// // Remove isolate gates
+			// //----------------------------------
+			// despeckleRadial("DZG", 3);
+			// despeckleAzimuthal("VGG", 3);
 
 			///SW/Z thresholding
 			// calcRatio("SW", "ZZ", "SWZ", true);
@@ -189,10 +191,10 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 			calcGradientMagnitude("VV","VGR",2); */
 
 			/* Histograms of QC parameters
-            	histogram("NCP", 0.0, 1.0, 0.05);
+            		histogram("NCP", 0.0, 1.0, 0.05);
 			histogram("VSD", 0.0, 30.0, 1.0);
-            	histogram("SWZ", 0.0, 1.0, 0.05);
-            	histogram("VLP", -10.0, 10.0, 1.0);
+            		histogram("SWZ", 0.0, 1.0, 0.05);
+            		histogram("VLP", -10.0, 10.0, 1.0);
 			histogram("VMP", -10.0, 10.0, 1.0);
 			histogram("GG", 0.0, 1.0, 0.05);
 			histogram("VGR", 0.0, 20.0, 1.0); */
@@ -214,7 +216,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 			// Write it back out
 			//--------------------------
-		    saveQCedSwp(f);
+		    	saveQCedSwp(f);
 
 			// Dump the data to compare the flight level wind and radar data
 			//dumpFLwind();
@@ -2687,7 +2689,7 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 	// Initialize the cfacData
 	float cfacData[16];
 	for (int i = 0; i < 16; i++) cfacData[i] = 0.0;
-	// int count = 0;
+	int count = 0;
 
 	// Load the cfac file
 	QFile cfacFile;
@@ -2695,7 +2697,7 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 	cfacFile.setFileName(cfacFileName);
 	cfacFile.open(QIODevice::ReadOnly);
 
-	// check cfac file is being used
+	// check cfac file that is being used
 	QFileInfo fi(cfacFileName);
 	QString fpath=fi.absoluteFilePath();
 	std::cout << "cfac file path: " << fpath.toStdString() << "\n";
@@ -2707,6 +2709,8 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 			printf("Error reading cfac file\n");
 			return;
 		}
+		cfacData[count] = lineparts[1].toFloat();
+		count++;		
 	}
 	cfacFile.close();
 
