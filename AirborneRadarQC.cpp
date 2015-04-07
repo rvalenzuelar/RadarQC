@@ -153,6 +153,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 			// Assert ground gates for flat terrain
 			//-----------------------------------------------------------
+			//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 			probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
 
 
@@ -168,8 +169,11 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 			// Remove isolated gates
 			//----------------------------------
-			despeckleRadial("DZG", 3);
-			despeckleAzimuthal("VGG", 3);
+			despeckleRadial("DZG", 1);
+			despeckleAzimuthal("DZG", 2);
+			
+			despeckleRadial("VGG", 1);
+			despeckleAzimuthal("VGG", 2);
 
 			///SW/Z thresholding
 			// calcRatio("SW", "ZZ", "SWZ", true);
