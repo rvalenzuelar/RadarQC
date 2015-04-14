@@ -4,24 +4,24 @@
 # February, 2015
 
 # creates makefile using qmake
+#----------------------------------------------
 echo ' '
 echo 'Compiling radarqc ... '
 echo ' '
 qmake -o Makefile AirborneRadarQC.pro
 
 # build radarqc
+#----------------------
 make
 
 # set I/O directories
-
-# INDIR="/home/rvalenzuela/P3/dorade/dummy"
-
+#----------------------------------------------
 # INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--works
-INDIR="/home/rvalenzuela/P3/dorade/case04" # <--after copying from case04_all it works
+# INDIR="/home/rvalenzuela/P3/dorade/case04" # <--after copying from case04_all it works
+ INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor" # <-- Seek Error..aborting..
 OUTDIR="/home/rvalenzuela/P3/qced/case04"
 CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 
-# # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor"
 # # INDIR="/home/rvalenzuela/P3/dorade/case04/output/20010125"
 # INDIR="/home/rvalenzuela/P3/dorade/dummy"
 # OUTDIR="/home/rvalenzuela/P3/qced/dummy2"
@@ -31,13 +31,18 @@ CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 # OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
 
 # run radarqc
+#------------------
 echo ' '
 echo 'Running radarqc ... '
 echo ' '
 ./radarqc $INDIR $OUTDIR $CFACDIR
 
 # remove intermedite compiling files
+#-----------------------------------------------------
 rm *.o radarqc Makefile
+
+
+
 
 # # changes to output directory
 # cd $OUTDIR
