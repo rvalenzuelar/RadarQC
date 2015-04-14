@@ -738,6 +738,7 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 			break;
 
 		} else {
+			// printf ("HOLA\n");
 			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int)));
 		} /* endif */
 
@@ -800,7 +801,7 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 	blocka = block.toLocal8Bit();
 	identifier = blocka.data();
 	if ( (fwrite(identifier,sizeof(char),IDENT_LEN,fp)) != IDENT_LEN) {
-		printf("sweep file read error..can't read identifier\n");
+		printf("sweep file read error..can't read dentifier\n");
 		exit(-1);
 	}
 	desc_len = sizeof(vold_info)+8;

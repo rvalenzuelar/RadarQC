@@ -33,18 +33,23 @@ int DEM::getElevation(const double& lat, const double& lon)
 	double refX, refY, pointX, pointY;
 	tm.Forward(refLon, refLat, refLon, refX, refY);
 	tm.Forward(refLon, lat, lon, pointX, pointY); */
-    double lonmin = (lon - refLon)*60;
-    double lonsec = (lonmin - int(lonmin))*60;
-    int xIndex = int(lonmin)*60+int(lonsec);
-    double latmin = (lat - refLat)*60;
-    double latsec = (latmin - int(latmin))*60;
-    int yIndex = int(latmin)*60+int(latsec);
+	double lonmin = (lon - refLon)*60;
+	double lonsec = (lonmin - int(lonmin))*60;
+	int xIndex = int(lonmin)*60+int(lonsec);
+	double latmin = (lat - refLat)*60;
+	double latsec = (latmin - int(latmin))*60;
+	int yIndex = int(latmin)*60+int(latsec);
+
+	// printf( "lat: %2.1f ; lon: %2.1f \n",lat,lon ); //(RV)
 
 	//int xIndex = (int)(pointX - refX)/dx;
 	//int yIndex = (int)(pointY - refY)/dy;
 	int pixel = yIndex*xsize + xIndex;
+
+	// printf( "pixel: %d ; npixels: %d \n",pixel, npixels ); //(RV)
+
 	if ((pixel >= 0) and (pixel < npixels)) {
-		return elevations[pixel];
+		return elevations[pixel]; 
 	}
 
 	return -999;
@@ -64,36 +69,32 @@ int DEM::getMaxElevation()
 bool DEM::readDem(char* fname)
 {
 
-    demFilename = fname;
-    TIFF 	*tif=(TIFF*)0;  /* TIFF-level descriptor */
-    GTIF	*gtif=(GTIF*)0; /* GeoKey-level descriptor */
-    int	proj4_print_flag = 0;
-    int	inv_flag = 0, dec_flag = 1;
-    int      st_test_flag = 0;
-    GTIFDefn	defn;
+	demFilename = fname;
+	TIFF 	*tif=(TIFF*)0;  /* TIFF-level descriptor */
+	GTIF	*gtif=(GTIF*)0; /* GeoKey-level descriptor */
+	int	proj4_print_flag = 0;
+	int	inv_flag = 0, dec_flag = 1;
+	int      st_test_flag = 0;
+	GTIFDefn	defn;
 
-    /*
-     * Open the file, read the GeoTIFF information, and print some info to stdout.
-     */
+	/* Open the file, read the GeoTIFF information, and print some info to stdout. */
+	tif=XTIFFOpen(fname,"r");
+	if (!tif) goto failure;
 
-    tif=XTIFFOpen(fname,"r");
-    if (!tif) goto failure;
-
-    gtif = GTIFNew(tif);
-    if (!gtif)
+	gtif = GTIFNew(tif);
+	if (!gtif)
 	{
 		fprintf(stderr,"failed in GTIFNew\n");
 		goto failure;
 	}
 
-    /* dump the GeoTIFF metadata to std out */
+	/* dump the GeoTIFF metadata to std out */
+	// GTIFPrint(gtif,0,0);
 
-    GTIFPrint(gtif,0,0);
-
-    if( GTIFGetDefn( gtif, &defn ) )
+	if( GTIFGetDefn( gtif, &defn ) )
 	{
-		printf( "\n" );
-		GTIFPrintDefn( &defn, stdout );
+		// printf( "\n" );
+		// GTIFPrintDefn( &defn, stdout );
 
 		if( proj4_print_flag )
 		{
@@ -106,9 +107,8 @@ bool DEM::readDem(char* fname)
 		TIFFGetField( tif, TIFFTAG_IMAGELENGTH, &ysize );
 		TIFFGetField( tif, TIFFTAG_GEOPIXELSCALE, &count, &data);
 		TIFFGetField( tif, TIFFTAG_ORIENTATION, &orient );
-		printf("Orientation:%d\n",orient);
-
-		GTIFPrintCorners( gtif, &defn, stdout, xsize, ysize, inv_flag, dec_flag );
+		// printf("Orientation:%d\n",orient);
+		// GTIFPrintCorners( gtif, &defn, stdout, xsize, ysize, inv_flag, dec_flag );
 		double originx = 0.0;
 		double originy = ysize;
 		GTIFImageToPCS( gtif, &originx, &originy);
@@ -133,26 +133,30 @@ bool DEM::readDem(char* fname)
 			}
 			_TIFFfree(buf);
 		}
-		_TIFFfree(elevations);
 
+		// printf("elevation of pixel 46438038: %d\n",elevations[46438038] );
+		// _TIFFfree(elevations); 	/* MB had this line uncommented but this produces a seg fault 
+									/* error when elevations is called in function getElevation (RV) */
 	}
 
 
-    GTIFFree(gtif);
-    if( st_test_flag )
-        ST_Destroy( (ST_TIFF *) tif );
-    else
-        XTIFFClose(tif);
-    GTIFDeaccessCSV();
-    return true;
+	GTIFFree(gtif);
 
-failure:
-    fprintf(stderr,"failure in listgeo\n");
-    if (tif) XTIFFClose(tif);
-    if (gtif) GTIFFree(gtif);
-    GTIFDeaccessCSV();
-    return false;
+	if( st_test_flag )
+		ST_Destroy( (ST_TIFF *) tif );
+	else
+		XTIFFClose(tif);
+		GTIFDeaccessCSV();
+	return true;
+
+	failure:
+		fprintf(stderr,"failure in listgeo\n");
+		if (tif) XTIFFClose(tif);
+		if (gtif) GTIFFree(gtif);
+		GTIFDeaccessCSV();
+		return false;
 }
+
 
 bool DEM::dumpAscii(int skip)
 {

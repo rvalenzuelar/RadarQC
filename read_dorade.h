@@ -1,12 +1,3 @@
-/* Copyright 2011 Michael Bell */
-/* Code taken from soloii distribution, copyright UCAR/NCAR */
-
-// This read_dorade.h version works fine on noaa linux
-// RV
-
-#ifndef READDORADE_H
-#define READDORADE_H
-
 /***************************************************/
 /* CONSTANTS */
 /***************************************************/
@@ -15,12 +6,12 @@
 #define FLIGHT_NUM_LEN 8
 #define FAC_NAME_LEN 8
 #define RAD_NAME_LEN 8
-#define MAX_NUM_PARMS 40 
-#define PARM_NAME_LEN 8 
+#define MAX_NUM_PARMS 40
+#define PARM_NAME_LEN 8
 #define PARM_DESC_LEN 40
 #define PARM_UNIT_LEN 8
 #define THRESHOLD_FLD_LEN 8
-#define MAX_BEAMS 1000 
+#define MAX_BEAMS 1500
 #define MAX_GATES 1800
 #define MAX_KEYS 8
 #define SIGN16 0x8000
@@ -29,8 +20,15 @@
 /***************************************************/
 /* STRUCTURES */
 /***************************************************/
-// Required pragma to support 64-bit operation
+/* Required pragma to support 64-bit operation on 32-bit files
+   becoming obsolete with new solo3 operations. Need to come up
+   with run-time way to handle this */
+#pragma pack(push)
+
+// For older soloii files
 #pragma pack(4)
+// For newer solo3 files
+// #pragma pack(8)
 struct key_table_info {
     int offset;
     int size;
@@ -46,11 +44,11 @@ struct sswb_info {
     int compression_flag;
     int volume_time_stamp;	/* to reference current volume */
     int num_params;		/* number of parameters */
-	
+
     /* end of first version parameters */
-	
+
     char radar_name[8];
-	
+
     double d_start_time;
     double d_stop_time;
     /*
@@ -91,7 +89,7 @@ struct vold_info {
 
 };
 struct radd_info {
-   
+
    char rad_name[RAD_NAME_LEN];
    float rad_constant;
    float peak_pow;
@@ -133,7 +131,7 @@ struct radd_info {
 };
 
 struct cfac_info {
-   
+
    float c_azimuth;
    float c_elevation;
    float c_range_delay;
@@ -170,7 +168,7 @@ struct parm_info {
    float scale_fac;
    float offset_fac;
    int baddata_flag;
-    
+
 };
 
 struct celv_info {
@@ -189,7 +187,7 @@ struct swib_info {
    float stop_ang;
    float fixed_ang;
    int filter_flag;
-   
+
 };
 
 struct ryib_info {
@@ -264,6 +262,5 @@ struct rktb_info {
     int angle_table_offset;
     int num_rays;
 };
-
-#pragma pack()
-#endif
+#pragma pack(pop)
+//#pragma options align=reset

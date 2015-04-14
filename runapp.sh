@@ -13,11 +13,22 @@ qmake -o Makefile AirborneRadarQC.pro
 make
 
 # set I/O directories
-INDIR="/home/rvalenzuela/P3/dorade/case04"
-# INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor"
+
 # INDIR="/home/rvalenzuela/P3/dorade/dummy"
-# OUTDIR="/home/rvalenzuela/P3/qced/case04"
-OUTDIR="/home/rvalenzuela/P3/qced/dummy"
+
+# INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--works
+INDIR="/home/rvalenzuela/P3/dorade/case04/" # <--after copying from case04_all it works
+OUTDIR="/home/rvalenzuela/P3/qced/case04"
+
+
+# # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor"
+# # INDIR="/home/rvalenzuela/P3/dorade/case04/output/20010125"
+# INDIR="/home/rvalenzuela/P3/dorade/dummy"
+# OUTDIR="/home/rvalenzuela/P3/qced/dummy2"
+
+# # INDIR="/home/rvalenzuela/P3/dorade/case03/leg01"
+# INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor"
+# OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
 
 # run radarqc
 echo ' '

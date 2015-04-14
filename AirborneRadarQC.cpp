@@ -135,94 +135,88 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				RV*/
 
 			}else {
+				// Use these to apply navigation corrections
+				//---------------------------------------------------------------
+				setNavigationCorrections("cfac.aft", "TA43P3");
+				setNavigationCorrections("cfac.fore", "TF43P3");
+
+				// Make a backup of the original fields
+				// syntax: copyField("oldField",'newField')
+				// -----------------------------------------------------------
+				copyField("DZ", "DZG");
+				copyField("VG", "VGG");
+
+				// removeAircraftMotion("VR", "VG");
 
 
-			// Use these to apply navigation corrections
-			//---------------------------------------------------------------
-			setNavigationCorrections("cfac.aft", "TA43P3");
-			setNavigationCorrections("cfac.fore", "TF43P3");
+				// Assert ground gates for flat terrain
+				//-----------------------------------------------------------
+				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
+				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")		
+				probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
+				// probGroundGates("ZZ", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); //<--correct for leg01
 
-			// Make a backup of the original fields
-			// syntax: copyField("oldField",'newField')
-			// -----------------------------------------------------------
-			copyField("DZ", "DZG");
-			copyField("VG", "VGG");
+				// Remove ground gates in reflectivity and Doppler vel
+				//-------------------------------------------------------------------------------
+				thresholdData("DZG","PG","above", 0.2);
+				thresholdData("VGG","PG","above", 0.2);
 
-			// removeAircraftMotion("VR", "VG");
+				// Remove isolated gates
+				//----------------------------------
+				despeckleRadial("DZG", 1);
+				despeckleAzimuthal("DZG", 2);
 
+				despeckleRadial("VGG", 1);
+				despeckleAzimuthal("VGG", 2);
 
-			// Assert ground gates for flat terrain
-			//-----------------------------------------------------------
-			//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
-			probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
+				///SW/Z thresholding
+				// calcRatio("SW", "ZZ", "SWZ", true);
+				// thresholdData("SWZ","VG", 0.6, "above");
 
+				/* Calculate KDP
+				despeckleRadial("PHIDP", 2);
+				GaussianSmooth("PHIDP", "KDP2", 3);
+				calc1stRadialDerivative("KDP2", "KDP3", 2); */
 
-			// Assert ground gates for complex terrain
-			//--------------------------------------------------------------
-			//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")
-			// probGroundGates("ZBK", "ZG", 2.0, "ASTGTM2_N38W124_dem.tif"); //<--correct for leg01
+				/* Calculate various gradients
+				calcStdDev("VV","VSTD");
+				calcLaplacian("VV","VLP");
+				calcMixedPartial("VV","VMP");
+				calcGradientMagnitude("VV","VGR",2); */
 
-			// Remove ground gates in reflectivity and Doppler vel
-			//-------------------------------------------------------------------------------
-			thresholdData("DZG","PG","above", 0.2);
-			thresholdData("VGG","PG","above", 0.2);
+				/* Histograms of QC parameters
+	            		histogram("NCP", 0.0, 1.0, 0.05);
+				histogram("VSD", 0.0, 30.0, 1.0);
+	            		histogram("SWZ", 0.0, 1.0, 0.05);
+	            		histogram("VLP", -10.0, 10.0, 1.0);
+				histogram("VMP", -10.0, 10.0, 1.0);
+				histogram("GG", 0.0, 1.0, 0.05);
+				histogram("VGR", 0.0, 20.0, 1.0); */
+				// histogram("NCP", 0.0, 1.0, 0.05);
 
-			// Remove isolated gates
-			//----------------------------------
-			despeckleRadial("DZG", 1);
-			despeckleAzimuthal("DZG", 2);
-			
-			despeckleRadial("VGG", 1);
-			despeckleAzimuthal("VGG", 2);
+				/* WxProbability
+				float weights[7];
+				for (int i =0; i<7; i++) weights[i] = 1.0;
+				wxProbability("VG","WXP",weights); */
 
-			///SW/Z thresholding
-			// calcRatio("SW", "ZZ", "SWZ", true);
-			// thresholdData("SWZ","VG", 0.6, "above");
+				/* Skill statistics on individual sweeps
+				 BrierSkillScore();
+				 RelativeOperatingCharacteristic();
+				 ReliabilityDiagram();
+				 soloiiScriptROC(); */
 
-			/* Calculate KDP
-			despeckleRadial("PHIDP", 2);
-			GaussianSmooth("PHIDP", "KDP2", 3);
-			calc1stRadialDerivative("KDP2", "KDP3", 2); */
+		 		// Copy edits to reflectivity
+				// copyEdits("VG","DBZ");
 
-			/* Calculate various gradients
-			calcStdDev("VV","VSTD");
-			calcLaplacian("VV","VLP");
-			calcMixedPartial("VV","VMP");
-			calcGradientMagnitude("VV","VGR",2); */
+				// Write it back out
+				//--------------------------
+			    	saveQCedSwp(f);
 
-			/* Histograms of QC parameters
-            		histogram("NCP", 0.0, 1.0, 0.05);
-			histogram("VSD", 0.0, 30.0, 1.0);
-            		histogram("SWZ", 0.0, 1.0, 0.05);
-            		histogram("VLP", -10.0, 10.0, 1.0);
-			histogram("VMP", -10.0, 10.0, 1.0);
-			histogram("GG", 0.0, 1.0, 0.05);
-			histogram("VGR", 0.0, 20.0, 1.0); */
-			// histogram("NCP", 0.0, 1.0, 0.05);
+				// Dump the data to compare the flight level wind and radar data
+				//dumpFLwind();
 
-			/* WxProbability
-			float weights[7];
-			for (int i =0; i<7; i++) weights[i] = 1.0;
-			wxProbability("VG","WXP",weights); */
-
-			/* Skill statistics on individual sweeps
-			 BrierSkillScore();
-			 RelativeOperatingCharacteristic();
-			 ReliabilityDiagram();
-			 soloiiScriptROC(); */
-
-	 		// Copy edits to reflectivity
-			// copyEdits("VG","DBZ");
-
-			// Write it back out
-			//--------------------------
-		    	saveQCedSwp(f);
-
-			// Dump the data to compare the flight level wind and radar data
-			//dumpFLwind();
-
-			// Write out everything to a (big) CSV file
-			//writeToCSV();
+				// Write out everything to a (big) CSV file
+				//writeToCSV();
 		    	}
 		}
 	}
@@ -3380,6 +3374,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 	            demFlag = true;
 	        }
 	}
+
+	
 	//asterDEM.dumpAscii(1);
 	float earth_radius=6366805.6;
 	QString newFieldDesc = "Ground Gates";
@@ -3438,12 +3434,9 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 			float azoffset = az - azground;
 			float eloffset = elev - elevground;
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
-			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {
-				continue;
-			}
+			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) { continue; }
 
 			// Calculate prob based on Flat-panel beam shape
-
 	         	if (demFlag) {
 				double range = gates[g];
 				double relX = range*sin(az)*cos(elev);
@@ -3452,20 +3445,17 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				float radarLon = swpfile.getRadarLon(i);
 
 				// printf("radarLon = %f \n", radarLon);
-				// printf("radarLat = %f \n", radarLat);
+				// printf("radarLat = %f \n", radarLat);  //(RV)
 
 				double radarX, radarY;
 				tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
 
-
 				double absLat, absLon;
 				tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
 
-				//std::cout << absLat << "\t" << absLon << "\t" << h << "\n";
+				// std::cout << absLat << "\t" << absLon << "\n"; //(RV)
 				double h;
 				h = asterDEM.getElevation(absLat, absLon);  // <--segmentation fault///////////////////
-
-				// std::exit;
 
 				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
 				double agl = radarAlt - h;
