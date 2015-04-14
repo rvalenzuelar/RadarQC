@@ -19,7 +19,7 @@ make
 # INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--works
 INDIR="/home/rvalenzuela/P3/dorade/case04/" # <--after copying from case04_all it works
 OUTDIR="/home/rvalenzuela/P3/qced/case04"
-
+#asdasdaasdasd
 
 # # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor"
 # # INDIR="/home/rvalenzuela/P3/dorade/case04/output/20010125"
