@@ -19,8 +19,8 @@ make
 # INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--works
 INDIR="/home/rvalenzuela/P3/dorade/case04" # <--after copying from case04_all it works
 OUTDIR="/home/rvalenzuela/P3/qced/case04"
-CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04
-"
+CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
+
 # # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor"
 # # INDIR="/home/rvalenzuela/P3/dorade/case04/output/20010125"
 # INDIR="/home/rvalenzuela/P3/dorade/dummy"
