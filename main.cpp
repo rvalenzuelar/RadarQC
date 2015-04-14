@@ -14,9 +14,10 @@ int main (int argc, char *argv[]) {
 	// The qc object will read from one directory and write to another
 	QString inpath = argv[1];
 	QString outpath = argv[2];
+	QString cfacpath = argv[3];
 
 	QString suffix = "QC";
-	AirborneRadarQC QC(inpath, outpath, suffix);
+	AirborneRadarQC QC(inpath, outpath, cfacpath, suffix);
 
 	// Process the data
 	// QC.processSweeps("ground");

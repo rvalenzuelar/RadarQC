@@ -21,12 +21,14 @@
 // using namespace std;
 // using namespace GeographicLib;
 
-AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& suffix)
+// Added cfacPath (RV)
+AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& cfacp, const QString& suffix)
 {
 
 	// Setup the data path
 	dataPath.setPath(in);
 	outPath.setPath(out);
+	cfacPath.setPath(cfacp);
 	swpSuffix = suffix;
 	readSwpDir();
 
@@ -140,34 +142,34 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				setNavigationCorrections("cfac.aft", "TA43P3");
 				setNavigationCorrections("cfac.fore", "TF43P3");
 
-				// Make a backup of the original fields
-				// syntax: copyField("oldField",'newField')
-				// -----------------------------------------------------------
-				copyField("DZ", "DZG");
-				copyField("VG", "VGG");
+				// // Make a backup of the original fields
+				// // syntax: copyField("oldField",'newField')
+				// // -----------------------------------------------------------
+				// copyField("DZ", "DZG");
+				// copyField("VG", "VGG");
 
-				// removeAircraftMotion("VR", "VG");
+				// // removeAircraftMotion("VR", "VG");
 
 
-				// Assert ground gates for flat terrain
-				//-----------------------------------------------------------
-				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
-				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")		
-				probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
-				// probGroundGates("ZZ", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); //<--correct for leg01
+				// // Assert ground gates for flat terrain
+				// //-----------------------------------------------------------
+				// //syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
+				// //syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")		
+				// probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
+				// // probGroundGates("ZZ", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); //<--correct for leg01
 
-				// Remove ground gates in reflectivity and Doppler vel
-				//-------------------------------------------------------------------------------
-				thresholdData("DZG","PG","above", 0.2);
-				thresholdData("VGG","PG","above", 0.2);
+				// // Remove ground gates in reflectivity and Doppler vel
+				// //-------------------------------------------------------------------------------
+				// thresholdData("DZG","PG","above", 0.2);
+				// thresholdData("VGG","PG","above", 0.2);
 
-				// Remove isolated gates
-				//----------------------------------
-				despeckleRadial("DZG", 1);
-				despeckleAzimuthal("DZG", 2);
+				// // Remove isolated gates
+				// //----------------------------------
+				// despeckleRadial("DZG", 1);
+				// despeckleAzimuthal("DZG", 2);
 
-				despeckleRadial("VGG", 1);
-				despeckleAzimuthal("VGG", 2);
+				// despeckleRadial("VGG", 1);
+				// despeckleAzimuthal("VGG", 2);
 
 				///SW/Z thresholding
 				// calcRatio("SW", "ZZ", "SWZ", true);
@@ -2675,8 +2677,10 @@ void AirborneRadarQC::removeAircraftMotion(const QString& vrFieldName, const QSt
 }
 
 /* Apply a new set of navigation corrections */
-void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, const QString& radarName)
+// void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, const QString& radarName)
+void AirborneRadarQC::setNavigationCorrections(const QString& filename, const QString& radarName)
 {
+
 	// Check to see if this is the correct radar
 	if (swpfile.getRadarname() != radarName) return;
 
@@ -2684,6 +2688,8 @@ void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, cons
 	float cfacData[16];
 	for (int i = 0; i < 16; i++) cfacData[i] = 0.0;
 	int count = 0;
+
+	QString cfacFileName = cfacPath.absolutePath() + "/" + filename;
 
 	// Load the cfac file
 	QFile cfacFile;

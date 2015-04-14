@@ -18,8 +18,8 @@ class AirborneRadarQC
 
 public:
 	// Conor / Deor
-	AirborneRadarQC(const QString& in, const QString& out, const QString& suffix);
-        AirborneRadarQC();
+	AirborneRadarQC(const QString& in, const QString& out, const QString& cfacp, const QString& suffix);
+        	AirborneRadarQC();
 	virtual ~AirborneRadarQC();
 
 	// I/O
@@ -126,7 +126,8 @@ public:
 	void dumpFLwind();
 	void compareFLwind();
 	void removeAircraftMotion(const QString& vrFieldName, const QString& vgFieldName);
-	void setNavigationCorrections(const QString& cfacFileName, const QString& radarName);
+	// void setNavigationCorrections(const QString& cfacFileName, const QString& radarName);
+	void setNavigationCorrections(const QString& filename, const QString& radarName);
 
 	// Verification
 	void BrierSkillScore();
@@ -143,6 +144,7 @@ private:
 	QList<QString> swpfileList;
 	QDir dataPath;
 	QDir outPath;
+	QDir cfacPath; //(RV)
 	QString swpSuffix;
 
 	Dorade swpfile;
