@@ -1,3 +1,4 @@
 *.tif
 *.log
 .nfs*
+*.asc
