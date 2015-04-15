@@ -86,18 +86,14 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 		return false;
 	}
 
-	// Dump DTM
+	// Dump DTM (RV)
 	DEM asterDEM;
-	// if (!demFileName.isEmpty()) {
-	// 	if(!asterDEM.readDem(demFileName.toLatin1().data())) {
-	// 		printf("Error reading DEM file! Using flat ground instead\n");
-	// 	} else {
-	// 		asterDEM.dumpAscii(1);				
-	// 	}
-	// }	
 	if (dtmFile.exists()) {
-		asterDEM.readDem(demFileName.toLatin1().data())
-		asterDEM.dumpAscii(1);				
+		QFileInfo fi(dtmFile); // uses QFileInfo so then grabs only the filename with no path
+		// asterDEM.readDem(fi.fileName().toStdString());
+		asterDEM.readDem(fi.fileName().toLatin1().data()); // this version converts to char *
+		asterDEM.dumpAscii(1);
+		// exit(1);				
 	}
 
 

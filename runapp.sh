@@ -30,6 +30,7 @@ INDIR="/home/rvalenzuela/P3/dorade/case03/leg01" # <--form original uncompressed
 OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
 CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case03"
 
+
 # set DTM file
 #---------------------
 # DTMFILE=" "
