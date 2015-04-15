@@ -7,6 +7,7 @@
  */
 
 #include "Dorade.h"
+#include <stdlib.h> //exit(1)
 
 Dorade::Dorade()
 {
@@ -591,7 +592,7 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 
 	FILE *fp;
 	int i=0;
-	char identifier[IDENT_LEN];
+	char identifier[IDENT_LEN]; //defined in read_dorade.h (RV)
 	int desc_len;
 	int fld_num=0;
 	int match;
@@ -621,7 +622,9 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 		}
 		/* READ THE DESCRIPTOR LENGTH */
 		desc_len=read_int(fp);
-		//printf ("reading %s at %d\n",identifier,ftell(fp));
+		// printf ("reading %s at %d\n",identifier,ftell(fp));
+		// printf("desc_len: %d\n",desc_len);
+
 		if ( (strncmp(identifier,"SSWB",IDENT_LEN)) == 0) {
 			/* READ THE SSWB DESCRIPTOR */
 			/*printf ("reading vold\n");*/
@@ -738,8 +741,12 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 			break;
 
 		} else {
-			// printf ("HOLA\n");
-			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int)));
+			printf ("HOLA1\n");
+			printf("Identifier: %s\n",identifier);
+			// printf("ftell: %s\n",ftell(fp)); // <-- segmentation fault with ftell(fp)
+			printf("desc_len: %d\n",desc_len);
+			exit(1);
+			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int))); //<--"Seek Error..aborting" (RV)
 		} /* endif */
 
 	} /* endwhile */
@@ -1243,6 +1250,7 @@ void Dorade::read_celv(FILE *fp,struct celv_info *cptr,int desc_len)
 	}
 
 	skip=desc_len-(sizeof(float)*cptr->total_gates+12);
+	// printf ("HOLA2\n");
 	skip_bytes(fp,skip);
 
 }

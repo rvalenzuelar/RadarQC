@@ -16,19 +16,17 @@ make
 
 # set I/O directories
 #----------------------------------------------
-# INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--works
+# # INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--form original uncompressed files it works
 # INDIR="/home/rvalenzuela/P3/dorade/case04" # <--after copying from case04_all it works
- INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor" # <-- Seek Error..aborting..
-OUTDIR="/home/rvalenzuela/P3/qced/case04"
-CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
+#  # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor" # <-- Seek Error..aborting..
+# OUTDIR="/home/rvalenzuela/P3/qced/case04"
+# CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 
-# # INDIR="/home/rvalenzuela/P3/dorade/case04/output/20010125"
-# INDIR="/home/rvalenzuela/P3/dorade/dummy"
-# OUTDIR="/home/rvalenzuela/P3/qced/dummy2"
 
-# # INDIR="/home/rvalenzuela/P3/dorade/case03/leg01"
-# INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor"
-# OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
+INDIR="/home/rvalenzuela/P3/dorade/case03/leg01" # <--form original uncompressed files it works
+# INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" # Seek Error
+OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
+CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case03"
 
 # run radarqc
 #------------------
