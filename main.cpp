@@ -15,9 +15,10 @@ int main (int argc, char *argv[]) {
 	QString inpath = argv[1];
 	QString outpath = argv[2];
 	QString cfacpath = argv[3];
+	QString dtmFile = argv[4];
 
 	QString suffix = "QC";
-	AirborneRadarQC QC(inpath, outpath, cfacpath, suffix);
+	AirborneRadarQC QC(inpath, outpath, cfacpath, suffix,dtmFile);
 
 	// Process the data
 	// QC.processSweeps("ground");

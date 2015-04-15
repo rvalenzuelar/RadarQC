@@ -22,13 +22,16 @@
 // using namespace GeographicLib;
 
 // Added cfacPath (RV)
-AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, const QString& cfacp, const QString& suffix)
+AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, 
+										const QString& cfacp, const QString& suffix, 
+										const QString& dtmf)
 {
 
 	// Setup the data path
 	dataPath.setPath(in);
 	outPath.setPath(out);
 	cfacPath.setPath(cfacp);
+	dtmFile.setFileName(dtmf);
 	swpSuffix = suffix;
 	readSwpDir();
 
@@ -82,6 +85,21 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 		std::cout << "No swp files exist in " << dataPath.dirName().toStdString() << "\n";
 		return false;
 	}
+
+	// Dump DTM
+	DEM asterDEM;
+	// if (!demFileName.isEmpty()) {
+	// 	if(!asterDEM.readDem(demFileName.toLatin1().data())) {
+	// 		printf("Error reading DEM file! Using flat ground instead\n");
+	// 	} else {
+	// 		asterDEM.dumpAscii(1);				
+	// 	}
+	// }	
+	if (dtmFile.exists()) {
+		asterDEM.readDem(demFileName.toLatin1().data())
+		asterDEM.dumpAscii(1);				
+	}
+
 
 	for (int f = 0; f < getfileListsize(); ++f) {
 	//for (int f = 0; f < 10; ++f) {
@@ -3383,7 +3401,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 	}
 
 	
-	//asterDEM.dumpAscii(1);
+	// asterDEM.dumpAscii(1);
 	float earth_radius=6366805.6;
 	QString newFieldDesc = "Ground Gates";
 	QString newFieldUnits = "binary";
@@ -3451,8 +3469,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				float radarLat = swpfile.getRadarLat(i);
 				float radarLon = swpfile.getRadarLon(i);
 
-				// printf("radarLon = %f \n", radarLon);
-				// printf("radarLat = %f \n", radarLat);  //(RV)
+				// printf("radarLat, radarLon = %f , %f \n", radarLat, radarLon); //(RV)
 
 				double radarX, radarY;
 				tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
@@ -3463,6 +3480,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				// std::cout << absLat << "\t" << absLon << "\n"; //(RV)
 				double h;
 				h = asterDEM.getElevation(absLat, absLon);  // <--segmentation fault///////////////////
+				// printf("absLat, absLon, DTMh = %f , %f, %d \n", absLat, absLon, h); //(RV)
 
 				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
 				double agl = radarAlt - h;

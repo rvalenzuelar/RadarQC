@@ -161,9 +161,9 @@ bool DEM::readDem(char* fname)
 bool DEM::dumpAscii(int skip)
 {
 	char    *outfile = NULL;
-    unsigned int x, y;
-    FILE* out;
-    int flength = strlen(demFilename);
+	unsigned int x, y;
+	FILE* out;
+	int flength = strlen(demFilename);
 
 	outfile = (char *) malloc(flength);
 	strncpy(outfile,demFilename,flength-2);
@@ -188,9 +188,9 @@ bool DEM::dumpAscii(int skip)
 	for( y = 0; y < ysize; y+=skip ) {
 		for( x = 0; x < xsize; x+=skip ) {
 			fprintf(out, "%6d", elevations[y*xsize + x]);
-            //if (elevations[y*xsize + x] == 1477) {
-            //    fprintf(out, "%6d, %6d, %6d", x, y, elevations[y*xsize + x]);
-            //}
+	        //if (elevations[y*xsize + x] == 1477) {
+	        //    fprintf(out, "%6d, %6d, %6d", x, y, elevations[y*xsize + x]);
+	        //}
 		}
 		fprintf(out, "\n");
 	}

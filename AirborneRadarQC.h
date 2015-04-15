@@ -12,13 +12,16 @@
 #include "Dorade.h"
 #include <QList>
 #include <QDir>
+ #include <QFile>
 
 class AirborneRadarQC
 {
 
 public:
 	// Conor / Deor
-	AirborneRadarQC(const QString& in, const QString& out, const QString& cfacp, const QString& suffix);
+	AirborneRadarQC(const QString& in, const QString& out, 
+			const QString& cfacp, const QString& suffix,
+			const QString& dtmf);
         	AirborneRadarQC();
 	virtual ~AirborneRadarQC();
 
@@ -145,6 +148,7 @@ private:
 	QDir dataPath;
 	QDir outPath;
 	QDir cfacPath; //(RV)
+	QFile dtmFile; //(RV)
 	QString swpSuffix;
 
 	Dorade swpfile;

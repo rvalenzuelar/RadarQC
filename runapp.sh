@@ -8,6 +8,8 @@
 echo ' '
 echo 'Compiling radarqc ... '
 echo ' '
+QMAKESPEC=~/miniconda/mkspecs/linux-g++-64
+export QMAKESPEC
 qmake -o Makefile AirborneRadarQC.pro
 
 # build radarqc
@@ -28,12 +30,17 @@ INDIR="/home/rvalenzuela/P3/dorade/case03/leg01" # <--form original uncompressed
 OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
 CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case03"
 
+# set DTM file
+#---------------------
+# DTMFILE=" "
+DTMFILE="/home/rvalenzuela/Github/RadarQC/merged_dem_38-39_123-124_extended.tif"
+
 # run radarqc
 #------------------
 echo ' '
 echo 'Running radarqc ... '
 echo ' '
-./radarqc $INDIR $OUTDIR $CFACDIR
+./radarqc $INDIR $OUTDIR $CFACDIR $DTMFILE
 
 # remove intermedite compiling files
 #-----------------------------------------------------
