@@ -145,18 +145,19 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// Make a backup of the original fields
 				// syntax: copyField("oldField",'newField')
 				// -----------------------------------------------------------
-				copyField("DZ", "DZG");
-				copyField("VG", "VGG");
+				// copyField("DZ", "DZG");
+				// copyField("VG", "VGG");
+				copyField("ZZ", "DZG");
+				copyField("VV", "VGG");
 
 				// removeAircraftMotion("VR", "VG");
-
 
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")		
-				probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
-				// probGroundGates("ZZ", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); //<--correct for leg01
+				// probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
+				probGroundGates("DZG", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); 
 
 				// Remove ground gates in reflectivity and Doppler vel
 				//-------------------------------------------------------------------------------
