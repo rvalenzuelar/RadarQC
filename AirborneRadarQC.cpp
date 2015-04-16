@@ -170,10 +170,6 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
-				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")		
-				// probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
-				// probGroundGates("DZG", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); 
-				// probGroundGates("DZG", "PG", 1.8, fi.fileName().toStdString()); 
 				probGroundGates("DZG", "PG", 1.8); 
 
 				// // Remove ground gates in reflectivity and Doppler vel
