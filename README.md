@@ -21,4 +21,7 @@ Functions added:
 - Dump a VAD text file
 - Use RadxConvert (in bash script) to remove issues with Solo3
 
-Folder has to have cfac files to apply them.
+Other added:
+
+- Input variable for cfac folder with correction factor files
+- Input variable for DTM file
