@@ -16,11 +16,9 @@
 
 class DEM  
 {
-
 public:
 	DEM();
 	~DEM();
-	
 	bool readDem(char* fname);
 	int getElevation(const double& lat, const double& lon);
 	bool dumpAscii(int skip);
@@ -38,9 +36,6 @@ private:
 	int16* elevations;
 	int dx, dy;
 	double refLat, refLon;
-	
-
 };
-
 
 #endif
