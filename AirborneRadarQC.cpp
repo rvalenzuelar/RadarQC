@@ -8,7 +8,7 @@
 
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
-#include "DEM.h"
+// #include "DEM.h" --> moved to header
 // #include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
 #include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux
 #include <iterator>
@@ -86,14 +86,16 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 		return false;
 	}
 
-	// Dump DTM (RV)
-	DEM asterDEM;
+	// Handle  DTM (MB/RV)
+	demFlag=false;
 	if (dtmFile.exists()) {
-		QFileInfo fi(dtmFile); // uses QFileInfo so then grabs only the filename with no path
+		QFileInfo fi(dtmFile); // uses QFileInfo so then can grab only the filename with no path
 		// asterDEM.readDem(fi.fileName().toStdString());
 		asterDEM.readDem(fi.fileName().toLatin1().data()); // this version converts to char *
-		asterDEM.dumpAscii(1);
-		// exit(1);				
+		std::cout << "Using DEM: " << asterDEM.getName().toStdString() << "\n";
+		demFlag=true;
+	} else {
+		printf("No DEM file found! Using flat ground instead\n");
 	}
 
 
@@ -147,7 +149,6 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				with RadxConvert:
 				RadxConvert -f input/swp.* -dorade
 				solved the problem.
-				
 				RV*/
 
 			}else {
@@ -164,27 +165,31 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				copyField("ZZ", "DZG");
 				copyField("VV", "VGG");
 
-				// removeAircraftMotion("VR", "VG");
+				// // removeAircraftMotion("VR", "VG");
 
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth,"demFileName")		
 				// probGroundGates("DZ", "PG", 1.8); // <--good for cases over ocean
-				probGroundGates("DZG", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); 
+				// probGroundGates("DZG", "PG", 1.8, "merged_dem_38-39_123-124_extended.tif"); 
+				// probGroundGates("DZG", "PG", 1.8, fi.fileName().toStdString()); 
+				probGroundGates("DZG", "PG", 1.8); 
 
-				// Remove ground gates in reflectivity and Doppler vel
-				//-------------------------------------------------------------------------------
-				thresholdData("DZG","PG","above", 0.2);
-				thresholdData("VGG","PG","above", 0.2);
+				// // Remove ground gates in reflectivity and Doppler vel
+				// //-------------------------------------------------------------------------------
+				// thresholdData("DZG","PG","above", 0.2);
+				// thresholdData("VGG","PG","above", 0.2);
 
-				// Remove isolated gates
-				//----------------------------------
-				despeckleRadial("DZG", 1);
-				despeckleAzimuthal("DZG", 2);
+				// // Remove isolated gates
+				// //----------------------------------
+				// despeckleRadial("DZG", 1);
+				// despeckleAzimuthal("DZG", 2);
 
-				despeckleRadial("VGG", 1);
-				despeckleAzimuthal("VGG", 2);
+				// despeckleRadial("VGG", 1);
+				// despeckleAzimuthal("VGG", 2);
+
+
 
 				///SW/Z thresholding
 				// calcRatio("SW", "ZZ", "SWZ", true);
@@ -3380,24 +3385,13 @@ void AirborneRadarQC::soloiiScriptVerification()
  ** groundProbability : This subroutine calculates the probability that a given gate is ground
  using just the beamwidth
  ****************************************************************************************/
-void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth,
-                                      const QString& demFileName)
+void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString& newFieldName, 
+											const float& eff_beamwidth)
 {
-	bool demFlag = false;
-	DEM asterDEM;
+
 	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
-	if (!demFileName.isEmpty()) {
-	        if(!asterDEM.readDem(demFileName.toLatin1().data())) {
-	            printf("Error reading DEM file! Using flat ground instead\n");
-	        } else {
-	            demFlag = true;
-	        }
-	}
-
-	
-	// asterDEM.dumpAscii(1);
 	float earth_radius=6366805.6;
 	QString newFieldDesc = "Ground Gates";
 	QString newFieldUnits = "binary";
@@ -3509,22 +3503,11 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
  ** groundProbability : This subroutine calculates the probability that a given gate is ground
  using just the beamwidth to a 2-D array
  ****************************************************************************************/
-void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth,
-                                      					const QString& demFileName)
+void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
-  	bool demFlag = false;
-  	DEM asterDEM;
   	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM();
 
-	if (!demFileName.isEmpty()) {
-		if(!asterDEM.readDem(demFileName.toLatin1().data())) {
-			printf("Error reading DEM file! Using flat ground instead\n");
-		} else {
-			demFlag = true;
-		}
-	}
-    //asterDEM.dumpAscii(1);
 	float earth_radius=6366805.6;
 	float* gates = swpfile.getGateSpacing();
 	int numgates = swpfile.getNumGates();

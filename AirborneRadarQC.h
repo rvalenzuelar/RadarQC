@@ -13,6 +13,7 @@
 #include <QList>
 #include <QDir>
  #include <QFile>
+#include "DEM.h"
 
 class AirborneRadarQC
 {
@@ -111,9 +112,14 @@ public:
 	void flagGroundGates(const QString& fldname, const float& eff_beamwidth);
 
 	// Probabilities
-	void probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth,
-                         const QString& demFileName = 0);
-	void probGroundGates(float** field, const float& eff_beamwidth, const QString& demFileName = 0);
+	// void probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth,
+ //                         const QString& demFileName = 0);
+	// void probGroundGates(float** field, const float& eff_beamwidth, const QString& demFileName = 0);
+
+	/* Now it handles DTM at the beginning of processSweeps (RV */
+	void probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);	
+	void probGroundGates(float** field, const float& eff_beamwidth);
+
 	void calcWeatherProb(const QString& mdbzt_name, const QString& mdbzs_name, const QString& mdbzl_name, const QString& mvgs_name, const QString& mncp_name);
 	void wxProbability(const QString& oriFieldName, const QString& probFieldName, float* weight);
 	void wxProbability2();
@@ -161,6 +167,9 @@ private:
 	float calcMeanRefInterestMap(float ref);
 	float calcNCPInterestMap(float ncp);
 	float calcRefLaplacianInterestMap(float lap);
+
+	bool demFlag; //(RV)
+	DEM asterDEM;
 };
 
 #endif
