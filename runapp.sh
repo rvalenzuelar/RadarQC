@@ -34,6 +34,7 @@ CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case03"
 
 # set DTM file
 #---------------------
+#  over ocean comment next line
 DTMFILE="/home/rvalenzuela/Github/RadarQC/merged_dem_38-39_123-124_extended.tif"
 
 # run radarqc
