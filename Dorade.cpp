@@ -743,8 +743,10 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 		} else {
 			printf ("HOLA1\n");
 			printf("Identifier: %s\n",identifier);
-			// printf("ftell: %s\n",ftell(fp)); // <-- segmentation fault with ftell(fp)
 			printf("desc_len: %d\n",desc_len);
+			printf("ftell: %s\n",ftell(fp)); // <-- segmentation fault with ftell(fp)
+			printf ("HOLA2\n");
+
 			exit(1);
 			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int))); //<--"Seek Error..aborting" (RV)
 		} /* endif */
