@@ -172,18 +172,18 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 				probGroundGates("DZG", "PG", 1.8); 
 
-				// // Remove ground gates in reflectivity and Doppler vel
-				// //-------------------------------------------------------------------------------
-				// thresholdData("DZG","PG","above", 0.2);
-				// thresholdData("VGG","PG","above", 0.2);
+				// Remove ground gates in reflectivity and Doppler vel
+				//-------------------------------------------------------------------------------
+				thresholdData("DZG","PG","above", 0.2);
+				thresholdData("VGG","PG","above", 0.2);
 
-				// // Remove isolated gates
-				// //----------------------------------
-				// despeckleRadial("DZG", 1);
-				// despeckleAzimuthal("DZG", 2);
+				// Remove isolated gates
+				//----------------------------------
+				despeckleRadial("DZG", 1);
+				despeckleAzimuthal("DZG", 2);
 
-				// despeckleRadial("VGG", 1);
-				// despeckleAzimuthal("VGG", 2);
+				despeckleRadial("VGG", 1);
+				despeckleAzimuthal("VGG", 2);
 
 
 
@@ -2716,7 +2716,7 @@ void AirborneRadarQC::setNavigationCorrections(const QString& filename, const QS
 	// check cfac file that is being used
 	QFileInfo fi(cfacFileName);
 	QString fpath=fi.absoluteFilePath();
-	std::cout << "cfac file path: " << fpath.toStdString() << "\n";
+	// std::cout << "cfac file path: " << fpath.toStdString() << "\n";
 
 	while (!cfac.atEnd()) {
 		QString line = cfac.readLine();
@@ -2919,7 +2919,7 @@ void AirborneRadarQC::BrierSkillScore() {
 			if (prob[n] != -32768) {
 				// Possibility of good data
 				if (base[n] != -32768) {
-					// Baseline weather detection
+					// Baseline weather ection
 					baseprob++;
 				}
 				basecount++;
@@ -3457,20 +3457,25 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 
 				// printf("radarLat, radarLon = %f , %f \n", radarLat, radarLon); //(RV)
 
+				// Beam gate location in projected (x,y)
 				double radarX, radarY;
 				tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
 
+				// Beam gate location in geographic (lat,lon)
 				double absLat, absLon;
 				tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
 
 				// std::cout << absLat << "\t" << absLon << "\n"; //(RV)
-				double h;
+				float h;
 				h = asterDEM.getElevation(absLat, absLon);  // <--segmentation fault///////////////////
 				// printf("absLat, absLon, DTMh = %f , %f, %d \n", absLat, absLon, h); //(RV)
 
 				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
-				double agl = radarAlt - h;
+				float agl = radarAlt - h;
 				ground_intersect = (-(agl)/sin(elev))*(1.+agl/(2.*earth_radius*tan_elev*tan_elev));
+				printf("radarAlt=%5.2f , h=%5.2f , agl=%5.2f , ground_intersect=%5.2f \n", 
+						radarAlt,h,agl,ground_intersect); //(RV)
+
 	         	}
 	         	float grange = ground_intersect-gates[g];
 			if (grange <= 0) {
@@ -3489,7 +3494,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				}
 				if (gprob > 1.0) gprob = 1.0;
 				if (data[g] != -32768.) data[g]	= gprob;
-				//printf("Ground (%f) %f / %f\n",elev,grange,footprint);
+				// printf("Ground (%f) %f / %f\n",elev,grange,footprint);
+				// printf("Ground (%f) %f \n",elev,grange);
 			}
 		}
 	}

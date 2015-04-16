@@ -27,7 +27,7 @@ DEM::~DEM()
 {
 }
 
-int DEM::getElevation(const double& lat, const double& lon)
+float DEM::getElevation(const double& lat, const double& lon)
 {
 	/* GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
 	double refX, refY, pointX, pointY;
@@ -45,10 +45,11 @@ int DEM::getElevation(const double& lat, const double& lon)
 	//int xIndex = (int)(pointX - refX)/dx;
 	//int yIndex = (int)(pointY - refY)/dy;
 	int pixel = yIndex*xsize + xIndex;
-
 	// printf( "pixel: %d ; npixels: %d \n",pixel, npixels ); //(RV)
 
 	if ((pixel >= 0) and (pixel < npixels)) {
+		// printf( "refLat: %2.1f ; refLon: %2.1f ;pixel: %d, elevation: %d\n",
+		// 	refLat,refLon,pixel,elevations[pixel]); //(RV)
 		return elevations[pixel]; 
 	}
 
@@ -115,6 +116,7 @@ bool DEM::readDem(char* fname)
 		refLat = originy;
 		refLon = originx;
 		npixels = xsize * ysize;
+		// printf("refLat, refLon, npixels: %f, %f, %d\n",refLat,refLon,npixels);
 		int16* buf;
 		tsample_t sample;
 		int nbytes;
@@ -136,7 +138,7 @@ bool DEM::readDem(char* fname)
 
 		// printf("elevation of pixel 46438038: %d\n",elevations[46438038] );
 		// _TIFFfree(elevations); 	/* MB had this line uncommented but this produces a seg fault 
-									/* error when elevations is called in function getElevation (RV) */
+						/* error when elevations is called in function getElevation (RV) */
 	}
 
 
@@ -166,8 +168,8 @@ bool DEM::dumpAscii(int skip)
 	int flength = strlen(demFilename);
 
 	outfile = (char *) malloc(flength);
-	strncpy(outfile,demFilename,flength-2);
-	strcat(outfile, ".asc\0");
+	strncpy(outfile,demFilename,flength-3);
+	strcat(outfile, "asc\0");
 	out = fopen(outfile, "w");
 	printf("Writing to %s\n\n",outfile);
 	free(outfile);

@@ -169,7 +169,7 @@ private:
 	float calcRefLaplacianInterestMap(float lap);
 
 	bool demFlag; //(RV)
-	DEM asterDEM;
+	DEM asterDEM; //(RV)
 };
 
 #endif

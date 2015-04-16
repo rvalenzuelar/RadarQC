@@ -21,7 +21,7 @@ public:
 	DEM();
 	~DEM();
 	bool readDem(char* fname);
-	int getElevation(const double& lat, const double& lon);
+	float getElevation(const double& lat, const double& lon);
 	bool dumpAscii(int skip);
 	int getMaxElevation();
 	QString getName() { return demFilename; } //(RV)
