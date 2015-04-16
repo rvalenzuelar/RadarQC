@@ -13,6 +13,7 @@
 #include "geotiff.h"
 #include "geo_normalize.h"
 #include "tiffio.h"
+#include <QString> //(RV)
 
 class DEM  
 {
@@ -23,7 +24,7 @@ public:
 	int getElevation(const double& lat, const double& lon);
 	bool dumpAscii(int skip);
 	int getMaxElevation();
-	
+	QString getName() { return demFilename; } //(RV)
 private:
 	int GTIFReportACorner( GTIF *gtif, GTIFDefn *defn, FILE * fp_out,
 						const char * corner_name,
