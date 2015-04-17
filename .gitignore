@@ -2,3 +2,6 @@
 *.log
 .nfs*
 *.asc
+*.o
+Makefile
+radarqc
