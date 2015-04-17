@@ -9,7 +9,8 @@ echo ' '
 echo 'Compiling radarqc ... '
 echo ' '
 # using miniconda Qt
-QMAKESPEC=~/miniconda/mkspecs/linux-g++-64
+# QMAKESPEC=~/miniconda/mkspecs/linux-g++-64
+QMAKESPEC=~/miniconda/mkspecs/linux-g++-32
 export QMAKESPEC
 qmake -o Makefile AirborneRadarQC.pro
 
@@ -19,6 +20,9 @@ make
 
 # set I/O directories
 #----------------------------------------------
+
+
+
 # # INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--form original uncompressed files it works
 # INDIR="/home/rvalenzuela/P3/dorade/case04" # <--after copying from case04_all it works
 #  # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor" # <-- Seek Error..aborting..
@@ -26,16 +30,16 @@ make
 # CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 
 
-INDIR="/home/rvalenzuela/P3/dorade/case03/leg01" # <--form original uncompressed files it works
+INDIR="$HOME/P3/dorade/case03/leg01" # <--form original uncompressed files it works
 # INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" # Seek Error
-OUTDIR="/home/rvalenzuela/P3/qced/case03/leg01"
-CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case03"
+OUTDIR="$HOME/P3/qced/case03/leg01"
+CFACDIR="$HOME/Github/RadarQC/cfac_case03"
 
 
 # set DTM file
 #---------------------
 #  over ocean comment next line
-DTMFILE="/home/rvalenzuela/Github/RadarQC/merged_dem_38-39_123-124_extended.tif"
+DTMFILE="$HOME/Github/RadarQC/merged_dem_38-39_123-124_extended.tif"
 
 # run radarqc
 #------------------
