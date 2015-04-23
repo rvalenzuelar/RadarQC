@@ -3,14 +3,21 @@
 # Raul Valenzuela
 # February, 2015
 
+# REMEMBER COMMENT/UNCOMMENT LINES FOR
+# RUNNING ON NOAA_LINUX AND LAPTOP_LINUX
+
+# NOTES:
+#	- For Solo3 edited sweep files use pragma pack (8) in read_dorade.h
+#	- After using RadxConvert, "Seek Error" can be solved by copying a field using Solo3
+
 # creates makefile using qmake
 #----------------------------------------------
 echo ' '
 echo 'Compiling radarqc ... '
 echo ' '
 # using miniconda Qt
-# QMAKESPEC=~/miniconda/mkspecs/linux-g++-64
-QMAKESPEC=~/miniconda/mkspecs/linux-g++-32
+QMAKESPEC=~/miniconda/mkspecs/linux-g++-64 # for noaa linux
+# QMAKESPEC=~/miniconda/mkspecs/linux-g++-32 # for laptop linux
 export QMAKESPEC
 qmake -o Makefile AirborneRadarQC.pro
 
@@ -30,8 +37,8 @@ make
 # CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 
 
-INDIR="$HOME/P3/dorade/case03/leg01" # <--form original uncompressed files it works
-# INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" # Seek Error
+# INDIR="$HOME/P3/dorade/case03/leg01" # <--form original uncompressed files it works
+INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" # Seek Error
 OUTDIR="$HOME/P3/qced/case03/leg01"
 CFACDIR="$HOME/Github/RadarQC/cfac_case03"
 

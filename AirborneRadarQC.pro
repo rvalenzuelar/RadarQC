@@ -23,6 +23,6 @@ SOURCES +=$$SOURCEPATH/AirborneRadarQC.cpp \
 	   			$$SOURCEPATH/RecursiveFilter.cpp \
 	   			$$SOURCEPATH/DEM.cpp \
 	   			$$SOURCEPATH/main.cpp
-# LIBS += -lgeotiff -ltiff -lgeographic # for noaa
-LIBS += -lgeotiff -ltiff -lGeographic #for laptop
+LIBS += -lgeotiff -ltiff -lgeographic # for noaa
+# LIBS += -lgeotiff -ltiff -lGeographic #for laptop
 CONFIG += debug
