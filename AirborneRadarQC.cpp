@@ -165,25 +165,26 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				copyField("ZZ", "DZG");
 				copyField("VV", "VGG");
 
-				// // removeAircraftMotion("VR", "VG");
+				// // // removeAircraftMotion("VR", "VG");
 
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
-				probGroundGates("DZG", "PG", 1.8); 
+				float beamWidth=2.0; //Testud et al 95
+				probGroundGates("DZG", "PG", beamWidth); 
 
 				// Remove ground gates in reflectivity and Doppler vel
 				//-------------------------------------------------------------------------------
 				thresholdData("DZG","PG","above", 0.2);
 				thresholdData("VGG","PG","above", 0.2);
 
-				// Remove isolated gates
-				//----------------------------------
-				despeckleRadial("DZG", 1);
-				despeckleAzimuthal("DZG", 2);
+				// // Remove isolated gates
+				// //----------------------------------
+				// despeckleRadial("DZG", 1);
+				// despeckleAzimuthal("DZG", 2);
 
-				despeckleRadial("VGG", 1);
-				despeckleAzimuthal("VGG", 2);
+				// despeckleRadial("VGG", 1);
+				// despeckleAzimuthal("VGG", 2);
 
 
 
@@ -2713,7 +2714,7 @@ void AirborneRadarQC::setNavigationCorrections(const QString& filename, const QS
 	cfacFile.setFileName(cfacFileName);
 	cfacFile.open(QIODevice::ReadOnly);
 
-	// check cfac file that is being used
+	// check cfac file that is being used (RV)
 	QFileInfo fi(cfacFileName);
 	QString fpath=fi.absoluteFilePath();
 	// std::cout << "cfac file path: " << fpath.toStdString() << "\n";
@@ -3388,7 +3389,11 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
+	// Constants
 	float earth_radius=6366805.6;
+	float deg2rad=0.017453292;
+	float rad2deg=57.29577951;
+
 	QString newFieldDesc = "Ground Gates";
 	QString newFieldUnits = "binary";
 	if(!newField(oriFieldName, newFieldName, newFieldDesc, newFieldUnits)) {
@@ -3397,26 +3402,35 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 	}
 	float* gates = swpfile.getGateSpacing();
 	int numgates = swpfile.getNumGates();
+	int numrays = swpfile.getNumRays();
 	float max_range = gates[numgates-1];
+
 	for (int g=0; g< numgates; g++) {
 		float left_distance = max_range;
 		float right_distance = max_range;
 		int left_index = -999;
 		int right_index = -999;
-		float ground_intersect = 0;
-		for (int i=0; i < swpfile.getNumRays(); i++)  {
+		float ground_intersect = 0.0;
+
+		for (int i=0; i < numrays; i++)  {
 			// Clear the gate
 			float* data = swpfile.getRayData(i, newFieldName);
 			if (data[g] != -32768.) data[g] = 0; // <- probability of ground gate is 0 for NaN
 			// Find the beam axis intersection with the grounds
-	        	float az = swpfile.getAzimuth(i)*0.017453292;
-			float elev = (swpfile.getElevation(i))*0.017453292;// <- elevation from horizon
+			float az = swpfile.getAzimuth(i)*deg2rad;
+			float elev = (swpfile.getElevation(i))*deg2rad;// <- elevation from horizon
 			if (elev > 0) { continue; }
+
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAlt(i)*1000; //meters
 			if (gates[g] < radarAlt) { continue; }
+
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
+			// printf("az=%f , elev=%f, radarAlt=%4.1f, Rg=%5.1f\n ",
+			// 	az*rad2deg,elev*rad2deg,radarAlt,ground_intersect ); //(RV)
+
 			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {continue; }
+
 			ground_intersect = fabs(ground_intersect-gates[g]);
 			if ((ground_intersect < left_distance) and (az > 3.14159)) {
 				left_distance = ground_intersect;
@@ -3428,19 +3442,21 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 			}
 		}
 		if ((left_index < 0) or (right_index < 0)) { continue; }
-		for (int i=0; i < swpfile.getNumRays(); i++)  {
+
+		for (int i=0; i < numrays; i++)  {
 			float* data = swpfile.getRayData(i, newFieldName);
-        		float az = swpfile.getAzimuth(i)*0.017453292;
-			float elev = (swpfile.getElevation(i))*0.017453292;
+			float az = swpfile.getAzimuth(i)*deg2rad;
+			float elev = (swpfile.getElevation(i))*deg2rad;
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			// float radarAlt = swpfile.getRadarAlt(i)*1000;
+			int radarAlt = swpfile.getRadarAlt(i)*1000; //(RV)
 			float azground, elevground;
 			if (az > 3.14159) {
-				azground = swpfile.getAzimuth(left_index)*0.017453292;
-				elevground = (swpfile.getElevation(left_index))*0.017453292;
+				azground = swpfile.getAzimuth(left_index)*deg2rad;
+				elevground = (swpfile.getElevation(left_index))*deg2rad;
 			} else {
-				azground = swpfile.getAzimuth(right_index)*0.017453292;
-				elevground = (swpfile.getElevation(right_index))*0.017453292;
+				azground = swpfile.getAzimuth(right_index)*deg2rad;
+				elevground = (swpfile.getElevation(right_index))*deg2rad;
 			}
 			float azoffset = az - azground;
 			float eloffset = elev - elevground;
@@ -3448,7 +3464,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) { continue; }
 
 			// Calculate prob based on Flat-panel beam shape
-	         	if (demFlag) {
+			if (demFlag) {
 				double range = gates[g];
 				double relX = range*sin(az)*cos(elev);
 				double relY = range*cos(az)*cos(elev);
@@ -3466,20 +3482,32 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
 
 				// std::cout << absLat << "\t" << absLon << "\n"; //(RV)
-				float h;
+				// double h;
+				int h; //(RV)
 				h = asterDEM.getElevation(absLat, absLon);  // <--segmentation fault///////////////////
-				// printf("absLat, absLon, DTMh = %f , %f, %d \n", absLat, absLon, h); //(RV)
+				// printf("absLat, absLon, DTMh, az, elev, azoffset, eloffset, radarLat, radarLon, radarAlt = "
+				// 	"%4.2f , %5.2f, %d, %4.1f, %4.1f, %4.1f, %4.1f,%4.2f , %5.2f, %d \n", 
+				// 	absLat, absLon, h,az*rad2deg, elev*rad2deg,azoffset*rad2deg,eloffset*rad2deg,
+				// 	radarLat, radarLon, radarAlt); //(RV)
 
+				printf("%4.2f , %5.2f, %d, %4.1f, %4.1f, %4.1f, %4.1f,%4.2f , %5.2f, %d \n", 
+					absLat, absLon, h,az*rad2deg, elev*rad2deg,azoffset*rad2deg,eloffset*rad2deg,
+					radarLat, radarLon, radarAlt); //(RV)				
+				// printf("numgates,numrays = %d,%d\n",numgates,numrays);
 				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
-				float agl = radarAlt - h;
-				ground_intersect = (-(agl)/sin(elev))*(1.+agl/(2.*earth_radius*tan_elev*tan_elev));
-				printf("radarAlt=%5.2f , h=%5.2f , agl=%5.2f , ground_intersect=%5.2f \n", 
-						radarAlt,h,agl,ground_intersect); //(RV)
+				
+				double agl = radarAlt - h;
+				// int agl = radarAlt - h;
+				ground_intersect = (-(agl)/sin(elev))*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
+				// printf("radarAlt=%5.2f , h=%5.2f , agl=%5.2f , ground_intersect=%5.2f \n", 
+				// 		radarAlt,h,agl,ground_intersect); //(RV)
+				// printf("radarAlt=%d , h=%d , agl=%d , ground_intersect=%5.2f \n", 
+				// 		radarAlt,h,agl,ground_intersect); //(RV)				
 
 	         	}
 	         	float grange = ground_intersect-gates[g];
 			if (grange <= 0) {
-				if (data[g] != -32768.) data[g]	= 1.; // <- probability of a ground gate is 1 for NaN
+				if (data[g] != -32768.) data[g] = 1.; // <- probability of a ground gate is 1 for NaN
 			} else {
 				// Alternate exponential formula
 				//float gprob = exp(-grange/(ground_intersect*0.33));
@@ -3493,7 +3521,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 					gprob = 1.0;
 				}
 				if (gprob > 1.0) gprob = 1.0;
-				if (data[g] != -32768.) data[g]	= gprob;
+				if (data[g] != -32768.) data[g] = gprob;
 				// printf("Ground (%f) %f / %f\n",elev,grange,footprint);
 				// printf("Ground (%f) %f \n",elev,grange);
 			}
