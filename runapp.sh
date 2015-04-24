@@ -7,8 +7,11 @@
 # RUNNING ON NOAA_LINUX AND LAPTOP_LINUX
 
 # NOTES:
+#	- For Soloii edited sweep files use pragma pack (4) in read_dorade.h
 #	- For Solo3 edited sweep files use pragma pack (8) in read_dorade.h
-#	- After using RadxConvert, "Seek Error" can be solved by copying a field using Solo3
+#	- After using RadxConvert, "Seek Error" can be solved by copying a field (dummy var) using Soloii/Solo3
+#	- For some reason, changes in QCed sweep files are visualized with Solo3. Opening QCed files with
+#	  Soloii would give the impression of no QC.
 
 # creates makefile using qmake
 #----------------------------------------------
@@ -27,9 +30,6 @@ make
 
 # set I/O directories
 #----------------------------------------------
-
-
-
 # # INDIR="/home/rvalenzuela/P3/dorade/case04_all/" # <--form original uncompressed files it works
 # INDIR="/home/rvalenzuela/P3/dorade/case04" # <--after copying from case04_all it works
 #  # INDIR="/home/rvalenzuela/P3/dorade/case04_coords_cor" # <-- Seek Error..aborting..
@@ -37,8 +37,8 @@ make
 # CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 
 
-# INDIR="$HOME/P3/dorade/case03/leg01" # <--form original uncompressed files it works
-INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" # Seek Error
+# INDIR="$HOME/P3/dorade/case03/leg01" 
+INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" 
 OUTDIR="$HOME/P3/qced/case03/leg01"
 CFACDIR="$HOME/Github/RadarQC/cfac_case03"
 
