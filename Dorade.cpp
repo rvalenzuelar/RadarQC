@@ -741,13 +741,13 @@ void Dorade::sweepread(const char swp_fname[],struct sswb_info *ssptr, struct vo
 			break;
 
 		} else {
-			printf ("HOLA1\n");
-			printf("Identifier: %s\n",identifier);
-			printf("desc_len: %d\n",desc_len);
-			// printf("ftell: %s\n",ftell(fp)); // <-- segmentation fault with ftell(fp) (RV)
-			printf ("HOLA2\n");
-
+			// printf ("Dorade.cpp HOLA1\n");
+			// printf("Identifier: %s\n",identifier);
+			// printf("desc_len: %d\n",desc_len);
+			// // printf("ftell: %s\n",ftell(fp)); // <-- segmentation fault with ftell(fp) (RV)
+			// printf ("Dorade.cpp HOLA2\n");
 			// exit(1); 
+			
 			skip_bytes(fp,desc_len-(IDENT_LEN+sizeof(int))); //<--"Seek Error..aborting" (RV)
 		} /* endif */
 
