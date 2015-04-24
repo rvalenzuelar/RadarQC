@@ -26,9 +26,9 @@
 #pragma pack(push)
 
 // For older soloii files
-// #pragma pack(4)
+#pragma pack(4)
 // For newer solo3 files
-#pragma pack(8)
+// #pragma pack(8)
 struct key_table_info {
     int offset;
     int size;
