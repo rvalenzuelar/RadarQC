@@ -175,8 +175,8 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 				// Remove ground gates in reflectivity and Doppler vel
 				//-------------------------------------------------------------------------------
-				thresholdData("DZG","PG","above", 0.2);
-				thresholdData("VGG","PG","above", 0.2);
+				thresholdData("DZG","PG","above", 0.0);
+				thresholdData("VGG","PG","above", 0.0);
 
 				// // Remove isolated gates
 				// //----------------------------------
@@ -3490,9 +3490,10 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				// 	absLat, absLon, h,az*rad2deg, elev*rad2deg,azoffset*rad2deg,eloffset*rad2deg,
 				// 	radarLat, radarLon, radarAlt); //(RV)
 
-				printf("%4.2f , %5.2f, %d, %4.1f, %4.1f, %4.1f, %4.1f,%4.2f , %5.2f, %d \n", 
-					absLat, absLon, h,az*rad2deg, elev*rad2deg,azoffset*rad2deg,eloffset*rad2deg,
-					radarLat, radarLon, radarAlt); //(RV)				
+				// printf("%4.2f , %5.2f, %d, %4.1f, %4.1f, %4.1f, %4.1f,%4.2f , %5.2f, %d \n", 
+				// 	absLat, absLon, h,az*rad2deg, elev*rad2deg,azoffset*rad2deg,eloffset*rad2deg,
+				// 	radarLat, radarLon, radarAlt); //(RV)	
+
 				// printf("numgates,numrays = %d,%d\n",numgates,numrays);
 				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
 				
@@ -3510,16 +3511,20 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				if (data[g] != -32768.) data[g] = 1.; // <- probability of a ground gate is 1 for NaN
 			} else {
 				// Alternate exponential formula
-				//float gprob = exp(-grange/(ground_intersect*0.33));
-				float beamaxis = sqrt(azoffset*azoffset + eloffset*eloffset);
-				float beamwidth = eff_beamwidth*0.017453292;
-				float gprob = 0.0;
-				if (beamaxis > 0) {
-					gprob = exp(-0.69314718055995*beamaxis/beamwidth);
-				    //gprob = fabs(sin(27*sin(beamaxis))/(27*sin(beamaxis)));
-			    	} else {
-					gprob = 1.0;
-				}
+				float gprob = exp(-grange/(ground_intersect*0.8));
+				// printf("grange, ground_intersect, gprob , %6.5f, %6.5f, %6.5f\n", grange, ground_intersect, gprob);
+
+				// float beamaxis = sqrt(azoffset*azoffset + eloffset*eloffset);
+				// float beamwidth = eff_beamwidth*0.017453292;
+				// // printf("azoffset, eloffset = %6.5f, %6.5f\n",azoffset,eloffset);
+				// float gprob = 0.0;
+				// if (beamaxis > 0) {
+				// 	gprob = exp(-0.69314718055995*beamaxis/beamwidth);
+				// 	// gprob = fabs(sin(27*sin(beamaxis))/(27*sin(beamaxis)));
+				// 	// printf("gprob , gates[g] = %6.5f, %6.5f\n", gprob, gates[g]);					
+			 //    	} else {
+				// 	gprob = 1.0;
+				// }
 				if (gprob > 1.0) gprob = 1.0;
 				if (data[g] != -32768.) data[g] = gprob;
 				// printf("Ground (%f) %f / %f\n",elev,grange,footprint);
