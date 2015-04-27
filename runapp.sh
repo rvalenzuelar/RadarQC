@@ -38,7 +38,7 @@ make
 
 
 # INDIR="$HOME/P3/dorade/case03/leg01" 
-INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" 
+INDIR="$HOME/P3/dorade/case03_coords_cor" 
 OUTDIR="$HOME/P3/qced/case03/leg01"
 CFACDIR="$HOME/Github/RadarQC/cfac_case03"
 
