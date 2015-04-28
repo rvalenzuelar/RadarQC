@@ -7,7 +7,8 @@ TEMPLATE = app
 TARGET = radarqc 
 DEPENDPATH += .
 INCLUDEPATH += /usr/include/geotiff \
-					 /usr/local/include/GeographicLib
+			/usr/local/include/GeographicLib\
+
 INCLUDEPATH += .
 SOURCEPATH = .
 
