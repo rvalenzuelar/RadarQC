@@ -17,6 +17,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+// #include <Python.h>
 
 // using namespace std;
 using namespace GeographicLib;
@@ -171,20 +172,20 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 				float beamWidth=2.0; //Testud et al 95
-				probGroundGates("DZG", "PG", beamWidth); 
+				probGroundGates2("DZG", "PG", beamWidth); 
 
 				// Remove ground gates in reflectivity and Doppler vel
 				//-------------------------------------------------------------------------------
-				thresholdData("DZG","PG","above", 0.0);
-				thresholdData("VGG","PG","above", 0.0);
+				thresholdData("DZG","PG",">", 0.0);
+				thresholdData("VGG","PG",">", 0.0);
 
-				// // Remove isolated gates
-				// //----------------------------------
-				// despeckleRadial("DZG", 1);
-				// despeckleAzimuthal("DZG", 2);
+				// Remove isolated gates
+				//----------------------------------
+				despeckleRadial("DZG", 1);
+				despeckleAzimuthal("DZG", 2);
 
-				// despeckleRadial("VGG", 1);
-				// despeckleAzimuthal("VGG", 2);
+				despeckleRadial("VGG", 1);
+				despeckleAzimuthal("VGG", 2);
 
 
 
@@ -383,11 +384,21 @@ void AirborneRadarQC::thresholdData(const QString& fldname, const QString& thres
 		float* data = swpfile.getRayData(i, fldname);
 
 		for (int n=0; n < swpfile.getNumGates(); n++) {
-			if (direction == "below") {
+			if (direction == "<=") {
 				if (threshdata[n] <= threshold) data[n] = -32768.0;
-			} else {
+			} else if (direction == ">="){
 				if (threshdata[n] >= threshold) data[n] = -32768.0;
+			} else if (direction == ">"){
+				if (threshdata[n] > threshold) data[n] = -32768.0;				
+			} else if (direction == "<"){
+				if (threshdata[n] < threshold) data[n] = -32768.0;
+			} else {
+				printf("thresholdData needs operators: >= , <= , > , or <\n");
+				printf("Exiting AirborneRadarQC\n");
+				printf("\n");
+				exit(1);
 			}
+
 		}
 	}
 }
@@ -3383,7 +3394,7 @@ void AirborneRadarQC::soloiiScriptVerification()
  using just the beamwidth
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString& newFieldName, 
-											const float& eff_beamwidth)
+								const float& eff_beamwidth)
 {
 
 	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
@@ -3414,12 +3425,18 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 
 		for (int i=0; i < numrays; i++)  {
 			// Clear the gate
-			float* data = swpfile.getRayData(i, newFieldName);
+			float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
+			// if (i==1) {
+			// 	for  (int g=0; g< numgates; g++){
+			// 		printf("%3.2f\n", data[g]);
+			// 	}
+			// 	exit(1);
+			// }
 			if (data[g] != -32768.) data[g] = 0; // <- probability of ground gate is 0 for NaN
 			// Find the beam axis intersection with the grounds
 			float az = swpfile.getAzimuth(i)*deg2rad;
 			float elev = (swpfile.getElevation(i))*deg2rad;// <- elevation from horizon
-			if (elev > 0) { continue; }
+			if (elev > 0) { continue; } //<- elevations above the acft horizon jump to next loop
 
 			float tan_elev = tan(elev);
 			float radarAlt = swpfile.getRadarAlt(i)*1000; //meters
@@ -3511,7 +3528,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 				if (data[g] != -32768.) data[g] = 1.; // <- probability of a ground gate is 1 for NaN
 			} else {
 				// Alternate exponential formula
-				float gprob = exp(-grange/(ground_intersect*0.8));
+				float gprob = exp(-grange/(ground_intersect*1.0));
 				// printf("grange, ground_intersect, gprob , %6.5f, %6.5f, %6.5f\n", grange, ground_intersect, gprob);
 
 				// float beamaxis = sqrt(azoffset*azoffset + eloffset*eloffset);
@@ -3533,6 +3550,104 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 		}
 	}
 }
+
+/****************************************************************************************
+ ** groundProbability : This subroutine calculates the probability that a given gate is ground
+ using just the beamwidth
+ ****************************************************************************************/
+void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QString& newFieldName, 
+								const float& eff_beamwidth)
+{
+
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+
+	// Constants
+	const float earth_radius=6366805.6; // [meters]
+	const float deg2rad=0.017453292;
+	// const float rad2deg=57.29577951;
+
+	QString newFieldDesc = "Ground Gates";
+	QString newFieldUnits = "binary";
+	if(!newField(oriFieldName, newFieldName, newFieldDesc, newFieldUnits)) {
+		printf("Error creating new field!!!\n");
+		return;
+	}
+	float* gates = swpfile.getGateSpacing(); // <-- array with gate range
+	int numgates = swpfile.getNumGates();
+	int numrays = swpfile.getNumRays();
+	float max_range = gates[numgates-1];
+	
+	for (int i=0; i < numrays; i++) {
+
+		double ground_intersect=0.0;
+		double dtm_h=0.0;
+		double agl=0.0;
+		float swp_nan=-32768.;
+
+		float az = swpfile.getAzimuth(i)*deg2rad; // <- azimuth relative to geographic north
+		float elev = swpfile.getElevation(i)*deg2rad; // <- elevation relative to acft horizon
+		float head=swpfile.getHeading(i); // heading angle
+		float radarAlt = swpfile.getRadarAlt(i)*1000; //meters
+		float radarLat = swpfile.getRadarLat(i);
+		float radarLon = swpfile.getRadarLon(i);		
+		float tan_elev = tan(elev);		
+		float sin_elev = sin(elev);
+		float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
+
+		for  (int g=0; g< numgates; g++){
+
+			if (elev <= 0.0 ) {  //<- elevations below acft horizon
+
+				float range = gates[g];
+				float relX = range*sin(az)*cos(elev);	// X beam position relative to acft
+				float relY = range*cos(az)*cos(elev);	// Y beam position relative to acft
+				float relZ = range*sin(elev); 		// Z beam position relative to acft			
+				// printf("%3.2f, %3.2f, %3.2f, %3.2f, %3.2f,%3.2f,%3.2f,%3.2f\n", 
+				// 	head, elev*rad2deg, az*rad2deg, range, data[g],relX,relY,relZ);
+				float beam_hgt=radarAlt+relZ;
+				if (demFlag) {
+					// Radar location in projected UTM (x,y)
+					double radarX, radarY;
+					tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
+
+					// Beam gate location in geographic (lat,lon)
+					double absLat, absLon;
+					tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
+
+					// double dtm_h; 
+					dtm_h= asterDEM.getElevation(absLat, absLon); // [meters]			
+				}
+
+				float thres1=0.2; // [0.0 - 1.0]
+				float thres2=30.0; // [dBZ]
+				if (beam_hgt < 0.0 && data[g] != swp_nan) {
+					data[g] = 1.0;
+				} else if ( dtm_h > 0.0 && data[g] != swp_nan) {
+					agl = radarAlt - dtm_h;
+					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95	
+					if (range>=ground_intersect*thres1 && data[g]>=thres2) {
+						data[g] = 1.0;
+					} else {
+						data[g] = 0.0;
+					}
+				} else if (data[g] != swp_nan) {
+					data[g] = 0.0;
+				}
+							
+				// printf("%3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f, %3.2f\n ",
+				// range, radarAlt, elev*rad2deg, beam_hgt, dtm_h, agl, ground_intersect,data[g] );		
+			} else {
+
+				if (data[g] != swp_nan) data[g]=0.0;
+			}
+		}
+	}
+	// printf("chao\n");
+	// exit(1);
+	
+}
+
 
 /****************************************************************************************
  ** groundProbability : This subroutine calculates the probability that a given gate is ground
