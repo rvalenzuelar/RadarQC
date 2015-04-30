@@ -10,8 +10,8 @@
 #	- For Soloii edited sweep files use pragma pack (4) in read_dorade.h
 #	- For Solo3 edited sweep files use pragma pack (8) in read_dorade.h
 #	- After using RadxConvert, "Seek Error" can be solved by copying a field (dummy var) using Soloii/Solo3
-#	- For some reason, changes in QCed sweep files are visualized with Solo3. Opening QCed files with
-#	  Soloii would give the impression of no QC.
+#	- For some reason, changes due to navigation correction are visualized only in Solo3. Opening QCed files with
+#	  Soloii would give the impression of no nav correctuion.
 
 # creates makefile using qmake
 #----------------------------------------------
@@ -37,10 +37,13 @@ make
 # CFACDIR="/home/rvalenzuela/Github/RadarQC/cfac_case04"
 
 
-# INDIR="$HOME/P3/dorade/case03/leg01" 
-INDIR="$HOME/P3/dorade/case03_coords_cor" 
-OUTDIR="$HOME/P3/qced/case03/leg01"
-CFACDIR="$HOME/Github/RadarQC/cfac_case03"
+# INDIR="$HOME/P3/dorade/case03_coords_cor" 
+# OUTDIR="$HOME/P3/qced/case03/leg01"
+# CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg01"
+
+INDIR="$HOME/P3/dorade/case03_coords_cor/leg03" 
+OUTDIR="$HOME/P3/qced/case03/leg03"
+CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
 
 
 # set DTM file
