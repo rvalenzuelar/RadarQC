@@ -119,6 +119,7 @@ public:
 	/* Now it handles DTM at the beginning of processSweeps (RV */
 	void probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);
 	void probGroundGates2(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);	
+	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);		
 	void probGroundGates(float** field, const float& eff_beamwidth);
 
 	void calcWeatherProb(const QString& mdbzt_name, const QString& mdbzs_name, const QString& mdbzl_name, const QString& mvgs_name, const QString& mncp_name);
