@@ -1469,7 +1469,10 @@ void Dorade::skip_bytes(FILE *fp,int numskip)
 	/* SKIP TO THE RIGHT BYTE! */
 
 	if (fseek(fp,numskip,SEEK_CUR)) {
-		printf("Seek Error..aborting..\n");
+		// printf("Seek Error..aborting..\n");
+		printf("Seek Error: \n");
+		printf("Use Soloii 'copy <field> to <field>'' to write a dummy in TF and TA and then run again.\n");
+		printf("..aborting.\n");
 		exit(1);
 	}
 
