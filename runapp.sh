@@ -41,10 +41,13 @@ make
 # OUTDIR="$HOME/P3/qced/case03/leg01"
 # CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg01"
 
-INDIR="$HOME/P3/dorade/case03_coords_cor/leg03" 
-OUTDIR="$HOME/P3/qced/case03/leg03"
-CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
+# INDIR="$HOME/P3/dorade/case03_coords_cor/leg03" 
+# OUTDIR="$HOME/P3/qced/case03/leg03"
+# CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
 
+INDIR="$HOME/P3/dorade/case03_coords_cor/leg02" 
+OUTDIR="$HOME/P3/qced/case03/leg02"
+CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg02"
 
 # set DTM file
 #---------------------
@@ -60,7 +63,7 @@ echo ' '
 
 # remove intermedite compiling files and executable
 #--------------------------------------------------------------------------
-rm *.o radarqc Makefile
+rm *.o radarqc Makefile 
 
 
 
