@@ -24,6 +24,20 @@ SOURCES +=$$SOURCEPATH/AirborneRadarQC.cpp \
 	   			$$SOURCEPATH/RecursiveFilter.cpp \
 	   			$$SOURCEPATH/DEM.cpp \
 	   			$$SOURCEPATH/main.cpp
+
+# libraries
+#---------------
 LIBS += -lgeotiff -ltiff -lgeographic # for noaa
 # LIBS += -lgeotiff -ltiff -lGeographic #for laptop
-CONFIG += debug
+
+# debug mode on/off
+#--------------------------------
+CONFIG -= debug
+
+# turn on/off g++ messages
+#----------------------------------------
+CONFIG += silent 
+
+# turn on/off warning messages
+#-----------------------------------------------
+CONFIG += warn_off

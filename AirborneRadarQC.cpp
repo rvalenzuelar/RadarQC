@@ -161,7 +161,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// -----------------------------------------------------------
 				// copyField("DZ", "DZG");
 				// copyField("VG", "VGG");
-				copyField("ZZ", "DZG");
+				copyField("ZZ", "DZG"); // <--  make sure that fields exist; otherwise gives seg fault (RV)
 				copyField("VG", "VGG");
 				copyField("ZZ", "DZM");
 				copyField("VG", "VGM");
@@ -169,8 +169,14 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
-				float beamWidth=2.0; //Testud et al 95
-				probGroundGates2("DZG", "PG1", beamWidth); 
+
+				float thres_dbz=32;	// [dBZ]
+				float thres_elev=0.9;	// [deg]
+				float thres_bmh=250;	// [m]
+				float thres_per=0.5;	// [*100%]
+				probGroundGates2("DZG", "PG1", thres_dbz, thres_elev, thres_bmh, thres_per); 
+
+				float beamWidth=2.0; //Testud et al 95				
 				probGroundGatesMB("DZG", "PG2", beamWidth); 
 
 
@@ -179,8 +185,8 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				thresholdData("DZG","PG1",">=", 0.0);
 				thresholdData("VGG","PG1",">=", 0.0);	
 
-				thresholdData("DZM","PG2",">", 0.0);
-				thresholdData("VGM","PG2",">", 0.0);
+				thresholdData("DZM","PG2",">=", 0.9);
+				thresholdData("VGM","PG2",">=", 0.9);
 
 
 				// // Remove isolated gates
@@ -3673,7 +3679,8 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
  using just the beamwidth
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QString& newFieldName, 
-								const float& eff_beamwidth)
+											const float& thres_dbz, const float& thres_elev, 
+											const float& thres_bmh, const float& thres_per)
 {
 
 	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
@@ -3710,19 +3717,17 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 		float radarLon = swpfile.getRadarLon(i);		
 		double tan_elev = tan(elev);		
 		double sin_elev = sin(elev);
-		// printf("%6.5f, %6.5f, %6.5f\n",elev*rad2deg, sin_elev, tan_elev);
 		float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
 
 		for  (int g=0; g< numgates; g++){
 
-			if (elev < 0.9*deg2rad ) {  
+			if (elev < thres_elev*deg2rad ) {  
 				//  ground-contaminated
 				float range = gates[g];
 				float relX = range*sin(az)*cos(elev);	// X beam position relative to acft
 				float relY = range*cos(az)*cos(elev);	// Y beam position relative to acft
 				float relZ = range*sin(elev); 		// Z beam position relative to acft			
-				// printf("%3.2f, %3.2f, %3.2f, %3.2f, %3.2f,%3.2f,%3.2f,%3.2f\n", 
-				// 	head, elev*rad2deg, az*rad2deg, range, data[g],relX,relY,relZ);
+				
 				float beam_hgt=radarAlt+relZ;
 				if (demFlag) {
 					// Radar location in projected UTM (x,y)
@@ -3737,23 +3742,21 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 					dtm_h= asterDEM.getElevation(absLat, absLon); // [meters]			
 				}
 
-				float thres1=0.5; // [0.0 - 1.0]
-				float thres2=32.0; // [dBZ]
-				if (beam_hgt < 250.0 && data[g] != swp_nan) {
+				if (beam_hgt < thres_bmh && data[g] != swp_nan) {
 					data[g] = 12.0;
 				} else if ( dtm_h > 0.0 && data[g] != swp_nan) {
 					agl = radarAlt - dtm_h; //[meters]
 					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
-					if (range>=ground_intersect*thres1 && elev<0.0) {
+					if (range>=ground_intersect*thres_per && elev<0.0) {
 						// negative elevations						
-						if ( data[g]>=thres2 ) {
+						if ( data[g]>=thres_dbz ) {
 							data[g] = 4.0; 
 						} else {
 							data[g] = 8.0; 
 						}
 					} else {
 						// positive elevations in the horizon plane
-						if (data[g]>=thres2){
+						if (data[g]>=thres_dbz){
 							data[g] = 0.0;
 						} else {
 							data[g] =-4.0;
@@ -3768,9 +3771,6 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 			}
 		}
 	}
-	// printf("chao\n");
-	// exit(1);
-	
 }
 
 
