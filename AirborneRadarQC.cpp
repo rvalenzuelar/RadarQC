@@ -170,10 +170,22 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 
-				float thres_dbz=32;	// [dBZ]
+				/* good along the coast */
+				// float thres_dbz=32;	// [dBZ]
+				// float thres_elev=0.9;	// [deg]
+				// float thres_bmh=250;	// [m]
+				// float thres_per=0.5;	// [*100%]
+				
+				// float thres_dbz=40;	// [dBZ]
+				// float thres_elev=0.0;	// [deg]
+				// float thres_bmh=250;	// [m]
+				// float thres_per=0.5;	// [*100%]
+
 				float thres_elev=0.9;	// [deg]
-				float thres_bmh=250;	// [m]
-				float thres_per=0.5;	// [*100%]
+				float thres_bmh=100;	// [m]
+				float thres_per=0.75;	// [*100%]				
+				float thres_dbz=39;	// [dBZ]
+
 				probGroundGates2("DZG", "PG1", thres_dbz, thres_elev, thres_bmh, thres_per); 
 
 				float beamWidth=2.0; //Testud et al 95				
@@ -185,8 +197,8 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				thresholdData("DZG","PG1",">=", 0.0);
 				thresholdData("VGG","PG1",">=", 0.0);	
 
-				thresholdData("DZM","PG2",">=", 0.9);
-				thresholdData("VGM","PG2",">=", 0.9);
+				thresholdData("DZM","PG2",">", 0.2);
+				thresholdData("VGM","PG2",">", 0.2);
 
 
 				// // Remove isolated gates
@@ -3690,6 +3702,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 	const float earth_radius=6366805.6; // [meters]
 	const float deg2rad=0.017453292;
 	const float rad2deg=57.29577951;
+	const float pi=3.14159265358979323846;
 
 	QString newFieldDesc = "Ground Gates";
 	QString newFieldUnits = "binary";
@@ -3742,26 +3755,61 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 					dtm_h= asterDEM.getElevation(absLat, absLon); // [meters]			
 				}
 
-				if (beam_hgt < thres_bmh && data[g] != swp_nan) {
+				if (beam_hgt < 0.0 && data[g] != swp_nan) {
 					data[g] = 12.0;
 				} else if ( dtm_h > 0.0 && data[g] != swp_nan) {
 					agl = radarAlt - dtm_h; //[meters]
 					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
-					if (range>=ground_intersect*thres_per && elev<0.0) {
-						// negative elevations						
-						if ( data[g]>=thres_dbz ) {
-							data[g] = 4.0; 
+
+					/* algo 1*/
+					// if (range>=ground_intersect*thres_per && elev<0.0) {
+					// 	// negative elevations						
+					// 	if ( data[g]>=thres_dbz ) {
+					// 		data[g] = 4.0; 
+					// 	} else {
+					// 		data[g] = 8.0; 
+					// 	}
+					// } else {
+					// 	// positive elevations in the horizon plane
+					// 	if (data[g]>=thres_dbz){
+					// 		data[g] = 0.0;
+					// 	} else {
+					// 		data[g] =-4.0;
+					// 	}
+					// }
+
+					/* algo 2*/
+					if (elev<0.0) {
+						if (data[g]>=thres_dbz) {
+							if (range>=ground_intersect*thres_per) {
+								data[g] = 4.0; 
+							} else {
+								data[g] = 8.0; 
+							}
 						} else {
-							data[g] = 8.0; 
+							
+							// float fun=-sin(elev);
+							// float fun=-sin(elev)*(1+cos(elev));
+							const float w=0.8;
+							const float sig=0.5;
+							const float mu=-70*deg2rad; // [deg]
+							float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
+							if (beam_hgt < thres_bmh*weight) {
+							// if (beam_hgt < thres_bmh & range>=ground_intersect*weight) {
+								data[g] = 16.0;
+							} else {
+								data[g] = -6.0;	
+							}
 						}
 					} else {
-						// positive elevations in the horizon plane
+						// near horizon
 						if (data[g]>=thres_dbz){
 							data[g] = 0.0;
 						} else {
 							data[g] =-4.0;
 						}
 					}
+
 				} else if (data[g] != swp_nan) {
 					data[g] = -8.0;
 				}
