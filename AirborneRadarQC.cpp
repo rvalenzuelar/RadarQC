@@ -124,9 +124,9 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float threshold1 [2] = {0.85,0};
 				// float threshold2 [2] = {1.8,0.0};
 				// float threshold3 [2] = {0.,30.};
-				// thresholdDataAND("V3","CC","below", threshold1,
-				// 						 "DC","above", threshold2,
-				// 						 "W0","outside", threshold3);
+				// thresholdDataAND("V3","CC","<=", threshold1,
+				// 						 "DC",">=", threshold2,
+				// 						 "W0","<=&>=", threshold3);
 
 				/* syntax: despeckleRadial("targetField", #gates)*/
 				despeckleRadial("V3", 3);
@@ -159,18 +159,20 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// Make a backup of the original fields
 				// syntax: copyField("oldField",'newField')
 				// -----------------------------------------------------------
-				// copyField("DZ", "DZG");
+				copyField("DZ", "DZG");
 				// copyField("VG", "VGG");
-				copyField("ZZ", "DZG"); // <--  make sure that fields exist; otherwise gives seg fault (RV)
-				copyField("VG", "VGG");
-				copyField("ZZ", "DZM");
-				copyField("VG", "VGM");
+				// copyField("ZZ", "DZG"); // <--  make sure that fields exist; otherwise gives seg fault (RV)
+				// copyField("VG", "VGG");
+				// copyField("ZZ", "DZM");
+				// copyField("VG", "VGM");
+				// copyField("VE", "VU3");
+
 
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
 				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
 
-				/* good along the coast */
+				// /* good along the coast */
 				// float thres_dbz=32;	// [dBZ]
 				// float thres_elev=0.9;	// [deg]
 				// float thres_bmh=250;	// [m]
@@ -181,24 +183,40 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float thres_bmh=250;	// [m]
 				// float thres_per=0.5;	// [*100%]
 
-				float thres_elev=0.9;	// [deg]
-				float thres_bmh=100;	// [m]
-				float thres_per=0.75;	// [*100%]				
-				float thres_dbz=39;	// [dBZ]
+				// float thres_elev=0.9;	// [deg]
+				// float thres_bmh=100;	// [m]
+				// float thres_per=0.75;	// [*100%]				
+				// float thres_dbz=39;	// [dBZ]
 
-				probGroundGates2("DZG", "PG1", thres_dbz, thres_elev, thres_bmh, thres_per); 
+				
+				float thres_dbz=38;	// [dBZ]
+				float thres_elev=-0.1;	// [deg]
+				float thres_bmh=250;	// [m]
+				float thres_per=0.9;	// [*100%]				
 
-				float beamWidth=2.0; //Testud et al 95				
-				probGroundGatesMB("DZG", "PG2", beamWidth); 
-
-
-				// Remove ground gates in reflectivity and Doppler vel
-				//-------------------------------------------------------------------------------
+				probGroundGates2("DZG","VG","PG1", 
+							thres_dbz, thres_elev, thres_bmh, thres_per); 
 				thresholdData("DZG","PG1",">=", 0.0);
-				thresholdData("VGG","PG1",">=", 0.0);	
 
-				thresholdData("DZM","PG2",">", 0.2);
-				thresholdData("VGM","PG2",">", 0.2);
+
+				// float beamWidth=2.0; //Testud et al 95				
+				// probGroundGatesMB("DZG", "PG2", beamWidth); 
+				// thresholdData("DZG","PG2",">", 0.9);
+
+				// // Remove ground gates in reflectivity and Doppler vel
+				// //-------------------------------------------------------------------------------
+				// thresholdData("DZG","PG1",">=", 0.0);
+				// thresholdData("VGG","PG1",">=", 0.0);	
+
+				// thresholdData("DZG","PG2",">", 0.2);
+				// thresholdData("VGG","PG2",">", 0.2);
+				
+			
+				// float threshold1 [2] = {0.0,0.0};
+				// float threshold2 [2] = {-1.0,1.0};
+				// thresholdDataAND("DZG",
+				// 					"PG1",">=", threshold1,
+				// 					"VG",">=&<=", threshold2);
 
 
 				// // Remove isolated gates
@@ -209,44 +227,6 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// despeckleRadial("VGG", 1);
 				// despeckleAzimuthal("VGG", 2);
 
-				///SW/Z thresholding
-				// calcRatio("SW", "ZZ", "SWZ", true);
-				// thresholdData("SWZ","VG", 0.6, "above");
-
-				/* Calculate KDP
-				despeckleRadial("PHIDP", 2);
-				GaussianSmooth("PHIDP", "KDP2", 3);
-				calc1stRadialDerivative("KDP2", "KDP3", 2); */
-
-				/* Calculate various gradients
-				calcStdDev("VV","VSTD");
-				calcLaplacian("VV","VLP");
-				calcMixedPartial("VV","VMP");
-				calcGradientMagnitude("VV","VGR",2); */
-
-				/* Histograms of QC parameters
-	            		histogram("NCP", 0.0, 1.0, 0.05);
-				histogram("VSD", 0.0, 30.0, 1.0);
-	            		histogram("SWZ", 0.0, 1.0, 0.05);
-	            		histogram("VLP", -10.0, 10.0, 1.0);
-				histogram("VMP", -10.0, 10.0, 1.0);
-				histogram("GG", 0.0, 1.0, 0.05);
-				histogram("VGR", 0.0, 20.0, 1.0); */
-				// histogram("NCP", 0.0, 1.0, 0.05);
-
-				/* WxProbability
-				float weights[7];
-				for (int i =0; i<7; i++) weights[i] = 1.0;
-				wxProbability("VG","WXP",weights); */
-
-				/* Skill statistics on individual sweeps
-				 BrierSkillScore();
-				 RelativeOperatingCharacteristic();
-				 ReliabilityDiagram();
-				 soloiiScriptROC(); */
-
-		 		// Copy edits to reflectivity
-				// copyEdits("VG","DBZ");
 
 				// Write it back out
 				//--------------------------
@@ -448,36 +428,45 @@ void AirborneRadarQC::thresholdDataAND(const QString& fldname,
 			int mask = 0;
 
 			// field 1
-			if (direction1 == "below"){
+			if (direction1 == "<="){
 				if (threshdata1[n] <= threshold1[0]) mask += 1;
 			}
-			else if (direction1 == "above")	{
+			else if (direction1 == ">=")	{
 				if (threshdata1[n] >= threshold1[0]) mask += 1;
 			}
-			else if (direction1 == "outside"){
+			else if (direction1 == "<=&>="){
 				if (threshdata1[n] <= threshold1[0] && threshdata1[n] >= threshold1[1]) mask += 1;
+			} 
+			else if (direction1 == ">=&<="){
+				if (threshdata1[n] >= threshold1[0] && threshdata1[n] <= threshold1[1]) mask += 1;
 			}
 
 			// field 2
-			if (direction2 == "below"){
+			if (direction2 == "<="){
 				if (threshdata2[n] <= threshold2[0]) mask += 1;
 			}
-			else if (direction2 == "above")	{
+			else if (direction2 == ">=")	{
 				if (threshdata2[n] >= threshold2[0]) mask += 1;
 			}
-			else if (direction1 == "outside"){
+			else if (direction2 == "<=&>="){
 				if (threshdata2[n] <= threshold2[0] && threshdata2[n] >= threshold2[1]) mask += 1;
+			}
+			else if (direction2 == ">=&<="){
+				if (threshdata2[n] >= threshold2[0] && threshdata2[n] <= threshold2[1]) mask += 1;
 			}
 
 			// field 3
-			if (direction3 == "below"){
+			if (direction3 == "<="){
 				if (threshdata3[n] <= threshold3[0]) mask += 1;
 			}
-			else if (direction3 == "above"){
+			else if (direction3 == ">="){
 				if (threshdata3[n] >= threshold3[0]) mask += 1;
 			}
-			else if (direction1 == "outside"){
+			else if (direction3 == "<=&>="){
 				if (threshdata3[n] <= threshold3[0] && threshdata3[n] >= threshold3[1]) mask += 1;
+			}
+			else if (direction3 == ">=&<="){
+				if (threshdata3[n] >= threshold3[0] && threshdata3[n] <= threshold3[1]) mask += 1;
 			}
 
 			// it has to pass all the conditions (i.e. AND operation) to keep its value,
@@ -488,6 +477,63 @@ void AirborneRadarQC::thresholdDataAND(const QString& fldname,
 	}
 }
 
+/****************************************************************************************
+ ** thresholdDataAND : Threshold a field based on other fields using
+ 						  an AND operation (RV)
+ ****************************************************************************************/
+void AirborneRadarQC::thresholdDataAND(const QString& fldname,
+	const QString& threshfield1, const QString& direction1, const float threshold1[],
+	const QString& threshfield2, const QString& direction2, const float threshold2[])
+{
+	int rays = swpfile.getNumRays();
+	int gates = swpfile.getNumGates();
+
+	for (int i=0; i < rays; i++) {
+		// Get the data
+		float* threshdata1 = swpfile.getRayData(i, threshfield1);
+		float* threshdata2 = swpfile.getRayData(i, threshfield2);		
+		float* data = swpfile.getRayData(i, fldname);
+
+		// Creates a mask using thresholding
+		for (int n=0; n < gates; n++) {
+
+			int mask = 0;
+
+			// field 1
+			if (direction1 == "<="){
+				if (threshdata1[n] <= threshold1[0]) mask += 1;
+			}
+			else if (direction1 == ">=")	{
+				if (threshdata1[n] >= threshold1[0]) mask += 1;
+			}
+			else if (direction1 == "<=&>="){
+				if (threshdata1[n] <= threshold1[0] && threshdata1[n] >= threshold1[1]) mask += 1;
+			} 
+			else if (direction1 == ">=&<="){
+				if (threshdata1[n] >= threshold1[0] && threshdata1[n] <= threshold1[1]) mask += 1;
+			}
+
+			// field 2
+			if (direction2 == "<="){
+				if (threshdata2[n] <= threshold2[0]) mask += 1;
+			}
+			else if (direction2 == ">=")	{
+				if (threshdata2[n] >= threshold2[0]) mask += 1;
+			}
+			else if (direction2 == "<=&>="){
+				if (threshdata2[n] <= threshold2[0] && threshdata2[n] >= threshold2[1]) mask += 1;
+			}
+			else if (direction2 == ">=&<="){
+				if (threshdata2[n] >= threshold2[0] && threshdata2[n] <= threshold2[1]) mask += 1;
+			}
+
+			// it has to pass all the conditions (i.e. AND operation) to keep its value,
+			// otherwise is NaN
+			if (mask ==2) data[n] = -32768.0;
+		}
+
+	}
+}
 
 /****************************************************************************************
  ** despeckle : Flag isolated gates less than speckle along a ray
@@ -2704,6 +2750,40 @@ void AirborneRadarQC::removeAircraftMotion(const QString& vrFieldName, const QSt
 	}
 
 	double nyquist = swpfile.getNyquistVelocity();
+	// printf("%4.2f ", nyquist);
+	for (int i=0; i < swpfile.getNumRays(); i++)  {
+		float* data = swpfile.getRayData(i, vgFieldName);
+		double aircraft_vr = swpfile.getAircraftVelocity(i);
+		// printf("%4.2f\n", aircraft_vr);
+		for (int n=0; n < swpfile.getNumGates(); n++) {
+			if (data[n] == -32768) continue;
+			double vr = data[n] + aircraft_vr;
+			if (fabs(vr) > nyquist) {
+				// Fold data back into Nyquist range
+				while (vr > nyquist) {
+					vr -= nyquist*2;
+				}
+				while (vr < -nyquist) {
+					vr += nyquist*2;
+				}
+			}
+			data[n] = vr;
+		}
+	}
+}
+
+/* Remove the aircraft velocity from the Doppler velocity (RV) */
+void AirborneRadarQC::removeAircraftMotion(const QString& vrFieldName, const QString& vgFieldName, 
+						const double nyquist)
+{
+	// Aircraft Doppler velocity calculated following Lee et al. (1994)
+	QString newFieldDesc = "Ground relative velocity";
+	QString newFieldUnits = "m/s";
+	if(!copyField(vrFieldName, vgFieldName)) {
+		printf("Error creating new field!!!\n");
+		return;
+	}
+
 	for (int i=0; i < swpfile.getNumRays(); i++)  {
 		float* data = swpfile.getRayData(i, vgFieldName);
 		double aircraft_vr = swpfile.getAircraftVelocity(i);
@@ -3609,7 +3689,8 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			if (elev > 0) { continue; }
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			// float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltMSL(i)*1000;
 			if (gates[g] < radarAlt) { continue; }
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
 			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {
@@ -3631,7 +3712,9 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 			float az = swpfile.getAzimuth(i)*0.017453292;
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			// float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltMSL(i)*1000;
+			// printf("%6.2f\n", radarAlt);
 			float azground, elevground;
 			if (az > 3.14159) {
 				azground = swpfile.getAzimuth(left_index)*0.017453292;
@@ -3690,7 +3773,9 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
  ** groundProbability : This subroutine calculates the probability that a given gate is ground
  using just the beamwidth
  ****************************************************************************************/
-void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QString& newFieldName, 
+void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
+											const QString& velocityFieldName,  
+											const QString& newFieldName, 
 											const float& thres_dbz, const float& thres_elev, 
 											const float& thres_bmh, const float& thres_per)
 {
@@ -3726,11 +3811,14 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 		double elev = swpfile.getElevation(i)*deg2rad; // <- elevation relative to acft horizon
 		float head=swpfile.getHeading(i); // heading angle
 		float radarAlt = swpfile.getRadarAlt(i)*1000.0; //meters
+		// float radarAlt = swpfile.getRadarAltMSL(i)*1000.0; //meters
+		// printf("%6.2f\n",radarAlt); 
 		float radarLat = swpfile.getRadarLat(i);
 		float radarLon = swpfile.getRadarLon(i);		
 		double tan_elev = tan(elev);		
 		double sin_elev = sin(elev);
 		float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
+		float* velocity = swpfile.getRayData(i, velocityFieldName); //<- data along a ray
 
 		for  (int g=0; g< numgates; g++){
 
@@ -3742,6 +3830,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 				float relZ = range*sin(elev); 		// Z beam position relative to acft			
 				
 				float beam_hgt=radarAlt+relZ;
+				printf("%6.2f\n",beam_hgt); 
 				if (demFlag) {
 					// Radar location in projected UTM (x,y)
 					double radarX, radarY;
@@ -3762,53 +3851,57 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName, const QStrin
 					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
 
 					/* algo 1*/
-					// if (range>=ground_intersect*thres_per && elev<0.0) {
-					// 	// negative elevations						
-					// 	if ( data[g]>=thres_dbz ) {
-					// 		data[g] = 4.0; 
+					if (range>=ground_intersect*thres_per && elev<0.0) {
+						// negative elevations						
+						if ( data[g]>=thres_dbz ) {
+							data[g] = 4.0; 
+						} else {
+							data[g] = 8.0; 
+						}
+					} else {
+						// positive elevations in the horizon plane
+						if (data[g]>=thres_dbz){
+							if (velocity[g]>=-1.5 && velocity[g]<=1.5 ) {
+								data[g] = 0.0;
+							} else {
+								data[g] = -10.0;
+							}
+						} else {
+							data[g] =-4.0;
+						}
+					}
+
+					// /* algo 2*/
+					// if (elev<0.0) {
+					// 	if (data[g]>=thres_dbz) {
+					// 		if (range>=ground_intersect*thres_per) {
+					// 			data[g] = 4.0; 
+					// 		} else {
+					// 			data[g] = 8.0; 
+					// 		}
 					// 	} else {
-					// 		data[g] = 8.0; 
+							
+					// 		// float fun=-sin(elev);
+					// 		// float fun=-sin(elev)*(1+cos(elev));
+					// 		const float w=0.8;
+					// 		const float sig=0.5;
+					// 		const float mu=-70*deg2rad; // [deg]
+					// 		float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
+					// 		if (beam_hgt < thres_bmh*weight) {
+					// 		// if (beam_hgt < thres_bmh & range>=ground_intersect*weight) {
+					// 			data[g] = 16.0;
+					// 		} else {
+					// 			data[g] = -6.0;	
+					// 		}
 					// 	}
 					// } else {
-					// 	// positive elevations in the horizon plane
+					// 	// near horizon
 					// 	if (data[g]>=thres_dbz){
 					// 		data[g] = 0.0;
 					// 	} else {
 					// 		data[g] =-4.0;
 					// 	}
 					// }
-
-					/* algo 2*/
-					if (elev<0.0) {
-						if (data[g]>=thres_dbz) {
-							if (range>=ground_intersect*thres_per) {
-								data[g] = 4.0; 
-							} else {
-								data[g] = 8.0; 
-							}
-						} else {
-							
-							// float fun=-sin(elev);
-							// float fun=-sin(elev)*(1+cos(elev));
-							const float w=0.8;
-							const float sig=0.5;
-							const float mu=-70*deg2rad; // [deg]
-							float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
-							if (beam_hgt < thres_bmh*weight) {
-							// if (beam_hgt < thres_bmh & range>=ground_intersect*weight) {
-								data[g] = 16.0;
-							} else {
-								data[g] = -6.0;	
-							}
-						}
-					} else {
-						// near horizon
-						if (data[g]>=thres_dbz){
-							data[g] = 0.0;
-						} else {
-							data[g] =-4.0;
-						}
-					}
 
 				} else if (data[g] != swp_nan) {
 					data[g] = -8.0;

@@ -45,9 +45,116 @@ make
 # OUTDIR="$HOME/P3/qced/case03/leg03"
 # CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
 
-INDIR="$HOME/P3/dorade/case03_coords_cor/leg02" 
-OUTDIR="$HOME/P3/qced/case03/leg02"
-CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg02"
+# INDIR="$HOME/P3/dorade/case03_coords_cor/leg02" 
+# OUTDIR="$HOME/P3/qced/case03/leg02"
+# # CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg02"
+# CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
+
+# INDIR="$HOME//P3/dorade/case03_all/leg01" 
+# OUTDIR="$HOME/P3/qced/velocity"
+# CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg02"
+
+# INDIR="$HOME/P3/dorade/case03_coords_cor/leg02" 
+# OUTDIR="$HOME/P3/qced/case03/leg02"
+# # CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg02"
+# CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
+
+# INDIR="$HOME/P3/dorade/case03_coords_cor/leg03_new" 
+# OUTDIR="$HOME/P3/qced/case03/leg03_new"
+# CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03_new"
+# # CFACDIR="$HOME/Github/RadarQC/cfac_case03/leg03"
+
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg01_cfac_leg01_run01"
+# CFACDIR="$HOME/P3_v2/cfac/c03/leg01_run01"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/l01_leg03run02"
+# CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run02"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/l03_leg03run02"
+# CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run02"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/l03_leg03run02"
+# # CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run02_altcor"
+# CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run02"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/l03_leg03run03"
+# CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run03"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/l03_leg03run01"
+# # CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run01"
+# CFACDIR="$HOME/P3_v2/cfac/c03/leg03_run01_altcor"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r06_galt_vg"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r06_galt_vg"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r05_galt_vg"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r05_galt_vg"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r02_galt_vg"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r02_galt_vg"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r05_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r05_galt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r03_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r03_galt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r02_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r02_galt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r01_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r01_galt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r06_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r06_galt_ve"
+
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r01_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r01_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r02_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r02_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r03_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r03_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r04_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r04_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r05_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r05_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r06_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r06_palt_ve"
+
+INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r07_palt_ve"
+CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced/c03/leg03_l03_r08_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r08_palt_ve"
 
 # set DTM file
 #---------------------

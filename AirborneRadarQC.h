@@ -54,6 +54,9 @@ public:
 				const QString& threshfield1, const QString& direction1, const float threshold1[],
 				const QString& threshfield2, const QString& direction2, const float threshold2[],
 				const QString& threshfield3, const QString& direction3, const float threshold3[]);
+	void thresholdDataAND(const QString& fldname,
+				const QString& threshfield1, const QString& direction1, const float threshold1[],
+				const QString& threshfield2, const QString& direction2, const float threshold2[]);	
 	void despeckleRadial(const QString& fldname, const int& speckle);
 	void despeckleAzimuthal(const QString& fldname, const int& speckle);
 	void GaussianSmooth(const QString& oriFieldName, const QString& newFieldName, const int& scale);
@@ -118,7 +121,9 @@ public:
 
 	/* Now it handles DTM at the beginning of processSweeps (RV */
 	void probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);
-	void probGroundGates2(const QString& oriFieldName, const QString& newFieldName, 
+	void probGroundGates2(const QString& oriFieldName, 
+				const QString& velocityFieldName, 		
+				const QString& newFieldName, 
 				const float& thres_dbz, const float& thres_elev, 
 				const float& thres_bmh, const float& thres_per);	
 	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);		
@@ -139,8 +144,9 @@ public:
 	void dumpFLwind();
 	void compareFLwind();
 	void removeAircraftMotion(const QString& vrFieldName, const QString& vgFieldName);
+	void removeAircraftMotion(const QString& vrFieldName, const QString& vgFieldName, const double nyquist);
 	// void setNavigationCorrections(const QString& cfacFileName, const QString& radarName);
-	void setNavigationCorrections(const QString& filename, const QString& radarName);
+	void setNavigationCorrections(const QString& filename, const QString& radarName); // (RV)
 
 	// Verification
 	void BrierSkillScore();
