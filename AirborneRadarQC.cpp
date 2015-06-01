@@ -159,7 +159,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// Make a backup of the original fields
 				// syntax: copyField("oldField",'newField')
 				// -----------------------------------------------------------
-				copyField("DZ", "DZG");
+				// copyField("DZ", "DZG");
 				// copyField("VG", "VGG");
 				// copyField("ZZ", "DZG"); // <--  make sure that fields exist; otherwise gives seg fault (RV)
 				// copyField("VG", "VGG");
@@ -167,6 +167,9 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// copyField("VG", "VGM");
 				// copyField("VE", "VU3");
 
+				copyField("DZ", "DZG");
+				copyField("VG", "VGG");
+				copyField("VE", "VEG");
 
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
@@ -189,15 +192,19 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float thres_dbz=39;	// [dBZ]
 
 				
-				float thres_dbz=38;	// [dBZ]
+				float thres_dbz=40;	// [dBZ]
 				float thres_elev=-0.1;	// [deg]
-				float thres_bmh=250;	// [m]
-				float thres_per=0.9;	// [*100%]				
+				float thres_bmh=100;	// [m]
+				float thres_per=1.0;	// [*100%] (small numbers remove more gates below radar)				
 
 				probGroundGates2("DZG","VG","PG1", 
-							thres_dbz, thres_elev, thres_bmh, thres_per); 
+									thres_dbz, thres_elev, thres_bmh, thres_per); 
 				thresholdData("DZG","PG1",">=", 0.0);
-
+				thresholdData("DZG","DZ","<=", 6.0);
+				thresholdData("VGG","PG1",">=", 0.0);
+				thresholdData("VGG","DZ","<=", 6.0);
+				thresholdData("VEG","PG1",">=", 0.0);
+				thresholdData("VEG","DZ","<=", 6.0);
 
 				// float beamWidth=2.0; //Testud et al 95				
 				// probGroundGatesMB("DZG", "PG2", beamWidth); 
@@ -219,14 +226,16 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// 					"VG",">=&<=", threshold2);
 
 
-				// // Remove isolated gates
-				// //----------------------------------
-				// despeckleRadial("DZG", 1);
-				// despeckleAzimuthal("DZG", 2);
+				// Remove isolated gates
+				//----------------------------------
+				despeckleRadial("DZG", 1);
+				despeckleAzimuthal("DZG", 2);
 
-				// despeckleRadial("VGG", 1);
-				// despeckleAzimuthal("VGG", 2);
+				despeckleRadial("VGG", 1);
+				despeckleAzimuthal("VGG", 2);
 
+				despeckleRadial("VEG", 1);
+				despeckleAzimuthal("VEG", 2);
 
 				// Write it back out
 				//--------------------------
@@ -3689,8 +3698,8 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			if (elev > 0) { continue; }
 			float tan_elev = tan(elev);
-			// float radarAlt = swpfile.getRadarAlt(i)*1000;
-			float radarAlt = swpfile.getRadarAltMSL(i)*1000;
+			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			// float radarAlt = swpfile.getRadarAltMSL(i)*1000;
 			if (gates[g] < radarAlt) { continue; }
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
 			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {
@@ -3712,8 +3721,8 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 			float az = swpfile.getAzimuth(i)*0.017453292;
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			float tan_elev = tan(elev);
-			// float radarAlt = swpfile.getRadarAlt(i)*1000;
-			float radarAlt = swpfile.getRadarAltMSL(i)*1000;
+			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			// float radarAlt = swpfile.getRadarAltMSL(i)*1000;
 			// printf("%6.2f\n", radarAlt);
 			float azground, elevground;
 			if (az > 3.14159) {
@@ -3830,7 +3839,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 				float relZ = range*sin(elev); 		// Z beam position relative to acft			
 				
 				float beam_hgt=radarAlt+relZ;
-				printf("%6.2f\n",beam_hgt); 
+				// printf("%6.2f , %6.2f\n",radarAlt, relZ); 
 				if (demFlag) {
 					// Radar location in projected UTM (x,y)
 					double radarX, radarY;
