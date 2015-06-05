@@ -774,7 +774,8 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 	char* identifier;
 	QString block;
 	QByteArray blocka;
-	int desc_len;
+	// int desc_len;
+	long desc_len; // see if fixes reorder problem(RV)
 	identifier = new char[4];
 	if (doradeFlag) {
 		if ( (fp = fopen(swp_fname,"ab"))==NULL) {

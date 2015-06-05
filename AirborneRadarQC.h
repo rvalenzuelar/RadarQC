@@ -147,6 +147,7 @@ public:
 	void removeAircraftMotion(const QString& vrFieldName, const QString& vgFieldName, const double nyquist);
 	// void setNavigationCorrections(const QString& cfacFileName, const QString& radarName);
 	void setNavigationCorrections(const QString& filename, const QString& radarName); // (RV)
+	void unSetNavigationCorrections(); // (RV)
 
 	// Verification
 	void BrierSkillScore();

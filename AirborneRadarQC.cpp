@@ -151,6 +151,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				RV*/
 
 			}else {
+
 				// Use these to apply navigation corrections
 				//---------------------------------------------------------------
 				setNavigationCorrections("cfac.aft", "TA43P3");
@@ -168,8 +169,8 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// copyField("VE", "VU3");
 
 				copyField("DZ", "DZG");
-				copyField("VG", "VGG");
-				copyField("VE", "VEG");
+				// copyField("VG", "VGG");
+				// copyField("VE", "VEG");
 
 				// Assert ground gates for flat terrain
 				//-----------------------------------------------------------
@@ -180,6 +181,12 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float thres_elev=0.9;	// [deg]
 				// float thres_bmh=250;	// [m]
 				// float thres_per=0.5;	// [*100%]
+
+				/* good along the coast */
+				float thres_dbz=32;	// [dBZ]
+				float thres_elev=0.9;	// [deg]
+				float thres_bmh=250;	// [m]
+				float thres_per=0.9;	// [*100%]
 				
 				// float thres_dbz=40;	// [dBZ]
 				// float thres_elev=0.0;	// [deg]
@@ -192,23 +199,27 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float thres_dbz=39;	// [dBZ]
 
 				
-				float thres_dbz=40;	// [dBZ]
-				float thres_elev=-0.1;	// [deg]
-				float thres_bmh=100;	// [m]
-				float thres_per=1.0;	// [*100%] (small numbers remove more gates below radar)				
+				// float thres_dbz=40;	// [dBZ]
+				// float thres_elev=-0.1;	// [deg]
+				// float thres_bmh=100;	// [m]
+				// float thres_per=1.3;	// [*100%] (small numbers remove more gates below radar)				
 
 				probGroundGates2("DZG","VG","PG1", 
 									thres_dbz, thres_elev, thres_bmh, thres_per); 
+
 				thresholdData("DZG","PG1",">=", 0.0);
 				thresholdData("DZG","DZ","<=", 6.0);
-				thresholdData("VGG","PG1",">=", 0.0);
-				thresholdData("VGG","DZ","<=", 6.0);
-				thresholdData("VEG","PG1",">=", 0.0);
-				thresholdData("VEG","DZ","<=", 6.0);
+				// thresholdData("VGG","PG1",">=", 0.0);
+				// thresholdData("VGG","DZ","<=", 6.0);
+				// thresholdData("VEG","PG1",">=", 0.0);
+				// thresholdData("VEG","DZ","<=", 6.0);
 
 				// float beamWidth=2.0; //Testud et al 95				
-				// probGroundGatesMB("DZG", "PG2", beamWidth); 
-				// thresholdData("DZG","PG2",">", 0.9);
+				// probGroundGatesMB("DZG", "PG1", beamWidth); 
+
+				// thresholdData("DZG","PG1",">", 0.9);
+				// thresholdData("DZG","DZ","<=", 6.0);
+
 
 				// // Remove ground gates in reflectivity and Doppler vel
 				// //-------------------------------------------------------------------------------
@@ -231,11 +242,16 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				despeckleRadial("DZG", 1);
 				despeckleAzimuthal("DZG", 2);
 
-				despeckleRadial("VGG", 1);
-				despeckleAzimuthal("VGG", 2);
+				// despeckleRadial("VGG", 1);
+				// despeckleAzimuthal("VGG", 2);
 
-				despeckleRadial("VEG", 1);
-				despeckleAzimuthal("VEG", 2);
+				// despeckleRadial("VEG", 1);
+				// despeckleAzimuthal("VEG", 2);
+
+
+				// clean cfac block
+				//------------------------
+				// unSetNavigationCorrections();
 
 				// Write it back out
 				//--------------------------
@@ -2814,7 +2830,6 @@ void AirborneRadarQC::removeAircraftMotion(const QString& vrFieldName, const QSt
 }
 
 /* Apply a new set of navigation corrections */
-// void AirborneRadarQC::setNavigationCorrections(const QString& cfacFileName, const QString& radarName)
 void AirborneRadarQC::setNavigationCorrections(const QString& filename, const QString& radarName)
 {
 
@@ -2872,6 +2887,31 @@ void AirborneRadarQC::setNavigationCorrections(const QString& filename, const QS
 
 	// Apply the cfacs
 	swpfile.recalculateAirborneAngles();
+
+}
+
+/*******************************************************************
+See if this fixes problem with seg fault in REORDER (RV)
+********************************************************************/
+void AirborneRadarQC::unSetNavigationCorrections(){
+
+	cfac_info* cfptr = swpfile.getCfacBlock();
+	cfptr->c_azimuth = 0.0;
+	cfptr->c_elevation = 0.0;
+	cfptr->c_range_delay = 0.0;
+	cfptr->c_rad_lon = 0.0;
+	cfptr->c_rad_lat = 0.0;
+	cfptr->c_alt_msl = 0.0;
+	cfptr->c_alt_agl = 0.0;
+	cfptr->c_ew_grspeed = 0.0;
+	cfptr->c_ns_grspeed = 0.0;
+	cfptr->c_vert_vel = 0.0;
+	cfptr->c_head = 0.0;
+	cfptr->c_roll = 0.0;
+	cfptr->c_pitch = 0.0;
+	cfptr->c_drift = 0.0;
+	cfptr->c_rotang = 0.0;
+	cfptr->c_tiltang = 0.0;
 
 }
 
@@ -3819,7 +3859,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 		float az = swpfile.getAzimuth(i)*deg2rad; // <- azimuth relative to geographic north
 		double elev = swpfile.getElevation(i)*deg2rad; // <- elevation relative to acft horizon
 		float head=swpfile.getHeading(i); // heading angle
-		float radarAlt = swpfile.getRadarAlt(i)*1000.0; //meters
+		float radarAlt = swpfile.getRadarAlt(i)*1000.0; //meters AGL
 		// float radarAlt = swpfile.getRadarAltMSL(i)*1000.0; //meters
 		// printf("%6.2f\n",radarAlt); 
 		float radarLat = swpfile.getRadarLat(i);
@@ -3870,7 +3910,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 					} else {
 						// positive elevations in the horizon plane
 						if (data[g]>=thres_dbz){
-							if (velocity[g]>=-1.5 && velocity[g]<=1.5 ) {
+							if (velocity[g]>=-1.0 && velocity[g]<=1.0 ) {
 								data[g] = 0.0;
 							} else {
 								data[g] = -10.0;

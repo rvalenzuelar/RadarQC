@@ -148,13 +148,17 @@ make
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r06_palt_ve"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l03_r06_palt_ve"
 
-INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
-OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r07_palt_ve"
-CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_palt_ve"
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r07_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_palt_ve"
 
 # INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r08_palt_ve"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l03_r08_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r07_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_galt_ve"
 
 
 # ---------- LEG 01 -----------------
@@ -223,6 +227,42 @@ CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_palt_ve"
 # INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r08_palt_vg"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l01_r08_palt_vg"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r07_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l01_r07_galt_ve"
+
+
+
+# ---------- LEG 05 -----------------
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg05_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg05_l05_r07_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l05_r07_palt_ve"
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg05_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg05_l05_r07_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l05_r07_galt_ve"
+
+# ---------- LEG 14 -----------------
+
+# INDIR="$HOME/P3_v2/dorade/c03/leg14_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg14_l14_r07_palt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l14_r07_palt_ve"
+
+
+# ---------- C04 - LEG 10 -----------------
+
+INDIR="$HOME/P3_v2/dorade/c04/leg10_cor" 
+OUTDIR="$HOME/P3_v2/qced_test/c04/leg10_l10_r07_galt_ve"
+CFACDIR="$HOME/P3_v2/cfac/c04/l10_r07_galt_ve"
+
+# ---------- C04 - LEG 11 -----------------
+
+# INDIR="$HOME/P3_v2/dorade/c04/leg11_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c04/leg11_l11_r07_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c04/l11_r07_galt_ve"
+
 
 # set DTM file
 #---------------------
