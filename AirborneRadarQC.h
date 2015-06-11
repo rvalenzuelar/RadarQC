@@ -22,7 +22,7 @@ public:
 	// Conor / Deor
 	AirborneRadarQC(const QString& in, const QString& out, 
 			const QString& cfacp, const QString& suffix,
-			const QString& dtmf);
+			const QString& dtmf, const QString& legtype);
         	AirborneRadarQC();
 	virtual ~AirborneRadarQC();
 
@@ -167,6 +167,7 @@ private:
 	QDir cfacPath; //(RV)
 	QFile dtmFile; //(RV)
 	QString swpSuffix;
+	QString legType; //(RV)
 
 	Dorade swpfile;
 	Dorade auxSwpfile; // Used to merge or thin sweeps

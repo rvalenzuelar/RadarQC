@@ -23,7 +23,7 @@ using namespace GeographicLib;
 // Added cfacPath (RV)
 AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out, 
 										const QString& cfacp, const QString& suffix, 
-										const QString& dtmf)
+										const QString& dtmf, const QString& legtype)
 {
 
 	// Setup the data path
@@ -32,6 +32,7 @@ AirborneRadarQC::AirborneRadarQC(const QString& in, const QString& out,
 	cfacPath.setPath(cfacp);
 	dtmFile.setFileName(dtmf);
 	swpSuffix = suffix;
+	legType = legtype;
 	readSwpDir();
 
 }
@@ -181,12 +182,6 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float thres_elev=0.9;	// [deg]
 				// float thres_bmh=250;	// [m]
 				// float thres_per=0.5;	// [*100%]
-
-				/* good along the coast */
-				float thres_dbz=32;	// [dBZ]
-				float thres_elev=0.9;	// [deg]
-				float thres_bmh=250;	// [m]
-				float thres_per=0.9;	// [*100%]
 				
 				// float thres_dbz=40;	// [dBZ]
 				// float thres_elev=0.0;	// [deg]
@@ -198,11 +193,20 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				// float thres_per=0.75;	// [*100%]				
 				// float thres_dbz=39;	// [dBZ]
 
-				
-				// float thres_dbz=40;	// [dBZ]
-				// float thres_elev=-0.1;	// [deg]
-				// float thres_bmh=100;	// [m]
-				// float thres_per=1.3;	// [*100%] (small numbers remove more gates below radar)				
+				float thres_dbz, thres_elev, thres_bmh, thres_per;
+
+				if (legType == "offshore"){
+					thres_dbz=32;	// [dBZ]
+					thres_elev=0.9;	// [deg]
+					thres_bmh=250;	// [m]
+					thres_per=0.9;	// [*100%]
+				}else{
+					thres_dbz=40;	// [dBZ]
+					thres_elev=-0.1;	// [deg]
+					thres_bmh=100;	// [m]
+					thres_per=1.3;	// [*100%] (small numbers remove more gates below radar)
+				}
+
 
 				probGroundGates2("DZG","VG","PG1", 
 									thres_dbz, thres_elev, thres_bmh, thres_per); 
@@ -2463,7 +2467,7 @@ void AirborneRadarQC::flagGroundGates(const QString& fldname, const float& eff_b
 		}
 		float elev = swpfile.getElevation(i)*0.017453292;
 		float tan_elev = tan(elev);
-		float alt = swpfile.getRadarAlt(i)*1000;
+		float alt = swpfile.getRadarAltAGL(i)*1000;
 		float ground_intersect = (-(alt)/sin(elev))*
 			(1.+alt/(2.*earth_radius*tan_elev*tan_elev));
 
@@ -2514,7 +2518,7 @@ void AirborneRadarQC::compareForeAftRef()
 	QTextStream refout(&refoutFile);
 	float radarLat = swpfile.getRadarLat();
 	float radarLon = swpfile.getRadarLon();
-	float radarAlt = swpfile.getRadarAlt();
+	float radarAlt = swpfile.getRadarAltAGL();
 	QString radarName = swpfile.getRadarname();
 	double Pi = acos(-1);
 	QString refoutName = radarName + "_reflectivity.txt";
@@ -2644,7 +2648,7 @@ void AirborneRadarQC::dumpFLwind()
 	QTextStream velout(&veloutFile);
 	float radarLat = swpfile.getRadarLat();
 	float radarLon = swpfile.getRadarLon();
-	float radarAlt = swpfile.getRadarAlt();
+	float radarAlt = swpfile.getRadarAltAGL();
 	QString radarName = swpfile.getRadarname();
 	double Pi = acos(-1);
 	QString veloutName = radarName + "_velocity.txt";
@@ -2715,7 +2719,7 @@ void AirborneRadarQC::writeToCSV()
 	QTextStream velout(&veloutFile);
 	float radarLat = swpfile.getRadarLat();
 	float radarLon = swpfile.getRadarLon();
-	float radarAlt = swpfile.getRadarAlt();
+	float radarAlt = swpfile.getRadarAltAGL();
 	QString radarName = swpfile.getRadarname();
 	double Pi = acos(-1);
 	QString veloutName = radarName + "_data.txt";
@@ -2873,8 +2877,8 @@ void AirborneRadarQC::setNavigationCorrections(const QString& filename, const QS
 	cfptr->c_range_delay = cfacData[2];
 	cfptr->c_rad_lon = cfacData[3];
 	cfptr->c_rad_lat = cfacData[4];
-	cfptr->c_alt_msl = cfacData[5];
-	cfptr->c_alt_agl = cfacData[6];
+	cfptr->c_alt_msl = cfacData[5]/1000.0; // to km; contains c_msl or c_agl depending on cns_eldo_cai run (RV)
+	cfptr->c_alt_agl = cfacData[6]; // it is always zero in cns_eldo_cai (RV)
 	cfptr->c_ew_grspeed = cfacData[7];
 	cfptr->c_ns_grspeed = cfacData[8];
 	cfptr->c_vert_vel = cfacData[9];
@@ -2896,22 +2900,22 @@ See if this fixes problem with seg fault in REORDER (RV)
 void AirborneRadarQC::unSetNavigationCorrections(){
 
 	cfac_info* cfptr = swpfile.getCfacBlock();
-	cfptr->c_azimuth = 0.0;
-	cfptr->c_elevation = 0.0;
-	cfptr->c_range_delay = 0.0;
-	cfptr->c_rad_lon = 0.0;
-	cfptr->c_rad_lat = 0.0;
+	// cfptr->c_azimuth = 0.0;
+	// cfptr->c_elevation = 0.0;
+	// cfptr->c_range_delay = 0.0;
+	// cfptr->c_rad_lon = 0.0;
+	// cfptr->c_rad_lat = 0.0;
 	cfptr->c_alt_msl = 0.0;
 	cfptr->c_alt_agl = 0.0;
-	cfptr->c_ew_grspeed = 0.0;
-	cfptr->c_ns_grspeed = 0.0;
-	cfptr->c_vert_vel = 0.0;
-	cfptr->c_head = 0.0;
-	cfptr->c_roll = 0.0;
-	cfptr->c_pitch = 0.0;
-	cfptr->c_drift = 0.0;
-	cfptr->c_rotang = 0.0;
-	cfptr->c_tiltang = 0.0;
+	// cfptr->c_ew_grspeed = 0.0;
+	// cfptr->c_ns_grspeed = 0.0;
+	// cfptr->c_vert_vel = 0.0;
+	// cfptr->c_head = 0.0;
+	// cfptr->c_roll = 0.0;
+	// cfptr->c_pitch = 0.0;
+	// cfptr->c_drift = 0.0;
+	// cfptr->c_rotang = 0.0;
+	// cfptr->c_tiltang = 0.0;
 
 }
 
@@ -3583,7 +3587,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 			if (elev > 0) { continue; } //<- elevations above the acft horizon jump to next loop
 
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000; //meters
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000; //meters
 			if (gates[g] < radarAlt) { continue; }
 
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
@@ -3610,7 +3614,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 			float elev = (swpfile.getElevation(i))*deg2rad;
 			float tan_elev = tan(elev);
 			// float radarAlt = swpfile.getRadarAlt(i)*1000;
-			int radarAlt = swpfile.getRadarAlt(i)*1000; //(RV)
+			int radarAlt = swpfile.getRadarAltAGL(i)*1000; //(RV)
 			float azground, elevground;
 			if (az > 3.14159) {
 				azground = swpfile.getAzimuth(left_index)*deg2rad;
@@ -3738,7 +3742,7 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			if (elev > 0) { continue; }
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000;
 			// float radarAlt = swpfile.getRadarAltMSL(i)*1000;
 			if (gates[g] < radarAlt) { continue; }
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
@@ -3761,7 +3765,7 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 			float az = swpfile.getAzimuth(i)*0.017453292;
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000;
 			// float radarAlt = swpfile.getRadarAltMSL(i)*1000;
 			// printf("%6.2f\n", radarAlt);
 			float azground, elevground;
@@ -3859,7 +3863,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 		float az = swpfile.getAzimuth(i)*deg2rad; // <- azimuth relative to geographic north
 		double elev = swpfile.getElevation(i)*deg2rad; // <- elevation relative to acft horizon
 		float head=swpfile.getHeading(i); // heading angle
-		float radarAlt = swpfile.getRadarAlt(i)*1000.0; //meters AGL
+		float radarAlt = swpfile.getRadarAltAGL(i)*1000.0; //meters AGL
 		// float radarAlt = swpfile.getRadarAltMSL(i)*1000.0; //meters
 		// printf("%6.2f\n",radarAlt); 
 		float radarLat = swpfile.getRadarLat(i);
@@ -3993,7 +3997,7 @@ void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			if (elev > 0) { continue; }
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000;
 			if (gates[g] < radarAlt) { continue; }
 			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
 			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {
@@ -4014,7 +4018,7 @@ void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 	        float az = swpfile.getAzimuth(i)*0.017453292;
 			float elev = (swpfile.getElevation(i))*0.017453292;
 			float tan_elev = tan(elev);
-			float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000;
 			float azground, elevground;
 			if (az > 3.14159) {
 				azground = swpfile.getAzimuth(left_index)*0.017453292;
