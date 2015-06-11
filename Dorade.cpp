@@ -275,7 +275,7 @@ float* Dorade::getGateSpacing()
 	return cptr->gate_spacing;
 }
 
-float Dorade::getRadarAlt()
+float Dorade::getRadarAltAGL()
 {
 	return (aptr->alt_agl + cfptr->c_alt_agl);
 }
@@ -295,18 +295,24 @@ float Dorade::getRadarLon()
 	return aptr->lon;
 }
 
-float Dorade::getRadarAlt(const int& ray)
+float Dorade::getRadarAltAGL(const int& ray)
 {
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
-	return aptr[ray].alt_agl;
+	// return aptr[ray].alt_agl;
+	return (aptr[ray].alt_agl + cfptr->c_alt_msl); 	/* c_alt_msl contains c_alt_msl or c_alt_agl  
+							    depending on the cns_eldo_cai input altitude
+							    (1: pressure or msl or 2: geopotential or agl);
+							    c_alt_agl is always zero in cfac file created
+							    by cns_eldo_cai  (RV)
+							*/
 }
 
 float Dorade::getRadarAltMSL(const int& ray)
 {
-    if (ray < 0) return -999.;
-    if (ray > sptr->num_rays) return -999.;
-    return (aptr[ray].alt_msl + cfptr->c_alt_msl);
+	if (ray < 0) return -999.;
+	if (ray > sptr->num_rays) return -999.;
+	return (aptr[ray].alt_msl + cfptr->c_alt_msl);
 }
 
 float Dorade::getRadarLat(const int& ray)
