@@ -11,7 +11,8 @@
 #	- For Solo3 edited sweep files use pragma pack (8) in read_dorade.h
 #	- After using RadxConvert, "Seek Error" can be solved by copying a field (dummy var) using Soloii/Solo3
 #	- For some reason, changes due to navigation correction are visualized only in Solo3. Opening QCed files with
-#	  Soloii would give the impression of no nav correctuion.
+#	  Soloii would give the impression of no nav correction. However, running any editing comman will updated 
+#	  the sweep files and deploy the data with the correct navigation.
 
 # creates makefile using qmake
 #----------------------------------------------
@@ -159,7 +160,7 @@ make
 # INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r07_galt_ve"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_galt_ve"
-
+# LEGTYPE="onshore"
 
 # ---------- LEG 01 -----------------
 
@@ -228,10 +229,10 @@ make
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r08_palt_vg"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l01_r08_palt_vg"
 
-# INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
-# OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r07_galt_ve"
-# CFACDIR="$HOME/P3_v2/cfac/c03/l01_r07_galt_ve"
-
+INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
+OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r07_galt_ve"
+CFACDIR="$HOME/P3_v2/cfac/c03/l01_r07_galt_ve"
+LEGTYPE="offshore"
 
 
 # ---------- LEG 05 -----------------
@@ -253,9 +254,9 @@ make
 
 # ---------- C04 - LEG 10 -----------------
 
-INDIR="$HOME/P3_v2/dorade/c04/leg10_cor" 
-OUTDIR="$HOME/P3_v2/qced_test/c04/leg10_l10_r07_galt_ve"
-CFACDIR="$HOME/P3_v2/cfac/c04/l10_r07_galt_ve"
+# INDIR="$HOME/P3_v2/dorade/c04/leg10_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c04/leg10_l10_r07_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c04/l10_r07_galt_ve"
 
 # ---------- C04 - LEG 11 -----------------
 
@@ -274,7 +275,7 @@ DTMFILE="$HOME/Github/RadarQC/merged_dem_38-39_123-124_extended.tif"
 echo ' '
 echo 'Running radarqc ... '
 echo ' '
-./radarqc $INDIR $OUTDIR $CFACDIR $DTMFILE
+./radarqc $INDIR $OUTDIR $CFACDIR $DTMFILE $LEGTYPE
 
 # remove intermedite compiling files and executable
 #--------------------------------------------------------------------------
