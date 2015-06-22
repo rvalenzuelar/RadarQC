@@ -139,7 +139,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				/* Write it back out*/
 			  	saveQCedSwp(f);
 
-				/* syntax: exportVad("targetField",fileindex)*/
+				/* syntax: exportVad("targetField",fileindex) */
 				exportVad("V3",f);
 				
 				/*note: crashing after clicking in a edited dorade
@@ -148,51 +148,24 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				file to fix this. Then, cleaning the dorade file
 				with RadxConvert:
 				RadxConvert -f input/swp.* -dorade
-				solved the problem.
-				RV*/
+				solved the problem. RV*/
 
-			}else {
+			} else {
 
-				// Use these to apply navigation corrections
-				//---------------------------------------------------------------
+				/* Use these to apply navigation corrections
+				/****************************************************/
 				setNavigationCorrections("cfac.aft", "TA43P3");
 				setNavigationCorrections("cfac.fore", "TF43P3");
 
-				// Make a backup of the original fields
+				/* Make a backup of the original fields
+				/****************************************************/
 				// syntax: copyField("oldField",'newField')
-				// -----------------------------------------------------------
-				// copyField("DZ", "DZG");
-				// copyField("VG", "VGG");
-				// copyField("ZZ", "DZG"); // <--  make sure that fields exist; otherwise gives seg fault (RV)
-				// copyField("VG", "VGG");
-				// copyField("ZZ", "DZM");
-				// copyField("VG", "VGM");
-				// copyField("VE", "VU3");
+				// (make sure that fields exist; otherwise gives seg fault, RV)
+				copyField("DZ", "ZG");
+				copyField("VE", "EG");
 
-				copyField("DZ", "DZG");
-				// copyField("VG", "VGG");
-				// copyField("VE", "VEG");
-
-				// Assert ground gates for flat terrain
-				//-----------------------------------------------------------
-				//syntax: probGroundGates("originalFieldName","newFieldName",beamWidth)
-
-				// /* good along the coast */
-				// float thres_dbz=32;	// [dBZ]
-				// float thres_elev=0.9;	// [deg]
-				// float thres_bmh=250;	// [m]
-				// float thres_per=0.5;	// [*100%]
-				
-				// float thres_dbz=40;	// [dBZ]
-				// float thres_elev=0.0;	// [deg]
-				// float thres_bmh=250;	// [m]
-				// float thres_per=0.5;	// [*100%]
-
-				// float thres_elev=0.9;	// [deg]
-				// float thres_bmh=100;	// [m]
-				// float thres_per=0.75;	// [*100%]				
-				// float thres_dbz=39;	// [dBZ]
-
+				/* Assert ground gates for flat terrain
+				/****************************************************/
 				float thres_dbz, thres_elev, thres_bmh, thres_per;
 
 				if (legType == "offshore"){
@@ -207,72 +180,36 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 					thres_per=1.3;	// [*100%] (small numbers remove more gates below radar)
 				}
 
-
-				probGroundGates2("DZG","VG","PG1", 
+				probGroundGates2("ZG","VG","PG1", 
 									thres_dbz, thres_elev, thres_bmh, thres_per); 
-
-				thresholdData("DZG","PG1",">=", 0.0);
-				thresholdData("DZG","DZ","<=", 6.0);
-				// thresholdData("VGG","PG1",">=", 0.0);
-				// thresholdData("VGG","DZ","<=", 6.0);
-				// thresholdData("VEG","PG1",">=", 0.0);
-				// thresholdData("VEG","DZ","<=", 6.0);
 
 				// float beamWidth=2.0; //Testud et al 95				
 				// probGroundGatesMB("DZG", "PG1", beamWidth); 
 
-				// thresholdData("DZG","PG1",">", 0.9);
-				// thresholdData("DZG","DZ","<=", 6.0);
+				/* Remove ground gates in reflectivity and Doppler vel
+				/****************************************************/
+				thresholdData("ZG","PG1",">=", 0.0);
+				thresholdData("ZG","DZ","<=", 6.0);
+				thresholdData("EG","PG1",">=", 0.0);
+				thresholdData("EG","DZ","<=", 6.0);
 
 
-				// // Remove ground gates in reflectivity and Doppler vel
-				// //-------------------------------------------------------------------------------
-				// thresholdData("DZG","PG1",">=", 0.0);
-				// thresholdData("VGG","PG1",">=", 0.0);	
-
-				// thresholdData("DZG","PG2",">", 0.2);
-				// thresholdData("VGG","PG2",">", 0.2);
-				
-			
-				// float threshold1 [2] = {0.0,0.0};
-				// float threshold2 [2] = {-1.0,1.0};
-				// thresholdDataAND("DZG",
-				// 					"PG1",">=", threshold1,
-				// 					"VG",">=&<=", threshold2);
+				/* Remove isolated gates
+				/*********************************/
+				despeckleRadial("ZG", 2);
+				despeckleAzimuthal("ZG", 2);
+				despeckleRadial("EG", 2);
+				despeckleAzimuthal("EG", 2);
 
 
-				// Remove isolated gates
-				//----------------------------------
-				despeckleRadial("DZG", 1);
-				despeckleAzimuthal("DZG", 2);
-
-				// despeckleRadial("VGG", 1);
-				// despeckleAzimuthal("VGG", 2);
-
-				// despeckleRadial("VEG", 1);
-				// despeckleAzimuthal("VEG", 2);
-
-
-				// clean cfac block
-				//------------------------
-				// unSetNavigationCorrections();
-
-				// Write it back out
-				//--------------------------
+				/* Write it back out
+				/***********************/
 			    	saveQCedSwp(f);
 
-				// Dump the data to compare the flight level wind and radar data
-				//dumpFLwind();
-
-				// Write out everything to a (big) CSV file
-				//writeToCSV();
 		    	}
 		}
 	}
 
-	/* Verification statistics over all sweeps*/
-	//QC.verify();
-	//QC.soloiiScriptVerification();
 
 	return true;
 
