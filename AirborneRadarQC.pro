@@ -7,7 +7,8 @@ TEMPLATE = app
 TARGET = radarqc 
 DEPENDPATH += .
 INCLUDEPATH += /usr/include/geotiff \
-					 /usr/local/include/GeographicLib
+			/usr/local/include/GeographicLib\
+
 INCLUDEPATH += .
 SOURCEPATH = .
 
@@ -23,6 +24,21 @@ SOURCES +=$$SOURCEPATH/AirborneRadarQC.cpp \
 	   			$$SOURCEPATH/RecursiveFilter.cpp \
 	   			$$SOURCEPATH/DEM.cpp \
 	   			$$SOURCEPATH/main.cpp
-# LIBS += -lgeotiff -ltiff -lgeographic # for noaa
-LIBS += -lgeotiff -ltiff -lGeographic #for laptop
-CONFIG += debug
+
+# libraries
+#---------------
+LIBS += -lgeotiff -ltiff -lgeographic # for noaa
+# LIBS += -lgeotiff -ltiff -lGeographic #for laptop
+
+# debug mode on/off
+#--------------------------------
+CONFIG -= debug
+
+# turn on/off g++ messages
+#----------------------------------------
+CONFIG += silent 
+
+# turn on/off warning messages
+#-----------------------------------------------
+CONFIG += warn_off
+

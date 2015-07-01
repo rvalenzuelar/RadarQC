@@ -275,7 +275,7 @@ float* Dorade::getGateSpacing()
 	return cptr->gate_spacing;
 }
 
-float Dorade::getRadarAlt()
+float Dorade::getRadarAltAGL()
 {
 	return (aptr->alt_agl + cfptr->c_alt_agl);
 }
@@ -295,18 +295,24 @@ float Dorade::getRadarLon()
 	return aptr->lon;
 }
 
-float Dorade::getRadarAlt(const int& ray)
+float Dorade::getRadarAltAGL(const int& ray)
 {
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
-	return aptr[ray].alt_agl;
+	// return aptr[ray].alt_agl;
+	return (aptr[ray].alt_agl + cfptr->c_alt_msl); 	/* c_alt_msl contains c_alt_msl or c_alt_agl  
+							    depending on the cns_eldo_cai input altitude
+							    (1: pressure or msl or 2: geopotential or agl);
+							    c_alt_agl is always zero in cfac file created
+							    by cns_eldo_cai  (RV)
+							*/
 }
 
 float Dorade::getRadarAltMSL(const int& ray)
 {
-    if (ray < 0) return -999.;
-    if (ray > sptr->num_rays) return -999.;
-    return (aptr[ray].alt_msl + cfptr->c_alt_msl);
+	if (ray < 0) return -999.;
+	if (ray > sptr->num_rays) return -999.;
+	return (aptr[ray].alt_msl + cfptr->c_alt_msl);
 }
 
 float Dorade::getRadarLat(const int& ray)
@@ -774,7 +780,8 @@ void Dorade::sweepwrite(const char swp_fname[],struct sswb_info *ssptr,struct vo
 	char* identifier;
 	QString block;
 	QByteArray blocka;
-	int desc_len;
+	// int desc_len;
+	long desc_len; // see if fixes reorder problem(RV)
 	identifier = new char[4];
 	if (doradeFlag) {
 		if ( (fp = fopen(swp_fname,"ab"))==NULL) {
@@ -1469,7 +1476,12 @@ void Dorade::skip_bytes(FILE *fp,int numskip)
 	/* SKIP TO THE RIGHT BYTE! */
 
 	if (fseek(fp,numskip,SEEK_CUR)) {
-		printf("Seek Error..aborting..\n");
+		// printf("Seek Error..aborting..\n");
+		printf("\nSeek Error (Dorade.cpp): \n"
+			"Use Soloii 'copy <field> to <field>' in input directory to write \n" 
+			"a dummy variable in TF and TA and then run again.\n"
+			"Stopping.\n\n");
+
 		exit(1);
 	}
 
