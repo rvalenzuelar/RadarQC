@@ -19,8 +19,8 @@ echo ' '
 echo 'Compiling radarqc ... '
 echo ' '
 # using miniconda Qt
-QMAKESPEC=~/miniconda/mkspecs/linux-g++-64 # for noaa linux
-# QMAKESPEC=~/miniconda/mkspecs/linux-g++-32 # for laptop linux
+# QMAKESPEC=~/miniconda/mkspecs/linux-g++-64 # for noaa linux
+QMAKESPEC=~/miniconda/mkspecs/linux-g++-32 # for laptop linux
 export QMAKESPEC
 qmake -o Makefile AirborneRadarQC.pro
 
@@ -38,7 +38,7 @@ make
 
 
 # INDIR="$HOME/P3/dorade/case03/leg01" 
-INDIR="/home/rvalenzuela/P3/dorade/case03_coords_cor" 
+INDIR="$HOME/P3/dorade/case03_coords_cor" 
 OUTDIR="$HOME/P3/qced/case03/leg01"
 CFACDIR="$HOME/Github/RadarQC/cfac_case03"
 

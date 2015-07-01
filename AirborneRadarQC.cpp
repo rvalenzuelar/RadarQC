@@ -9,8 +9,8 @@
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
 // #include "DEM.h" --> moved to header
-// #include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
-#include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux
+#include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
+// #include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux
 #include <iterator>
 #include <fstream>
 #include <iostream>
@@ -3386,8 +3386,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 											const float& eff_beamwidth)
 {
 
-	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
 	float earth_radius=6366805.6;
@@ -3535,8 +3535,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
-  	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM();
+  	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM();
 
 	float earth_radius=6366805.6;
 	float* gates = swpfile.getGateSpacing();
