@@ -8,8 +8,8 @@
 
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
-// #include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
-#include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux
+// #include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux 
+#include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
 #include <iterator>
 #include <fstream>
 #include <iostream>
@@ -174,10 +174,10 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 					thres_bmh=250;	// [m]
 					thres_per=0.9;	// [*100%]
 				}else{
-					thres_dbz=40;	// [dBZ]
-					thres_elev=-0.1;	// [deg]
+					thres_dbz=45;	// [dBZ]
+					thres_elev=0.0;	// [deg]
 					thres_bmh=100;	// [m]
-					thres_per=1.3;	// [*100%] (small numbers remove more gates below radar)
+					thres_per=1.5;	// [*100%] (small numbers remove more gates below radar)
 				}
 
 				probGroundGates2("ZG","VG","PG1", 
@@ -3487,8 +3487,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 								const float& eff_beamwidth)
 {
 
-	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
 	float earth_radius=6366805.6;
@@ -3644,8 +3644,8 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 								const float& eff_beamwidth)
 {
 
-	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
 	float earth_radius=6366805.6;
@@ -3770,8 +3770,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 											const float& thres_bmh, const float& thres_per)
 {
 
-	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	const TransverseMercator& tm = TransverseMercator::UTM(); 
 
 	// Constants
 	const float earth_radius=6366805.6; // [meters]
@@ -3812,7 +3811,7 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 
 		for  (int g=0; g< numgates; g++){
 
-			if (elev < thres_elev*deg2rad ) {  
+			if (data[g] != swp_nan && elev < thres_elev*deg2rad ) {  
 				//  ground-contaminated
 				float range = gates[g];
 				float relX = range*sin(az)*cos(elev);	// X beam position relative to acft
@@ -3834,64 +3833,64 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 					dtm_h= asterDEM.getElevation(absLat, absLon); // [meters]			
 				}
 
-				if (beam_hgt < 0.0 && data[g] != swp_nan) {
+				if (beam_hgt < 0.0 ) {
 					data[g] = 12.0;
-				} else if ( dtm_h > 0.0 && data[g] != swp_nan) {
+				} else if ( dtm_h > 0.0 ) {
 					agl = radarAlt - dtm_h; //[meters]
 					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
 
-					/* algo 1*/
-					if (range>=ground_intersect*thres_per && elev<0.0) {
-						// negative elevations						
-						if ( data[g]>=thres_dbz ) {
-							data[g] = 4.0; 
-						} else {
-							data[g] = 8.0; 
-						}
-					} else {
-						// positive elevations in the horizon plane
-						if (data[g]>=thres_dbz){
-							if (velocity[g]>=-1.0 && velocity[g]<=1.0 ) {
-								data[g] = 0.0;
-							} else {
-								data[g] = -10.0;
-							}
-						} else {
-							data[g] =-4.0;
-						}
-					}
-
-					// /* algo 2*/
-					// if (elev<0.0) {
-					// 	if (data[g]>=thres_dbz) {
-					// 		if (range>=ground_intersect*thres_per) {
-					// 			data[g] = 4.0; 
-					// 		} else {
-					// 			data[g] = 8.0; 
-					// 		}
+					// /* algo 1*/
+					// if (range>=ground_intersect*thres_per && elev<0.0) {
+					// 	// negative elevations						
+					// 	if ( data[g]>=thres_dbz ) {
+					// 		data[g] = 4.0; 
 					// 	} else {
-							
-					// 		// float fun=-sin(elev);
-					// 		// float fun=-sin(elev)*(1+cos(elev));
-					// 		const float w=0.8;
-					// 		const float sig=0.5;
-					// 		const float mu=-70*deg2rad; // [deg]
-					// 		float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
-					// 		if (beam_hgt < thres_bmh*weight) {
-					// 		// if (beam_hgt < thres_bmh & range>=ground_intersect*weight) {
-					// 			data[g] = 16.0;
-					// 		} else {
-					// 			data[g] = -6.0;	
-					// 		}
+					// 		data[g] = 8.0; 
 					// 	}
 					// } else {
-					// 	// near horizon
+					// 	// positive elevations in the horizon plane
 					// 	if (data[g]>=thres_dbz){
-					// 		data[g] = 0.0;
+					// 		if (velocity[g]>=-1.0 && velocity[g]<=1.0 ) {
+					// 			data[g] = 0.0;
+					// 		} else {
+					// 			data[g] = -10.0;
+					// 		}
 					// 	} else {
 					// 		data[g] =-4.0;
 					// 	}
 					// }
+
+					/* algo 2*/
+					if (elev<0.0) {
+
+						// gaussian weight func of elevation angle
+						const float w=0.8;
+						const float sig=0.4;
+						const float mu=-70*deg2rad; // [deg]
+						float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
+
+						if (data[g]>=thres_dbz) {
+							if (range>=ground_intersect*weight) {
+								data[g] = 4.0; 
+							} else {
+								data[g] = 10.0; 
+							}
+						} else {
+							if (beam_hgt < thres_bmh & range<ground_intersect*weight) {
+								data[g] = 16.0;
+							} else {
+								data[g] = -6.0;	
+							}
+						}
+
+					} else {
+						// near horizon used in offshore leg
+						if (data[g]>=thres_dbz){
+							data[g] = 0.0;
+						} else {
+							data[g] =-4.0;
+						}
+					}
 
 				} else if (data[g] != swp_nan) {
 					data[g] = -8.0;
@@ -3911,8 +3910,9 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
-  	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM();
+  	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	const TransverseMercator& tm = TransverseMercator::UTM();
+
 
 	float earth_radius=6366805.6;
 	float* gates = swpfile.getGateSpacing();
