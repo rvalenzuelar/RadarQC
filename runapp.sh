@@ -157,10 +157,10 @@ make
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r08_palt_ve"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l03_r08_palt_ve"
 
-# INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
-# OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r07_galt_ve"
-# CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_galt_ve"
-# LEGTYPE="onshore"
+INDIR="$HOME/P3_v2/dorade/c03/leg03_cor" 
+OUTDIR="$HOME/P3_v2/qced_test/c03/leg03_l03_r07_galt_ve"
+CFACDIR="$HOME/P3_v2/cfac/c03/l03_r07_galt_ve"
+LEGTYPE="onshore"
 
 
 
@@ -231,10 +231,10 @@ make
 # OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r08_palt_vg"
 # CFACDIR="$HOME/P3_v2/cfac/c03/l01_r08_palt_vg"
 
-INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
-OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r07_galt_ve"
-CFACDIR="$HOME/P3_v2/cfac/c03/l01_r07_galt_ve"
-LEGTYPE="offshore"
+# INDIR="$HOME/P3_v2/dorade/c03/leg01_cor" 
+# OUTDIR="$HOME/P3_v2/qced_test/c03/leg01_l01_r07_galt_ve"
+# CFACDIR="$HOME/P3_v2/cfac/c03/l01_r07_galt_ve"
+# LEGTYPE="offshore"
 
 
 # ---------- LEG 05 -----------------
