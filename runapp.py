@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# Script for running RadarQC
+#
+# Raul Valenzuela
+# July, 2015
+
 from os.path import expanduser
 from glob import glob
 import os
