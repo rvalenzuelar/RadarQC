@@ -8,8 +8,8 @@
 
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
-// #include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux 
-#include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
+#include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa plinux 
+// #include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
 #include <iterator>
 #include <fstream>
 #include <iostream>
@@ -3487,8 +3487,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 								const float& eff_beamwidth)
 {
 
-	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
 	float earth_radius=6366805.6;
@@ -3644,8 +3644,8 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 								const float& eff_beamwidth)
 {
 
-	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
 	float earth_radius=6366805.6;
@@ -3769,8 +3769,8 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 											const float& thres_dbz, const float& thres_elev, 
 											const float& thres_bmh, const float& thres_per)
 {
-
-	const TransverseMercator& tm = TransverseMercator::UTM(); 
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); 
 
 	// Constants
 	const float earth_radius=6366805.6; // [meters]
@@ -3910,8 +3910,8 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
-  	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM();
+  	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM();
 
 
 	float earth_radius=6366805.6;
