@@ -3,11 +3,15 @@
 ######################################################################
 
 TEMPLATE = app
-#QT += widgets
+QT += widgets
 TARGET = radarqc 
 DEPENDPATH += .
-INCLUDEPATH += /usr/include/geotiff \
-			/usr/local/include/GeographicLib\
+# INCLUDEPATH += 	/usr/include/geotiff \
+#						/usr/local/include/GeographicLib\
+
+# Raulbuntu
+INCLUDEPATH +=	/opt/source/libgeotiff-1.4.0/build/include \
+					/opt/source/GeographicLib-1.43/build/include/
 
 INCLUDEPATH += .
 SOURCEPATH = .
@@ -27,8 +31,13 @@ SOURCES +=$$SOURCEPATH/AirborneRadarQC.cpp \
 
 # libraries
 #---------------
-LIBS += -lgeotiff -ltiff -lgeographic # for noaa
+# LIBS += -lgeotiff -ltiff -lgeographic # for noaa
 # LIBS += -lgeotiff -ltiff -lGeographic #for laptop
+
+# Raulbuntu
+LIBS += -L/opt/source/libgeotiff-1.4.0/build/lib -lgeotiff
+LIBS += -L/opt/source/GeographicLib-1.43/build/lib -lGeographic
+LIBS += -L/opt/source/tiff-4.0.3/build/lib -ltiff
 
 # debug mode on/off
 #--------------------------------

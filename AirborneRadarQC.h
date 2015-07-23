@@ -119,13 +119,18 @@ public:
  //                         const QString& demFileName = 0);
 	// void probGroundGates(float** field, const float& eff_beamwidth, const QString& demFileName = 0);
 
-	/* Now it handles DTM at the beginning of processSweeps (RV */
+	/* Now it handles DTM at the beginning of processSweeps (RV) */
 	void probGroundGates(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);
-	void probGroundGates2(const QString& oriFieldName, 
+	void probGroundGates2_offshore(const QString& oriFieldName, 
 				const QString& velocityFieldName, 		
 				const QString& newFieldName, 
 				const float& thres_dbz, const float& thres_elev, 
 				const float& thres_bmh, const float& thres_per);	
+	void probGroundGates2_onshore(const QString& oriFieldName, 
+				const QString& velocityFieldName, 		
+				const QString& newFieldName, 
+				const float& thres_dbz, const float& thres_elev, 
+				const float& thres_bmh, const float& thres_per);		
 	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);		
 	void probGroundGates(float** field, const float& eff_beamwidth);
 

@@ -8,8 +8,8 @@
 
 #include "AirborneRadarQC.h"
 #include "RecursiveFilter.h"
+#include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa plinux 
 // #include <GeographicLib/TransverseMercator.hpp> //works fine on laptop linux
-#include <GeographicLib/TransverseMercatorExact.hpp> //works fine on noaa linux
 #include <iterator>
 #include <fstream>
 #include <iostream>
@@ -173,15 +173,17 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 					thres_elev=0.9;	// [deg]
 					thres_bmh=250;	// [m]
 					thres_per=0.9;	// [*100%]
+					probGroundGates2_offshore("ZG","VG","PG1", 
+									thres_dbz, thres_elev, thres_bmh, thres_per); 
 				}else{
-					thres_dbz=40;	// [dBZ]
-					thres_elev=-0.1;	// [deg]
-					thres_bmh=100;	// [m]
-					thres_per=1.3;	// [*100%] (small numbers remove more gates below radar)
+					thres_dbz=42;	// [dBZ]
+					thres_elev=0.0;	// [deg]
+					thres_bmh=600;	// [m]
+					thres_per=1.2;	// [*100%] (small numbers remove more gates below radar)
+					probGroundGates2_onshore("ZG","VG","PG1", 
+										thres_dbz, thres_elev, thres_bmh, thres_per); 					
 				}
 
-				probGroundGates2("ZG","VG","PG1", 
-									thres_dbz, thres_elev, thres_bmh, thres_per); 
 
 				// float beamWidth=2.0; //Testud et al 95				
 				// probGroundGatesMB("DZG", "PG1", beamWidth); 
@@ -3763,15 +3765,14 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
  ** groundProbability : This subroutine calculates the probability that a given gate is ground
  using just the beamwidth
  ****************************************************************************************/
-void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
+void AirborneRadarQC::probGroundGates2_offshore(const QString& oriFieldName,
 											const QString& velocityFieldName,  
 											const QString& newFieldName, 
 											const float& thres_dbz, const float& thres_elev, 
 											const float& thres_bmh, const float& thres_per)
 {
-
 	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	// const TransverseMercator& tm = TransverseMercator::UTM(); 
 
 	// Constants
 	const float earth_radius=6366805.6; // [meters]
@@ -3810,9 +3811,11 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 		float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
 		float* velocity = swpfile.getRayData(i, velocityFieldName); //<- data along a ray
 
+		int flag_terrain=0;
+
 		for  (int g=0; g< numgates; g++){
 
-			if (elev < thres_elev*deg2rad ) {  
+			if (data[g] != swp_nan && elev < thres_elev*deg2rad ) {  
 				//  ground-contaminated
 				float range = gates[g];
 				float relX = range*sin(az)*cos(elev);	// X beam position relative to acft
@@ -3834,64 +3837,43 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 					dtm_h= asterDEM.getElevation(absLat, absLon); // [meters]			
 				}
 
-				if (beam_hgt < 0.0 && data[g] != swp_nan) {
+				if (beam_hgt < 0.0 ) {
 					data[g] = 12.0;
-				} else if ( dtm_h > 0.0 && data[g] != swp_nan) {
+				} else if ( dtm_h > 0.0 ) {
 					agl = radarAlt - dtm_h; //[meters]
 					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
 
-					/* algo 1*/
-					if (range>=ground_intersect*thres_per && elev<0.0) {
-						// negative elevations						
-						if ( data[g]>=thres_dbz ) {
-							data[g] = 4.0; 
-						} else {
-							data[g] = 8.0; 
-						}
-					} else {
-						// positive elevations in the horizon plane
-						if (data[g]>=thres_dbz){
-							if (velocity[g]>=-1.0 && velocity[g]<=1.0 ) {
-								data[g] = 0.0;
+					/* algo 2*/
+					if (elev<0.0) {
+						// gaussian weight func of elevation angle
+						const float w=0.8;
+						const float sig=0.4;
+						const float mu=-70*deg2rad; // [deg]
+						float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
+
+						if (data[g]>=thres_dbz) {
+							if (range>=ground_intersect*weight) {
+ 								data[g] = 4.0; 
 							} else {
-								data[g] = -10.0;
+ 								data[g] = 10.0; 
 							}
+
+ 						} else {
+							if (beam_hgt < thres_bmh & range<ground_intersect*weight) {
+ 								data[g] = 16.0;
+ 							} else {
+ 								data[g] = -6.0;	
+ 							}
+ 						}
+					} else {
+						// near horizon used in offshore leg
+						if (data[g]>=thres_dbz){
+							data[g] = 0.0;
 						} else {
 							data[g] =-4.0;
 						}
 					}
 
-					// /* algo 2*/
-					// if (elev<0.0) {
-					// 	if (data[g]>=thres_dbz) {
-					// 		if (range>=ground_intersect*thres_per) {
-					// 			data[g] = 4.0; 
-					// 		} else {
-					// 			data[g] = 8.0; 
-					// 		}
-					// 	} else {
-							
-					// 		// float fun=-sin(elev);
-					// 		// float fun=-sin(elev)*(1+cos(elev));
-					// 		const float w=0.8;
-					// 		const float sig=0.5;
-					// 		const float mu=-70*deg2rad; // [deg]
-					// 		float weight=w*(1/sqrt(2*pi*sig))*exp(pow(elev-mu,2) /(2*pow(sig,2)));
-					// 		if (beam_hgt < thres_bmh*weight) {
-					// 		// if (beam_hgt < thres_bmh & range>=ground_intersect*weight) {
-					// 			data[g] = 16.0;
-					// 		} else {
-					// 			data[g] = -6.0;	
-					// 		}
-					// 	}
-					// } else {
-					// 	// near horizon
-					// 	if (data[g]>=thres_dbz){
-					// 		data[g] = 0.0;
-					// 	} else {
-					// 		data[g] =-4.0;
-					// 	}
-					// }
 
 				} else if (data[g] != swp_nan) {
 					data[g] = -8.0;
@@ -3907,12 +3889,139 @@ void AirborneRadarQC::probGroundGates2(const QString& oriFieldName,
 
 /****************************************************************************************
  ** groundProbability : This subroutine calculates the probability that a given gate is ground
+ using just the beamwidth
+ ****************************************************************************************/
+void AirborneRadarQC::probGroundGates2_onshore(const QString& oriFieldName,
+											const QString& velocityFieldName,  
+											const QString& newFieldName, 
+											const float& thres_dbz, const float& thres_elev, 
+											const float& thres_bmh, const float& thres_per)
+{
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); 
+
+	// Constants
+	const float earth_radius=6366805.6; // [meters]
+	const float deg2rad=0.017453292;
+	const float rad2deg=57.29577951;
+	const float pi=3.14159265358979323846;
+
+	QString newFieldDesc = "Ground Gates";
+	QString newFieldUnits = "binary";
+	if(!newField(oriFieldName, newFieldName, newFieldDesc, newFieldUnits)) {
+		printf("Error creating new field!!!\n");
+		return;
+	}
+	float* gates = swpfile.getGateSpacing(); // <-- array with gate range
+	int numgates = swpfile.getNumGates();
+	int numrays = swpfile.getNumRays();
+	float max_range = gates[numgates-1];
+	
+	for (int i=0; i < numrays; i++) {
+
+		double ground_intersect=0.0;
+		double dtm_h=0.0;
+		double agl=0.0;
+		float swp_nan=-32768.;
+
+		float az = swpfile.getAzimuth(i)*deg2rad; // <- azimuth relative to geographic north
+		double elev = swpfile.getElevation(i)*deg2rad; // <- elevation relative to acft horizon
+		float head=swpfile.getHeading(i); // heading angle
+		float radarAlt = swpfile.getRadarAltAGL(i)*1000.0; //meters AGL
+		// float radarAlt = swpfile.getRadarAltMSL(i)*1000.0; //meters
+		// printf("%6.2f\n",radarAlt); 
+		float radarLat = swpfile.getRadarLat(i);
+		float radarLon = swpfile.getRadarLon(i);		
+		double tan_elev = tan(elev);		
+		double sin_elev = sin(elev);
+		float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
+		float* velocity = swpfile.getRayData(i, velocityFieldName); //<- data along a ray
+
+		int flag_terrain=0;
+
+		for  (int g=0; g< numgates; g++){
+
+			if (data[g] != swp_nan && elev < thres_elev*deg2rad ) {  
+				//  ground-contaminated
+				float range = gates[g];
+				float relX = range*sin(az)*cos(elev);	// X beam position relative to acft
+				float relY = range*cos(az)*cos(elev);	// Y beam position relative to acft
+				float relZ = range*sin(elev); 		// Z beam position relative to acft			
+				
+				float beam_hgt=radarAlt+relZ;
+				// printf("%6.2f , %6.2f\n",radarAlt, relZ); 
+				if (demFlag) {
+					// Radar location in projected UTM (x,y)
+					double radarX, radarY;
+					tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
+
+					// Beam gate location in geographic (lat,lon)
+					double absLat, absLon;
+					tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
+
+					// double dtm_h; 
+					dtm_h= asterDEM.getElevation(absLat, absLon); // [meters]			
+				}
+
+
+				if (beam_hgt < 0.0 ) {
+					data[g] = 12.0;
+				} else if ( dtm_h > 0.0 ) {
+					agl = radarAlt - dtm_h; //[meters]
+					ground_intersect = (-agl/sin_elev)*(1.+agl/(2.*earth_radius*tan_elev*tan_elev)); //Testud et al 95
+
+					/* algo 2*/
+					if (elev>-30.0*deg2rad) {
+
+						float slope=5000.0; // [m]
+						float max_relX=40000.0;
+						float thres_bmh2=abs(slope*(relX/max_relX));
+						// printf("%6.3f\n",thres_bmh2);
+
+						if (range>=ground_intersect & data[g]>thres_dbz) {
+							data[g] = 16.0; 
+						} else if (range<ground_intersect & data[g]>thres_dbz) {
+							if (beam_hgt < thres_bmh2) {
+								data[g] = 4.0; 
+						 	} else {
+								data[g] = -10.0; 
+							}
+						} else {
+							data[g] = -6.0; 
+						}		
+
+					} else {
+						// near horizon used in offshore leg
+						if (data[g]>=thres_dbz){
+							data[g] = 0.0;
+						} else {
+							data[g] =-4.0;
+						}
+					}
+
+
+				} else if (data[g] != swp_nan) {
+					data[g] = -8.0;
+				}
+			} else {
+				// not ground-contaminated
+				if (data[g] != swp_nan) data[g]=-8.0;
+			}
+		}
+	}
+}
+
+
+
+/****************************************************************************************
+ ** groundProbability : This subroutine calculates the probability that a given gate is ground
  using just the beamwidth to a 2-D array
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
   	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
 	const TransverseMercator& tm = TransverseMercator::UTM();
+
 
 	float earth_radius=6366805.6;
 	float* gates = swpfile.getGateSpacing();
