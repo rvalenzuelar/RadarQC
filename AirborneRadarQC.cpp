@@ -176,7 +176,7 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 					probGroundGates2_offshore("ZG","VG","PG1", 
 									thres_dbz, thres_elev, thres_bmh, thres_per); 
 				}else{
-					thres_dbz=42;	// [dBZ]
+					thres_dbz=46;	// [dBZ]
 					thres_elev=0.0;	// [deg]
 					thres_bmh=600;	// [m]
 					thres_per=1.2;	// [*100%] (small numbers remove more gates below radar)
@@ -3489,8 +3489,8 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 								const float& eff_beamwidth)
 {
 
-	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
 	float earth_radius=6366805.6;
@@ -4019,8 +4019,8 @@ void AirborneRadarQC::probGroundGates2_onshore(const QString& oriFieldName,
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
-  	// GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
-	const TransverseMercator& tm = TransverseMercator::UTM();
+  	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	// const TransverseMercator& tm = TransverseMercator::UTM();
 
 
 	float earth_radius=6366805.6;
