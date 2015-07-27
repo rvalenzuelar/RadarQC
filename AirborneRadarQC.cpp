@@ -3489,7 +3489,7 @@ void AirborneRadarQC::probGroundGates(const QString& oriFieldName, const QString
 								const float& eff_beamwidth)
 {
 
-	const TransverseMercatorExact tm = TransverseMercatorExact::UTM();
+	const TransverseMercatorExact& tm = TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
@@ -3646,7 +3646,7 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 								const float& eff_beamwidth)
 {
 
-	const TransverseMercatorExact tm = TransverseMercatorExact::UTM();
+	const TransverseMercatorExact& tm = TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM(); //syntax for GeographicLib 1.39
 
 	// Constants
@@ -3771,7 +3771,7 @@ void AirborneRadarQC::probGroundGates2_offshore(const QString& oriFieldName,
 											const float& thres_dbz, const float& thres_elev, 
 											const float& thres_bmh, const float& thres_per)
 {
-	const TransverseMercatorExact tm = TransverseMercatorExact::UTM();
+	const TransverseMercatorExact& tm = TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM(); 
 
 	// Constants
@@ -3897,7 +3897,7 @@ void AirborneRadarQC::probGroundGates2_onshore(const QString& oriFieldName,
 											const float& thres_dbz, const float& thres_elev, 
 											const float& thres_bmh, const float& thres_per)
 {
-	const TransverseMercatorExact& tm = TransverseMercatorExact::UTM();
+	const TransverseMercatorExact& tm = TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM(); 
 
 	// Constants
@@ -4019,7 +4019,7 @@ void AirborneRadarQC::probGroundGates2_onshore(const QString& oriFieldName,
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates(float** field, const float& eff_beamwidth)
 {
-  	const TransverseMercatorExact tm = TransverseMercatorExact::UTM();
+  	const TransverseMercatorExact& tm = TransverseMercatorExact::UTM;
 	// const TransverseMercator& tm = TransverseMercator::UTM();
 
 
