@@ -300,7 +300,9 @@ float Dorade::getRadarAltAGL(const int& ray)
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
 	// return aptr[ray].alt_agl;
-	return (aptr[ray].alt_agl + cfptr->c_alt_msl); 	/* c_alt_msl contains c_alt_msl or c_alt_agl  
+	return (aptr[ray].alt_agl + cfptr->c_alt_msl); 	
+
+							/* c_alt_msl contains c_alt_msl or c_alt_agl  
 							    depending on the cns_eldo_cai input altitude
 							    (1: pressure or msl or 2: geopotential or agl);
 							    c_alt_agl is always zero in cfac file created
@@ -312,7 +314,8 @@ float Dorade::getRadarAltMSL(const int& ray)
 {
 	if (ray < 0) return -999.;
 	if (ray > sptr->num_rays) return -999.;
-	return (aptr[ray].alt_msl + cfptr->c_alt_msl);
+	// return (aptr[ray].alt_msl + cfptr->c_alt_msl);
+	return (aptr[ray].alt_msl); //(RV)
 }
 
 float Dorade::getRadarLat(const int& ray)

@@ -127,13 +127,12 @@ public:
 				const float& thres_dbz, const float& thres_elev, 
 				const float& thres_bmh, const float& thres_per);	
 	void probGroundGates2_onshore(const QString& oriFieldName, 
-				const QString& velocityFieldName, 		
 				const QString& newFieldName, 
 				const float& thres_dbz, const float& thres_elev, 
 				const float& thres_bmh, const float& thres_per);		
 	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);		
 	void probGroundGates(float** field, const float& eff_beamwidth);
-
+	void make_ancillary_field(const QString& newFieldName,const QString& ancillaryName); //(RV)
 	void calcWeatherProb(const QString& mdbzt_name, const QString& mdbzs_name, const QString& mdbzl_name, const QString& mvgs_name, const QString& mncp_name);
 	void wxProbability(const QString& oriFieldName, const QString& probFieldName, float* weight);
 	void wxProbability2();
