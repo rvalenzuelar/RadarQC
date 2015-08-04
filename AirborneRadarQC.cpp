@@ -171,11 +171,11 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				/****************************************************/
 				float thres_dbz, thres_elev, thres_bmh, thres_per;
 				if (legType == "offshore"){
-					thres_dbz=32;	// [dBZ]
+					thres_dbz=46;	// [dBZ]
 					thres_elev=0.9;	// [deg]
-					thres_bmh=250;	// [m]
-					thres_per=0.9;	// [*100%]
-					probGroundGates2_offshore("ZG","VG","PG1", 
+					thres_bmh=0.7;	// [m]
+					thres_per=1.0;	// [*100%]
+					probGroundGates2_onshore("ZG","PG1", 
 									thres_dbz, thres_elev, thres_bmh, thres_per); 
 				}else{
 					thres_dbz=46;	// [dBZ]
@@ -3770,7 +3770,6 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
  using just the beamwidth
  ****************************************************************************************/
 void AirborneRadarQC::probGroundGates2_offshore(const QString& oriFieldName,
-											const QString& velocityFieldName,  
 											const QString& newFieldName, 
 											const float& thres_dbz, const float& thres_elev, 
 											const float& thres_bmh, const float& thres_per)
@@ -3779,7 +3778,7 @@ void AirborneRadarQC::probGroundGates2_offshore(const QString& oriFieldName,
 	// const TransverseMercator& tm = TransverseMercator::UTM(); 
 
 	// Constants
-	const float earth_radius=6366805.6; // [meters]
+	const float earth_radius=6366.8056; // [meters]
 	const float deg2rad=0.017453292;
 	const float rad2deg=57.29577951;
 	const float pi=3.14159265358979323846;
@@ -3813,7 +3812,6 @@ void AirborneRadarQC::probGroundGates2_offshore(const QString& oriFieldName,
 		double tan_elev = tan(elev);		
 		double sin_elev = sin(elev);
 		float* data = swpfile.getRayData(i, newFieldName); //<- data along a ray
-		float* velocity = swpfile.getRayData(i, velocityFieldName); //<- data along a ray
 
 		int flag_terrain=0;
 
