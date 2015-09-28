@@ -129,7 +129,8 @@ public:
 				const QString& newFieldName, 
 				const float& thres_dbz, const float& thres_elev, 
 				const float& thres_bmh, const float& thres_per);		
-	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);		
+	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth);
+	void probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth, const QString& demFileName);
 	void probGroundGates(float** field, const float& eff_beamwidth);
 	void make_ancillary_field(const QString& newFieldName,const QString& ancillaryName); //(RV)
 	void calcWeatherProb(const QString& mdbzt_name, const QString& mdbzs_name, const QString& mdbzl_name, const QString& mvgs_name, const QString& mncp_name);

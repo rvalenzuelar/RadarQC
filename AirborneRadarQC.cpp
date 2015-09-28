@@ -170,21 +170,23 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				/* Assert ground gates for flat terrain
 				/****************************************************/
 				float thres_dbz, thres_elev, thres_bmh, thres_per;
-				if (legType == "offshore"){
-					thres_dbz=46;	// [dBZ]
-					thres_elev=0.9;	// [deg]
-					thres_bmh=0.7;	// [m]
-					thres_per=1.0;	// [*100%]
-					probGroundGates2_onshore("ZG","PG1", 
-									thres_dbz, thres_elev, thres_bmh, thres_per); 
-				}else{
-					thres_dbz=46;	// [dBZ]
-					thres_elev=0.0;	// [deg]
-					thres_bmh=0.7;	// [km]
-					thres_per=1.0;	// [*100%] (small numbers remove more gates below radar)
-					probGroundGates2_onshore("ZG","PG1", 
-										thres_dbz, thres_elev, thres_bmh, thres_per); 					
-				}
+				// if (legType == "offshore"){
+				// 	thres_dbz=46;	// [dBZ]
+				// 	thres_elev=0.9;	// [deg]
+				// 	thres_bmh=0.7;	// [m]
+				// 	thres_per=1.0;	// [*100%]
+				// 	probGroundGates2_onshore("ZG","PG1", 
+				// 					thres_dbz, thres_elev, thres_bmh, thres_per); 
+				// }else{
+				// 	thres_dbz=46;	// [dBZ]
+				// 	thres_elev=0.0;	// [deg]
+				// 	thres_bmh=0.7;	// [km]
+				// 	thres_per=1.0;	// [*100%] (small numbers remove more gates below radar)
+				// 	probGroundGates2_onshore("ZG","PG1", 
+				// 						thres_dbz, thres_elev, thres_bmh, thres_per); 					
+				// }
+
+				probGroundGatesMB("ZG","PG1", 0.2, "merged_dem_38-39_123-124_extended.tif");
 
 				make_ancillary_field("BMHG","beam_hgt");
 				make_ancillary_field("AZIM","azimuth");
@@ -194,10 +196,12 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 				/* Remove ground gates in reflectivity and Doppler vel
 				/****************************************************/
-				thresholdData("ZG","PG1",">=", 0.0);
-				thresholdData("ZG","DZ","<=", 6.0);
-				thresholdData("EG","PG1",">=", 0.0);
-				thresholdData("EG","DZ","<=", 6.0);
+				// thresholdData("ZG","PG1",">=", 0.0);
+				// thresholdData("ZG","DZ","<=", 6.0);
+				// thresholdData("EG","PG1",">=", 0.0);
+				// thresholdData("EG","DZ","<=", 6.0);
+				thresholdData("ZG","PG1",">=", 0.6);
+				thresholdData("EG","PG1",">=", 0.6);
 
 
 				/* Remove isolated gates
@@ -3764,6 +3768,142 @@ void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QStri
 		}
 	}	
 }
+
+/****************************************************************************************
+ ** groundProbability : This subroutine calculates the probability that a given gate is ground
+ using just the beamwidth
+ ****************************************************************************************/
+void AirborneRadarQC::probGroundGatesMB(const QString& oriFieldName, const QString& newFieldName, const float& eff_beamwidth,
+                                      const QString& demFileName)
+{
+	bool demFlag = false;
+	DEM asterDEM;
+	GeographicLib::TransverseMercatorExact tm = GeographicLib::TransverseMercatorExact::UTM;
+	if (!demFileName.isEmpty()) {
+	        if(!asterDEM.readDem(demFileName.toAscii().data())) {
+	            printf("Error reading DEM file! Using flat ground instead\n");
+	        } else {
+	            demFlag = true;
+	        }
+	}
+	//asterDEM.dumpAscii(1);
+	float earth_radius=6366805.6;
+	QString newFieldDesc = "Ground Gates";
+	QString newFieldUnits = "binary";
+	if(!newField(oriFieldName, newFieldName, newFieldDesc, newFieldUnits)) {
+		printf("Error creating new field!!!\n");
+		return;
+	}
+	float* gates = swpfile.getGateSpacing();
+	int numgates = swpfile.getNumGates();
+	float max_range = gates[numgates-1];
+	for (int g=0; g< numgates; g++) {
+		float left_distance = max_range;
+		float right_distance = max_range;
+		int left_index = -999;
+		int right_index = -999;
+		float ground_intersect = 0;
+		for (int i=0; i < swpfile.getNumRays(); i++)  {
+			// Clear the gate
+			float* data = swpfile.getRayData(i, newFieldName);
+			if (data[g] != -32768.) data[g] = 0; // <- probability of ground gate is 0 for NaN
+			// Find the beam axis intersection with the grounds
+	        	float az = swpfile.getAzimuth(i)*0.017453292;
+			float elev = (swpfile.getElevation(i))*0.017453292;// <- elevation from horizon
+			if (elev > 0) { continue; }
+			float tan_elev = tan(elev);
+			// float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000.0; //meters AGL
+			// float radarAlt = swpfile.getRadarAltMSL(i)*1000.0; //meters			
+			if (gates[g] < radarAlt) { continue; }
+			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
+			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {continue; }
+			ground_intersect = fabs(ground_intersect-gates[g]);
+			if ((ground_intersect < left_distance) and (az > 3.14159)) {
+				left_distance = ground_intersect;
+				left_index = i;
+			}
+			if ((ground_intersect < right_distance) and (az <= 3.14159)){
+				right_distance = ground_intersect;
+				right_index = i;
+			}
+		}
+		if ((left_index < 0) or (right_index < 0)) { continue; }
+		for (int i=0; i < swpfile.getNumRays(); i++)  {
+			float* data = swpfile.getRayData(i, newFieldName);
+        		float az = swpfile.getAzimuth(i)*0.017453292;
+			float elev = (swpfile.getElevation(i))*0.017453292;
+			float tan_elev = tan(elev);
+			// float radarAlt = swpfile.getRadarAlt(i)*1000;
+			float radarAlt = swpfile.getRadarAltAGL(i)*1000.0; //meters AGL
+			// float radarAlt = swpfile.getRadarAltMSL(i)*1000.0; //meters			
+			float azground, elevground;
+			if (az > 3.14159) {
+				azground = swpfile.getAzimuth(left_index)*0.017453292;
+				elevground = (swpfile.getElevation(left_index))*0.017453292;
+			} else {
+				azground = swpfile.getAzimuth(right_index)*0.017453292;
+				elevground = (swpfile.getElevation(right_index))*0.017453292;
+			}
+			float azoffset = az - azground;
+			float eloffset = elev - elevground;
+			ground_intersect = (-(radarAlt)/sin(elev))*(1.+radarAlt/(2.*earth_radius*tan_elev*tan_elev));
+			if(ground_intersect >= max_range*2.5 || ground_intersect <= 0 ) {
+				continue;
+			}
+		
+			// Calculate prob based on Flat-panel beam shape
+        		
+	         	if (demFlag) {
+				double range = gates[g];
+				double relX = range*sin(az)*cos(elev);
+				double relY = range*cos(az)*cos(elev);
+				float radarLat = swpfile.getRadarLat(i);
+				float radarLon = swpfile.getRadarLon(i);
+				
+				// printf("radarLon = %f \n", radarLon);
+				// printf("radarLat = %f \n", radarLat);
+
+				double radarX, radarY;
+				tm.Forward(radarLon, radarLat, radarLon, radarX, radarY); // forward projection
+
+				double absLat, absLon;
+				tm.Reverse(radarLon, radarX + relX, radarY + relY, absLat, absLon); // reverse projection
+				
+				//std::cout << absLat << "\t" << absLon << "\t" << h << "\n";
+				double h;
+				h = asterDEM.getElevation(absLat, absLon);  // <--segmentation fault///////////////////
+				
+				std::exit;
+
+				//if (g == 0) { std::cout << absLat << "\t" << absLon << "\t" << h << "\n"; }
+				double agl = radarAlt - h;
+				ground_intersect = (-(agl)/sin(elev))*(1.+agl/(2.*earth_radius*tan_elev*tan_elev));
+	         	}
+	         	float grange = ground_intersect-gates[g];
+			if (grange <= 0) {
+				if (data[g] != -32768.) data[g]	= 1.; // <- probability of a ground gate is 1 for NaN
+			} else {
+				// Alternate exponential formula
+				//float gprob = exp(-grange/(ground_intersect*0.33));
+				float beamaxis = sqrt(azoffset*azoffset + eloffset*eloffset);
+				float beamwidth = eff_beamwidth*0.017453292;
+				float gprob = 0.0;
+				if (beamaxis > 0) {
+					gprob = exp(-0.69314718055995*beamaxis/beamwidth);
+				    //gprob = fabs(sin(27*sin(beamaxis))/(27*sin(beamaxis)));
+			    	} else {
+					gprob = 1.0;
+				}
+				if (gprob > 1.0) gprob = 1.0;
+				if (data[g] != -32768.) data[g]	= gprob;
+				//printf("Ground (%f) %f / %f\n",elev,grange,footprint);
+			}
+		}
+	}		
+}
+
+
 
 /****************************************************************************************
  ** groundProbability : This subroutine calculates the probability that a given gate is ground

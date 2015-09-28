@@ -2,8 +2,18 @@
 
 # Script for running RadarQC
 #
+# Example
+#-------------
+#
+# 	$ ./runapp.py c03/leg16 onshore
+#
+# First argument is the directory where swp are located.
+# Second argument choose a cfac file
+#
 # Raul Valenzuela
 # July, 2015
+
+
 
 from os.path import expanduser
 from glob import glob
@@ -45,15 +55,18 @@ os.system('make')
 
 print "\nRunning radarqc"
 print "-------------------------------"
+# DTMFILE='/home/dkingsmill/Aircraft_NavCor_QC/geotiff_merge-master/merged_dem_127to121W_35to41N.tif'
 DTMFILE=home+'/Github/RadarQC/merged_dem_38-39_123-124_extended.tif'
+# DTMFILE=home+'/Github/RadarQC/merged_dem_127to121W_35to41N.tif'
 INDIR=home+'/P3_v2/dorade/'+sys.argv[1]+'_cor'
 LEGTYPE=sys.argv[2]
 if LEGTYPE=='onshore':
 	CFACDIR=home+'/P3_v2/cfac/c03/l03_r07_galt_ve'	
 elif LEGTYPE=='offshore':
 	CFACDIR=home+'/P3_v2/cfac/c03/l01_r07_galt_ve'	
-OUTDIR=home+'/P3_v2/qced_prod/'+sys.argv[1]
-# OUTDIR=home+'/P3_v2/foo'
+# OUTDIR=home+'/P3_v2/qced_prod/'+sys.argv[1]
+OUTDIR=home+'/P3_v2/foo'
+print "Output dir: "+OUTDIR
 run_radarqc='./radarqc '+INDIR+' '+OUTDIR+' '+CFACDIR+' '+DTMFILE+' '+LEGTYPE
 var=os.system(run_radarqc)
 
