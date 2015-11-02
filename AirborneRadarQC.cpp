@@ -170,23 +170,23 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 				/* Assert ground gates for flat terrain
 				/****************************************************/
 				float thres_dbz, thres_elev, thres_bmh, thres_per;
-				// if (legType == "offshore"){
-				// 	thres_dbz=46;	// [dBZ]
-				// 	thres_elev=0.9;	// [deg]
-				// 	thres_bmh=0.7;	// [m]
-				// 	thres_per=1.0;	// [*100%]
-				// 	probGroundGates2_onshore("ZG","PG1", 
-				// 					thres_dbz, thres_elev, thres_bmh, thres_per); 
-				// }else{
-				// 	thres_dbz=46;	// [dBZ]
-				// 	thres_elev=0.0;	// [deg]
-				// 	thres_bmh=0.7;	// [km]
-				// 	thres_per=1.0;	// [*100%] (small numbers remove more gates below radar)
-				// 	probGroundGates2_onshore("ZG","PG1", 
-				// 						thres_dbz, thres_elev, thres_bmh, thres_per); 					
-				// }
+				if (legType == "offshore"){
+					thres_dbz=46;	// [dBZ]
+					thres_elev=0.9;	// [deg]
+					thres_bmh=0.7;	// [m]
+					thres_per=1.0;	// [*100%]
+					probGroundGates2_onshore("ZG","PG1", 
+									thres_dbz, thres_elev, thres_bmh, thres_per); 
+				}else{
+					thres_dbz=46;	// [dBZ]
+					thres_elev=0.0;	// [deg]
+					thres_bmh=0.7;	// [km]
+					thres_per=1.0;	// [*100%] (small numbers remove more gates below radar)
+					probGroundGates2_onshore("ZG","PG1", 
+										thres_dbz, thres_elev, thres_bmh, thres_per); 					
+				}
 
-				probGroundGatesMB("ZG","PG1", 0.2, "merged_dem_38-39_123-124_extended.tif");
+				// probGroundGatesMB("ZG","PG1", 0.2, "merged_dem_38-39_123-124_extended.tif");
 
 				make_ancillary_field("BMHG","beam_hgt");
 				make_ancillary_field("AZIM","azimuth");
@@ -196,12 +196,14 @@ bool AirborneRadarQC::processSweeps(const QString& typeQC)
 
 				/* Remove ground gates in reflectivity and Doppler vel
 				/****************************************************/
-				// thresholdData("ZG","PG1",">=", 0.0);
-				// thresholdData("ZG","DZ","<=", 6.0);
-				// thresholdData("EG","PG1",">=", 0.0);
-				// thresholdData("EG","DZ","<=", 6.0);
-				thresholdData("ZG","PG1",">=", 0.6);
-				thresholdData("EG","PG1",">=", 0.6);
+				thresholdData("ZG","PG1",">=", 0.0);
+				thresholdData("ZG","DZ","<=", 6.0);
+				thresholdData("EG","PG1",">=", 0.0);
+				thresholdData("EG","DZ","<=", 6.0);
+
+				/*MB function*/
+				// thresholdData("ZG","PG1",">=", 0.6);
+				// thresholdData("EG","PG1",">=", 0.6);
 
 
 				/* Remove isolated gates
