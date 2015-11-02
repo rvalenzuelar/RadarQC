@@ -64,8 +64,9 @@ if LEGTYPE=='onshore':
 	CFACDIR=home+'/P3_v2/cfac/c03/l03_r07_galt_ve'	
 elif LEGTYPE=='offshore':
 	CFACDIR=home+'/P3_v2/cfac/c03/l01_r07_galt_ve'	
-# OUTDIR=home+'/P3_v2/qced_prod/'+sys.argv[1]
-OUTDIR=home+'/P3_v2/foo'
+OUTDIR=home+'/P3_v2/qced_prod/'+sys.argv[1]
+# OUTDIR=home+'/P3_v2/foo'
+print "Input dir: "+INDIR
 print "Output dir: "+OUTDIR
 run_radarqc='./radarqc '+INDIR+' '+OUTDIR+' '+CFACDIR+' '+DTMFILE+' '+LEGTYPE
 var=os.system(run_radarqc)
